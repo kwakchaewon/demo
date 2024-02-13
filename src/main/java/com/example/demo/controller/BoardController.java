@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.entity.Board;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.service.BoardService;
+import jdk.nashorn.internal.runtime.options.Option;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("/board")
 @RestController
@@ -51,8 +53,8 @@ public class BoardController {
      * 게시글 상세
      */
     @GetMapping("/{id}")
-    public String detailBoard(@PathVariable("id") Integer id){
-        return "detailBoard API";
+    public Optional<Board> detailBoard(@PathVariable("id") Long id){
+        return boardService.findBoardById(id);
     }
 
     /**

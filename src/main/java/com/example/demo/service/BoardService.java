@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BoardService {
@@ -19,5 +20,9 @@ public class BoardService {
 
     public List<Board> findAllBoard(){
         return this.boardRepository.findAll();
+    }
+
+    public Optional<Board> findBoardById(Long id){
+        return this.boardRepository.findById(id);
     }
 }
