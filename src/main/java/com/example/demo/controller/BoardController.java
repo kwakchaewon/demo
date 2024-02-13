@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import com.example.demo.entity.Board;
+import com.example.demo.repository.BoardRepository;
 import com.example.demo.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,17 +9,26 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequestMapping("/board")
-@Controller
+@RestController
 //@RequiredArgsConstructor
 public class BoardController {
+
+    private final BoardService boardService;
+
+    public BoardController(BoardService boardService) {
+        this.boardService = boardService;
+    }
+
 
     /**
      *  게시판 목록
      */
     @GetMapping("/list")
-    public String getBoards(){
-        return "getBoards API";
+    public List<Board> getBoards(){
+        return boardService.findAllBoard();
     }
 
     /**
