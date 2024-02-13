@@ -27,8 +27,14 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+	//JPA
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// Maria DB
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
+
+	// JDBC
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 }
 
 tasks.named('bootBuildImage') {
