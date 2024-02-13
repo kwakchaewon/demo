@@ -43,4 +43,10 @@ public class BoardService {
         board.changeBoard(request.getTitle(), request.getContents());
         this.boardRepository.save(board);
     }
+
+    public String createBoard(CreateAndEditBoardRequest request){
+        Board board = new Board(request.getTitle(), request.getContents());
+        boardRepository.save(board);
+        return board.toString();
+    }
 }

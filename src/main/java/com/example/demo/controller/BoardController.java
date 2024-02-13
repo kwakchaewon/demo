@@ -46,8 +46,8 @@ public class BoardController {
      * 게시글 작성
      */
     @PostMapping("/write")
-    public String createBoardDone(){
-        return "createBoardDone API";
+    public String createBoardDone(@RequestBody CreateAndEditBoardRequest request){
+        return boardService.createBoard(request);
     }
 
     /**

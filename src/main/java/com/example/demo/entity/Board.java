@@ -27,4 +27,18 @@ public class Board {
         this.title = title;
         this.contents = contents;
     }
+
+    public Board(String title, String contents) {
+        this.title = title;
+        this.contents = contents;
+    }
+
+    @Override
+    public String toString() {
+        return "Board{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", contents='" + contents + '\'' +
+                '}';
+    }
 }
