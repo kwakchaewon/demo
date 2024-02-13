@@ -22,4 +22,9 @@ public class Board {
 
     @Column(nullable = true)
     private LocalDateTime createdAt;
+
+    public void changeBoard(String title, String contents){
+        this.title = title;
+        this.contents = contents;
+    }
 }

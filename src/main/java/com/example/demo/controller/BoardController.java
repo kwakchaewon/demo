@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.controller.request.CreateAndEditBoardRequest;
 import com.example.demo.entity.Board;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.service.BoardService;
@@ -53,7 +54,7 @@ public class BoardController {
      * 게시글 상세
      */
     @GetMapping("/{id}")
-    public Optional<Board> detailBoard(@PathVariable("id") Long id){
+    public Board detailBoard(@PathVariable("id") Long id) throws Exception {
         return boardService.findBoardById(id);
     }
 
@@ -76,8 +77,9 @@ public class BoardController {
     /**
      * 게시글 수정
      */
-    @PostMapping("update/{id}")
-    public String updateBoard(@PathVariable("id") Integer id){
-        return "updateBoardForm API";
+    @PutMapping("update/{id}")
+    public void updateBoard(@PathVariable("id") Long id,
+                              @RequestBody CreateAndEditBoardRequest request){
+        boardService.updateBoardById(id, request);
     }
 }

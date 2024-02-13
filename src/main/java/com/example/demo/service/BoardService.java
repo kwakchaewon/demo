@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.controller.request.CreateAndEditBoardRequest;
 import com.example.demo.entity.Board;
 import com.example.demo.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +23,24 @@ public class BoardService {
         return this.boardRepository.findAll();
     }
 
-    public Optional<Board> findBoardById(Long id){
-        return this.boardRepository.findById(id);
+    public Board findBoardById(Long id) {
+        Optional <Board> board = this.boardRepository.findById(id);
+        return board.get();
+
+//        if (board.isPresent()){
+//            return board.get();
+//        } else {
+//            throw new Exception("Data Not Found");
+//        }
     }
 
     public void deleteBoardById(Long id){
         this.boardRepository.deleteById(id);
+    }
+
+    public void updateBoardById(Long id, CreateAndEditBoardRequest request){
+        Board board = this.findBoardById(id);
+        board.changeBoard(request.getTitle(), request.getContents());
+        this.boardRepository.save(board);
     }
 }
