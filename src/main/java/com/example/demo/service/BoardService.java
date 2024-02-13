@@ -25,4 +25,8 @@ public class BoardService {
     public Optional<Board> findBoardById(Long id){
         return this.boardRepository.findById(id);
     }
+
+    public void deleteBoardById(Long id){
+        this.boardRepository.deleteById(id);
+    }
 }

@@ -61,8 +61,8 @@ public class BoardController {
      * 게시글 삭제
      */
     @DeleteMapping("/{id}")
-    public String deleteBoard(@PathVariable("id") Integer id){
-        return "deleteBoard API";
+    public void deleteBoard(@PathVariable("id") Long id){
+        boardService.deleteBoardById(id);
     }
 
     /**
