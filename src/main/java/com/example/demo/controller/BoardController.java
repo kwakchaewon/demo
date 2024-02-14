@@ -46,7 +46,7 @@ public class BoardController {
      * 게시글 작성
      */
     @PostMapping("/write")
-    public String createBoardDone(@RequestBody CreateAndEditBoardRequest request){
+    public Board createBoardDone(@RequestBody CreateAndEditBoardRequest request){
         return boardService.createBoard(request);
     }
 
@@ -69,7 +69,7 @@ public class BoardController {
     /**
      * 게시글 수정 폼
      */
-    @GetMapping("update/{id}")
+    @GetMapping("/update/{id}")
     public String updateBoardForm(@PathVariable("id") Integer id){
         return "updateBoardForm API";
     }
@@ -77,9 +77,9 @@ public class BoardController {
     /**
      * 게시글 수정
      */
-    @PutMapping("update/{id}")
-    public void updateBoard(@PathVariable("id") Long id,
+    @PutMapping("/{id}")
+    public Board updateBoard(@PathVariable("id") Long id,
                               @RequestBody CreateAndEditBoardRequest request){
-        boardService.updateBoardById(id, request);
+        return boardService.updateBoardById(id, request);
     }
 }

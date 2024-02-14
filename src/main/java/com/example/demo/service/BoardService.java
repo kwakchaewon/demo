@@ -37,15 +37,14 @@ public class BoardService {
         this.boardRepository.deleteById(id);
     }
 
-    public void updateBoardById(Long id, CreateAndEditBoardRequest request){
+    public Board updateBoardById(Long id, CreateAndEditBoardRequest request){
         Board board = this.findBoardById(id);
         board.changeBoard(request.getTitle(), request.getContents());
-        this.boardRepository.save(board);
+        return this.boardRepository.save(board);
     }
 
-    public String createBoard(CreateAndEditBoardRequest request){
+    public Board createBoard(CreateAndEditBoardRequest request){
         Board board = new Board(request.getTitle(), request.getContents());
-        boardRepository.save(board);
-        return board.toString();
+        return boardRepository.save(board);
     }
 }
