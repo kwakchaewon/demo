@@ -14,7 +14,6 @@ import java.util.Optional;
 public class BoardService {
     private final BoardRepository boardRepository;
 
-    @Autowired
     public BoardService(BoardRepository boardRepository) {
         this.boardRepository = boardRepository;
     }
