@@ -3,13 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.controller.request.CreateAndEditBoardRequest;
 import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
-import com.example.demo.repository.BoardRepository;
 import com.example.demo.service.BoardService;
-import jdk.nashorn.internal.runtime.options.Option;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +11,6 @@ import java.util.Optional;
 
 @RequestMapping("/board")
 @RestController
-//@RequiredArgsConstructor
 public class BoardController {
 
     private final BoardService boardService;

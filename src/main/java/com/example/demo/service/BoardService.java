@@ -1,18 +1,14 @@
 package com.example.demo.service;
 
-import com.example.demo.controller.request.CreateAndEditBoardRequest;
 import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.repository.BoardRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BoardService {
@@ -51,12 +47,6 @@ public class BoardService {
                 .build();
 
         return boardDto;
-
-//        if (board.isPresent()){
-//            return board.get();
-//        } else {
-//            throw new Exception("Data Not Found");
-//        }
     }
 
     public void deleteBoardById(Long id){
