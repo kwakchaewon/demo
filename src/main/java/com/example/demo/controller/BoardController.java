@@ -23,13 +23,13 @@ public class BoardController {
     }
 
 
-    /**
-     *  게시판 목록
-     */
-    @GetMapping("/list")
-    public List<BoardDto> getBoards(){
-        return boardService.findAllBoard();
-    }
+//    /**
+//     *  게시판 목록
+//     */
+//    @GetMapping("/list")
+//    public List<BoardDto> getBoards(){
+//        return boardService.findAllBoard();
+//    }
 
     /**
      * 게시글 작성폼
@@ -83,11 +83,10 @@ public class BoardController {
     /**
      *  페이징 기반 게시판 목록
      */
-    @GetMapping("/page/list")
+    @GetMapping("/list")
     public Header<List<BoardDto>> pagingBoardList(
-            @PageableDefault(sort = {"id"}) Pageable pageable
+            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
     ) {
         return boardService.getBoardList(pageable);
     }
-
 }
