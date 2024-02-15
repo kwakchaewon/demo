@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,8 +69,12 @@ public class BoardService {
         return this.boardRepository.save(board);
     }
 
-    public Board createBoard(CreateAndEditBoardRequest request){
-        Board board = new Board(request.getTitle(), request.getContents());
+    public Board createBoard(BoardDto boardDto){
+        Board board = Board.builder()
+                .title(boardDto.getTitle())
+                .contents(boardDto.getContents())
+                .createdAt(LocalDateTime.now())
+                .build();
         return boardRepository.save(board);
     }
 }
