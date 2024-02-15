@@ -1,17 +1,16 @@
 package com.example.demo.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Board {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,7 +21,7 @@ public class Board {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String contents;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     public void changeBoard(String title, String contents){

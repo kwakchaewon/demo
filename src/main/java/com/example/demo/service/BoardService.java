@@ -1,12 +1,15 @@
 package com.example.demo.service;
 
 import com.example.demo.controller.request.CreateAndEditBoardRequest;
+import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,8 +21,23 @@ public class BoardService {
         this.boardRepository = boardRepository;
     }
 
-    public List<Board> findAllBoard(){
-        return this.boardRepository.findAll();
+    public List<BoardDto> findAllBoard(){
+        List<Board> boards =  this.boardRepository.findAll();
+        List<BoardDto> boardDtos = new ArrayList<>();
+
+        for (Board entity : boards) {
+            BoardDto dto = BoardDto.builder()
+                    .id(entity.getId())
+                    .title(entity.getTitle())
+                    .contents(entity.getContents())
+//                    .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
+                    .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
+                    .build();
+
+            boardDtos.add(dto);
+        }
+
+        return boardDtos;
     }
 
     public Board findBoardById(Long id) {

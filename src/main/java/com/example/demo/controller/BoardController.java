@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.controller.request.CreateAndEditBoardRequest;
+import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.service.BoardService;
@@ -30,7 +31,7 @@ public class BoardController {
      *  게시판 목록
      */
     @GetMapping("/list")
-    public List<Board> getBoards(){
+    public List<BoardDto> getBoards(){
         return boardService.findAllBoard();
     }
 
