@@ -80,7 +80,7 @@ public class BoardController {
      */
     @PutMapping("/{id}")
     public Board updateBoard(@PathVariable("id") Long id,
-                              @RequestBody CreateAndEditBoardRequest request){
-        return boardService.updateBoardById(id, request);
+                             @RequestBody BoardDto boardDto){
+        return boardService.updateBoardById(id, boardDto);
     }
 }

@@ -63,9 +63,10 @@ public class BoardService {
         this.boardRepository.deleteById(id);
     }
 
-    public Board updateBoardById(Long id, CreateAndEditBoardRequest request){
+    public Board updateBoardById(Long id, BoardDto boardDto){
         Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
-        board.changeBoard(request.getTitle(), request.getContents());
+        board.setTitle(boardDto.getTitle());
+        board.setContents(boardDto.getContents());
         return this.boardRepository.save(board);
     }
 
