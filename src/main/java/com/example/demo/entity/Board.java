@@ -32,6 +32,7 @@ public class Board {
     public Board(String title, String contents) {
         this.title = title;
         this.contents = contents;
+        this.createdAt = LocalDateTime.now();
     }
 
     @Override
