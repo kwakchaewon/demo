@@ -3,7 +3,10 @@ package com.example.demo.controller;
 import com.example.demo.controller.request.CreateAndEditBoardRequest;
 import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
+import com.example.demo.model.Header;
 import com.example.demo.service.BoardService;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -76,4 +79,15 @@ public class BoardController {
                              @RequestBody BoardDto boardDto){
         return boardService.updateBoardById(id, boardDto);
     }
+
+    /**
+     *  페이징 기반 게시판 목록
+     */
+    @GetMapping("/page/list")
+    public Header<List<BoardDto>> pagingBoardList(
+            @PageableDefault(sort = {"id"}) Pageable pageable
+    ) {
+        return boardService.getBoardList(pageable);
+    }
+
 }

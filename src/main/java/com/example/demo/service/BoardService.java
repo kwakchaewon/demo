@@ -2,7 +2,11 @@ package com.example.demo.service;
 
 import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
+import com.example.demo.model.Header;
+import com.example.demo.model.Pagination;
 import com.example.demo.repository.BoardRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -68,4 +72,30 @@ public class BoardService {
                 .build();
         return boardRepository.save(board);
     }
+
+    public Header<List<BoardDto>> getBoardList(Pageable pageable) {
+        List<BoardDto> dtos = new ArrayList<>();
+
+        Page<Board> boardEntities = boardRepository.findAllByOrderByIdDesc(pageable);
+        for (Board entity : boardEntities) {
+            BoardDto dto = BoardDto.builder()
+                    .id(entity.getId())
+                    .title(entity.getTitle())
+                    .contents(entity.getContents())
+                    .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
+                    .build();
+
+            dtos.add(dto);
+        }
+
+        Pagination pagination = new Pagination(
+                (int) boardEntities.getTotalElements()
+                , pageable.getPageNumber() + 1
+                , pageable.getPageSize()
+                , 10
+        );
+
+        return Header.OK(dtos, pagination);
+    }
+
 }
