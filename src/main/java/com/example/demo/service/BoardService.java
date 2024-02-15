@@ -40,9 +40,16 @@ public class BoardService {
         return boardDtos;
     }
 
-    public Board findBoardById(Long id) {
-        Optional <Board> board = this.boardRepository.findById(id);
-        return board.get();
+    public BoardDto findBoardById(Long id) {
+        Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+        BoardDto boardDto =  BoardDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .contents(board.getContents())
+                .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
+                .build();
+
+        return boardDto;
 
 //        if (board.isPresent()){
 //            return board.get();
@@ -56,7 +63,7 @@ public class BoardService {
     }
 
     public Board updateBoardById(Long id, CreateAndEditBoardRequest request){
-        Board board = this.findBoardById(id);
+        Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
         board.changeBoard(request.getTitle(), request.getContents());
         return this.boardRepository.save(board);
     }
