@@ -9,19 +9,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class DemoApplicationTests {
-
-	@Autowired
-	private BoardService boardService;
-
 	@Autowired
 	private BoardRepository boardRepository;
 
-	@Test
-	void contextLoads() {
-	}
-
 	/**
-	 *  Board 테이블 테스트 데이터 생성
+	 *  Board 테스트 데이터 300개 생성
 	 */
 	@Test
 	void createBoard(){
