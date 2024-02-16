@@ -1,10 +1,9 @@
 package com.example.demo;
 
 import com.example.demo.entity.Board;
-import com.example.demo.entity.User;
+import com.example.demo.entity.Member;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.service.BoardService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,26 +39,26 @@ class DemoApplicationTests {
 	@Test
 	void createTestUser(){
 		String encPw = passwordEncoder.encode("admin");
-		User testUser = User.builder()
+		Member testMember = Member.builder()
 				.userId("admin")
 				.userPw(encPw)
 				.userName("admin")
 				.build();
 
-		userRepository.save(testUser);
+		userRepository.save(testMember);
 	}
 
 	/**
 	 * 유저 정보 검색 후 비밀번호 비교
 	 */
 	@Test
-	void test_2(){
+	void checkPw(){
 		String encPassword = passwordEncoder.encode("admin");
 
-		User user = userRepository.findByUserId("admin")
+		Member member = userRepository.findByUserId("admin")
 				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-		assertThat(user.getUserPw()).isEqualTo(encPassword);
+		assertThat(member.getUserPw()).isEqualTo(encPassword);
 	}
 
 }
