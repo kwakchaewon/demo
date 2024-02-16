@@ -35,6 +35,15 @@ dependencies {
 
 	// JDBC
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+	// spring security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// java 검증 api 제공
+	implementation 'javax.validation:validation-api:2.0.1.Final'
+
+	// jwt 기능 제공
+	implementation 'com.auth0:java-jwt:3.14.0'
 }
 
 tasks.named('bootBuildImage') {
