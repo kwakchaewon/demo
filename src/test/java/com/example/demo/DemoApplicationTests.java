@@ -4,9 +4,13 @@ import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.MemberService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,9 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DemoApplicationTests {
 	@Autowired
 	private BoardRepository boardRepository;
-
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	MemberService memberService;
+
+	@Autowired
+	AuthenticationManager authenticationManager;
+
 	BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	/**
@@ -53,12 +62,25 @@ class DemoApplicationTests {
 	 */
 	@Test
 	void checkPw(){
+		/*
 		String encPassword = passwordEncoder.encode("admin");
 
 		Member member = userRepository.findByUserId("admin")
 				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
 		assertThat(member.getUserPw()).isEqualTo(encPassword);
-	}
+		*/
 
+		String userId = "admin";
+		String userPw = "admin";
+		UserDetails user = memberService.loadUserByUsername(userId);
+
+		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, userPw);
+		authenticationManager.authenticate(authenticationToken);
+
+		assertThat(authenticationToken.getCredentials()).isEqualTo(userPw);
+
+		System.out.println("getCredentials: " + authenticationToken.getCredentials());
+		System.out.println("userPw: " + userPw);
+	}
 }
