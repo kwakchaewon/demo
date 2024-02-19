@@ -24,6 +24,9 @@ public class Board {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @ManyToOne
+    private Member author;
+
     public void changeBoard(String title, String contents){
         this.title = title;
         this.contents = contents;
@@ -33,6 +36,13 @@ public class Board {
         this.title = title;
         this.contents = contents;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public Board(String title, String contents, Member member) {
+        this.title = title;
+        this.contents = contents;
+        this.createdAt = LocalDateTime.now();
+        this.author = member;
     }
 
     @Override
