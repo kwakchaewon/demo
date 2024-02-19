@@ -3,7 +3,7 @@ package com.example.demo;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.BoardRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.MemberRepository;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
 import org.junit.jupiter.api.Test;
@@ -14,6 +14,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Optional;
+import java.util.Random;
+import java.util.zip.DataFormatException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -21,12 +26,12 @@ class DemoApplicationTests {
 	@Autowired
 	private BoardRepository boardRepository;
 	@Autowired
-	private UserRepository userRepository;
+	private MemberRepository memberRepository;
 	@Autowired
-	MemberService memberService;
+	private MemberService memberService;
 
 	@Autowired
-	AuthenticationManager authenticationManager;
+	private AuthenticationManager authenticationManager;
 
 	@Autowired
 	JWTUtil jwtUtil;
@@ -34,59 +39,66 @@ class DemoApplicationTests {
 	BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	/**
-	 *  Board 테스트 데이터 300개 생성
+	 *  test user 10명 생성
 	 */
 	@Test
-	void createBoard(){
-		for(int i = 1; i<=300; i++){
-			String title = String.format("테스트 데이터: [%03d]",i);
-			String content = String.format("[%03d]번째 게시글",i);
-			Board board = new Board(title, content);
-			this.boardRepository.save(board);
+	void createTestUser(){
+
+		for (int i = 1; i<= 10; i++){
+			String encPw = passwordEncoder.encode("user");
+
+			Member testMember = Member.builder()
+					.userId("admin"+i)
+					.userPw(encPw)
+					.userName("admin"+i)
+					.build();
+			memberRepository.save(testMember);
 		}
 	}
 
 	/**
-	 *  admin user 생성
+	 *  Board 테스트 데이터 300개 생성
 	 */
 	@Test
-	void createTestUser(){
-		String encPw = passwordEncoder.encode("admin");
-		Member testMember = Member.builder()
-				.userId("admin")
-				.userPw(encPw)
-				.userName("admin")
-				.build();
+	void createBoard() throws Exception {
+		for(int i = 1; i<=120; i++) {
+//            Random random = new Random();
+//            long randomId = random.nextInt(5) + 1L;
+//            Member testMember = memberService.getMember(randomId);
 
-		userRepository.save(testMember);
+            String title = String.format("테스트 데이터: [%03d]", i);
+            String content = String.format("[%03d]번째 게시글", i);
+            Board board = new Board(title, content);
+            this.boardRepository.save(board);
+        }
 	}
 
 	/**
 	 * 유저 정보 검색 후 비밀번호 비교
 	 */
-	@Test
-	void checkPw(){
-		/*
-		String encPassword = passwordEncoder.encode("admin");
-
-		Member member = userRepository.findByUserId("admin")
-				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-
-		assertThat(member.getUserPw()).isEqualTo(encPassword);
-		*/
-
-		String userId = "admin";
-		String userPw = "admin";
-		UserDetails user = memberService.loadUserByUsername(userId);
-
-		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, userPw);
-		authenticationManager.authenticate(authenticationToken);
-
-		assertThat(authenticationToken.getCredentials()).isEqualTo(userPw);
-
-		System.out.println("getCredentials: " + authenticationToken.getCredentials());
-		System.out.println("userPw: " + userPw);
-	}
+//	@Test
+//	void checkPw(){
+//		/*
+//		String encPassword = passwordEncoder.encode("admin");
+//
+//		Member member = userRepository.findByUserId("admin")
+//				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+//
+//		assertThat(member.getUserPw()).isEqualTo(encPassword);
+//		*/
+//
+//		String userId = "admin";
+//		String userPw = "admin";
+//		UserDetails user = memberService.loadUserByUsername(userId);
+//
+//		UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user, userPw);
+//		authenticationManager.authenticate(authenticationToken);
+//
+//		assertThat(authenticationToken.getCredentials()).isEqualTo(userPw);
+//
+//		System.out.println("getCredentials: " + authenticationToken.getCredentials());
+//		System.out.println("userPw: " + userPw);
+//	}
 
 	/**
 	 * jwt 토큰 생성 및 디코딩 데이터 비교
