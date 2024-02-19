@@ -5,6 +5,7 @@ import com.example.demo.entity.Member;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.MemberService;
+import com.example.demo.util.JWTUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +27,9 @@ class DemoApplicationTests {
 
 	@Autowired
 	AuthenticationManager authenticationManager;
+
+	@Autowired
+	JWTUtil jwtUtil;
 
 	BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -82,5 +86,20 @@ class DemoApplicationTests {
 
 		System.out.println("getCredentials: " + authenticationToken.getCredentials());
 		System.out.println("userPw: " + userPw);
+	}
+
+	/**
+	 * jwt 토큰 생성 및 디코딩 데이터 비교
+	 */
+	@Test
+	void createToken(){
+		String userId = "admin";
+		String userName = "admin";
+
+		String token = jwtUtil.createToken(userId, userName);
+
+		System.out.println("Token : " + token);
+
+		assertThat(jwtUtil.decodeToken(token).getClaim("userName").asString()).isEqualTo(userName);
 	}
 }
