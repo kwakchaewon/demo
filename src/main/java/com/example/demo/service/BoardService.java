@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
+import com.example.demo.entity.Member;
 import com.example.demo.model.Header;
 import com.example.demo.model.Pagination;
 import com.example.demo.repository.BoardRepository;
@@ -64,11 +65,12 @@ public class BoardService {
         return this.boardRepository.save(board);
     }
 
-    public Board createBoard(BoardDto boardDto){
+    public Board createBoard(BoardDto boardDto, Member _author){
         Board board = Board.builder()
                 .title(boardDto.getTitle())
                 .contents(boardDto.getContents())
                 .createdAt(LocalDateTime.now())
+                .author(_author)
                 .build();
         return boardRepository.save(board);
     }

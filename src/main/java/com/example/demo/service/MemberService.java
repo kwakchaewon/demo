@@ -45,5 +45,16 @@ public class MemberService implements UserDetailsService {
             throw new NoSuchElementException("Member is not found");
         }
     }
+
+    public Member getMemberByUserId(String userId){
+        Optional<Member> _member = this.memberRepository.findByUserId(userId);
+
+        if(_member.isPresent()){
+            return _member.get();
+        }else {
+            throw new NoSuchElementException("Member is not found");
+        }
+    }
+
 }
 

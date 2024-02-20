@@ -3,10 +3,16 @@ package com.example.demo.controller;
 import com.example.demo.controller.request.CreateAndEditBoardRequest;
 import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
+import com.example.demo.entity.Member;
 import com.example.demo.model.Header;
 import com.example.demo.service.BoardService;
+import com.example.demo.service.MemberService;
+import com.example.demo.util.JWTUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +22,14 @@ import java.util.Optional;
 @RestController
 public class BoardController {
 
-    private final BoardService boardService;
+    @Autowired
+    private BoardService boardService;
+
+    @Autowired
+    private MemberService memberService;
+
+    @Autowired
+    JWTUtil jwtUtil;
 
     public BoardController(BoardService boardService) {
         this.boardService = boardService;
@@ -43,8 +56,13 @@ public class BoardController {
      * 게시글 작성
      */
     @PostMapping("/write")
-    public Board createBoardDone(@RequestBody BoardDto boardDto){
-        return boardService.createBoard(boardDto);
+    public Board createBoardDone(@RequestBody BoardDto boardDto,
+                                 @RequestHeader("Authorization") String authorizationHeader){
+
+        String token = authorizationHeader.substring(7);
+        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+        Member _member = this.memberService.getMemberByUserId(_userId);
+        return this.boardService.createBoard(boardDto, _member);
     }
 
     /**
