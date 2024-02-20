@@ -45,7 +45,7 @@ class DemoApplicationTests {
 	void createTestUser(){
 
 		for (int i = 1; i<= 10; i++){
-			String encPw = passwordEncoder.encode("user");
+			String encPw = passwordEncoder.encode("admin"+i);
 
 			Member testMember = Member.builder()
 					.userId("admin"+i)
