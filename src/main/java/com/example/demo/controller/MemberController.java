@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.MemberDto;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,5 +48,11 @@ public class MemberController {
         result.put("user_role", loginUser.getAuthorities().stream().findFirst().get().getAuthority());
 
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/regist")
+    public String saveMember(@RequestBody @Valid MemberDto memberDto) throws Exception{
+        memberService.saveMember(memberDto);
+        return "success";
     }
 }
