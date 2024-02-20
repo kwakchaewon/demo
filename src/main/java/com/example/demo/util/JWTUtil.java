@@ -15,7 +15,7 @@ import java.util.Date;
 @Component
 public class JWTUtil {
     @Value("${jwt.secret}")
-    String secret;
+    private String secret;
 
     public String createToken(String userId, String userName) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -24,6 +24,8 @@ public class JWTUtil {
                 .withClaim("userId", userId)
                 .withClaim("userName", userName)
                 .withIssuedAt(new Date())
+//                .withExpiresAt(new Date(System.currentTimeMillis()+3000)) // 만료시간: 30 sec
+                .withExpiresAt(new Date(System.currentTimeMillis()+180000)) // 만료시간: 30 min
                 .sign(algorithm);
     }
 
@@ -43,4 +45,5 @@ public class JWTUtil {
 
         return null;
     }
+
 }
