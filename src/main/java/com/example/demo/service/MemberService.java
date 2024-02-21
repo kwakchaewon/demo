@@ -28,7 +28,9 @@ import java.util.Optional;
 @Service
 public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
-    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
+
+//    PasswordEncoder   = new BCryptPasswordEncoder();
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -66,20 +68,20 @@ public class MemberService implements UserDetailsService {
 
     @Transactional
     public void saveMember(MemberDto memberDto) throws Exception {
-        this.validateMember(memberDto.getUserId());
+//        this.validateMember(memberDto.getUserId());
         Member newMember = Member.builder()
                 .userName(memberDto.getUserName())
                 .userId(memberDto.getUserId())
-                .userPw(passwordEncoder .encode(memberDto.getUserPw()))
+                .userPw(passwordEncoder.encode(memberDto.getUserPw()))
                 .build();
 
     memberRepository.save(newMember);
     }
 
-    private void validateMember(String userId) throws DuplicateMemberException {
-        if(memberRepository.existByUserName(userId)){
-            throw new DuplicateMemberException("중복된 id");
-        }
-    }
+//    private void validateMember(String userId) throws DuplicateMemberException {
+//        if(memberRepository.existByUserName(userId)){
+//            throw new DuplicateMemberException("중복된 id");
+//        }
+//    }
 }
 
