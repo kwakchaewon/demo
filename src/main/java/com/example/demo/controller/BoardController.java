@@ -79,7 +79,17 @@ public class BoardController {
      * 게시글 삭제
      */
     @DeleteMapping("/{id}")
-    public void deleteBoard(@PathVariable("id") Long id){
+    public void deleteBoard(@PathVariable("id") Long id,
+                            @RequestHeader("Authorization") String authorizationHeader){
+        String token = authorizationHeader.substring(7);
+        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+
+        Board board = this.boardService.getBoard(id);
+
+        if (!board.getAuthor().getUserId().equals(_userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 권한이 없습니다.");
+        }
+
         boardService.deleteBoardById(id);
     }
 
