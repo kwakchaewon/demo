@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BoardService {
@@ -84,6 +85,7 @@ public class BoardService {
                     .id(entity.getId())
                     .title(entity.getTitle())
                     .contents(entity.getContents())
+                    .author(entity.getAuthor())
                     .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
                     .build();
 
@@ -98,6 +100,11 @@ public class BoardService {
         );
 
         return Header.OK(dtos, pagination);
+    }
+
+    public Board getBoard(Long id){
+        Optional<Board> board = this.boardRepository.findById(id);
+        return board.get();
     }
 
 }

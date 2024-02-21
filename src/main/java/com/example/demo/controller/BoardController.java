@@ -11,9 +11,11 @@ import com.example.demo.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -94,7 +96,17 @@ public class BoardController {
      */
     @PutMapping("/{id}")
     public Board updateBoard(@PathVariable("id") Long id,
-                             @RequestBody BoardDto boardDto){
+                             @RequestBody BoardDto boardDto,
+                             @RequestHeader("Authorization") String authorizationHeader){
+        String token = authorizationHeader.substring(7);
+        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+
+        Board board = this.boardService.getBoard(id);
+
+        if (!board.getAuthor().getUserId().equals(_userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        }
+
         return boardService.updateBoardById(id, boardDto);
     }
 
