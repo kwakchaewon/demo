@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -87,6 +88,7 @@ public class BoardController {
         Board board = this.boardService.getBoard(id);
 
         if (!board.getAuthor().getUserId().equals(_userId)) {
+
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 권한이 없습니다.");
         }
 
@@ -128,5 +130,24 @@ public class BoardController {
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
     ) {
         return boardService.getBoardList(pageable);
+    }
+
+    /**
+     *  게시글 수정 권한 검증
+     */
+    @GetMapping("/{id}/updatecheck")
+    public ResponseEntity<String> checkUpdateAuth(@PathVariable("id") Long id,
+                                                  @RequestHeader("Authorization") String authorizationHeader
+    ){
+        String token = authorizationHeader.substring(7);
+        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+
+        Board board = this.boardService.getBoard(id);
+
+        if (!board.getAuthor().getUserId().equals(_userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        }else{
+            return ResponseEntity.ok("수정 창으로 이동합니다.");
+        }
     }
 }
