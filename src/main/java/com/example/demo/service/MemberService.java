@@ -70,7 +70,7 @@ public class MemberService implements UserDetailsService {
     public void saveMember(MemberDto memberDto) throws Exception {
 //        this.validateMember(memberDto.getUserId());
         Member newMember = Member.builder()
-                .userName(memberDto.getUserName())
+                .email(memberDto.getEmail())
                 .userId(memberDto.getUserId())
                 .userPw(passwordEncoder.encode(memberDto.getUserPw()))
                 .build();

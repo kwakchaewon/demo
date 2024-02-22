@@ -18,6 +18,10 @@ public class Member {
 
     @Column(unique = true)
     private String userId;
+
+    @Column(nullable = false)
     private String userPw;
-    private String userName;
+
+    @Column(length = 100, unique = true, nullable = false)
+    private String email;
 }
