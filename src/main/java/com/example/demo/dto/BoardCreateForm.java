@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @Builder
 public class BoardCreateForm {
+    Long id;
 //    @NotEmpty(message = "제목은 필수 항목입니다.")
     @Size(max = 200)
     private String title;

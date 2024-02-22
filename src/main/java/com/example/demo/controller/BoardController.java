@@ -88,8 +88,8 @@ public class BoardController {
             String token = authorizationHeader.substring(7);
             String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
             Member _member = this.memberService.getMemberByUserId(_userId);
-            this.boardService.createBoard(boardCreateForm, _member);
-            return ResponseEntity.ok("게시글이 성공적으로 작성되었습니다.");
+            Board newBoard = this.boardService.createBoard(boardCreateForm, _member);
+            return ResponseEntity.ok(Long.toString(newBoard.getId()));
         }
     }
 
