@@ -91,9 +91,6 @@ public class BoardController {
             this.boardService.createBoard(boardCreateForm, _member);
             return ResponseEntity.ok("게시글이 성공적으로 작성되었습니다.");
         }
-
-
-
     }
 
     /**
