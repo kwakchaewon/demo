@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.controller.request.CreateAndEditBoardRequest;
+import com.example.demo.dto.BoardCreateForm;
 import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
@@ -15,14 +16,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
 @RequestMapping("/board")
 @RestController
+@Validated
 public class BoardController {
 
     @Autowired
@@ -58,14 +65,35 @@ public class BoardController {
     /**
      * 게시글 작성
      */
-    @PostMapping("/write")
-    public Board createBoardDone(@RequestBody BoardDto boardDto,
-                                 @RequestHeader("Authorization") String authorizationHeader){
+//    @PostMapping("/write")
+//    public Board createBoardDone(@RequestBody @Valid BoardDto boardDto,
+//                                 @RequestHeader("Authorization") String authorizationHeader){
+//
+//        String token = authorizationHeader.substring(7);
+//        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+//        Member _member = this.memberService.getMemberByUserId(_userId);
+//        return this.boardService.createBoard(boardDto, _member);
+//    }
 
-        String token = authorizationHeader.substring(7);
-        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
-        Member _member = this.memberService.getMemberByUserId(_userId);
-        return this.boardService.createBoard(boardDto, _member);
+    @PostMapping("/write")
+    public ResponseEntity<String> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
+                                                  @RequestHeader("Authorization") String authorizationHeader){
+        // title, contents 빈칸에 대한 유효성 검사
+        if (boardCreateForm.getTitle() == null || boardCreateForm.getTitle().isEmpty()){
+            return ResponseEntity.badRequest().body("게시글 제목은 필수입니다.");
+        }
+        else if(boardCreateForm.getContents() == null || boardCreateForm.getContents().isEmpty()){
+            return ResponseEntity.badRequest().body("게시글 내용은 필수입니다.");
+        } else {
+            String token = authorizationHeader.substring(7);
+            String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+            Member _member = this.memberService.getMemberByUserId(_userId);
+            this.boardService.createBoard(boardCreateForm, _member);
+            return ResponseEntity.ok("게시글이 성공적으로 작성되었습니다.");
+        }
+
+
+
     }
 
     /**
