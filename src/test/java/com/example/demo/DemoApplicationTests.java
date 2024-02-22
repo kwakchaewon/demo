@@ -6,7 +6,10 @@ import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.MemberRepository;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +25,7 @@ import java.util.zip.DataFormatException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DemoApplicationTests {
 	@Autowired
 	private BoardRepository boardRepository;
@@ -42,7 +46,17 @@ class DemoApplicationTests {
 	 *  test user 10명 생성
 	 */
 	@Test
+	@Order(1)
 	void createTestUser(){
+//		String encPw = passwordEncoder.encode("admin");
+//
+//		Member testMember = Member.builder()
+//				.userId("admin")
+//				.userPw(encPw)
+//				.email("admin@naver.com")
+//				.build();
+//
+//		memberRepository.save(testMember);
 
 		for (int i = 1; i<= 10; i++){
 			String encPw = passwordEncoder.encode("admin"+i);
@@ -50,25 +64,24 @@ class DemoApplicationTests {
 			Member testMember = Member.builder()
 					.userId("admin"+i)
 					.userPw(encPw)
-					.userName("admin"+i)
+					.email("admin" + i + "@naver.com")
 					.build();
-			memberRepository.save(testMember);
-		}
+			memberRepository.save(testMember);}
 	}
 
 	/**
 	 *  Board 테스트 데이터 300개 생성
 	 */
 	@Test
+	@Order(2)
 	void createBoard() throws Exception {
 		for(int i = 1; i<=120; i++) {
-//            Random random = new Random();
-//            long randomId = random.nextInt(5) + 1L;
-//            Member testMember = memberService.getMember(randomId);
-
+            Random random = new Random();
+            long randomId = random.nextInt(5) + 1L;
+            Member testMember = memberService.getMember(randomId);
             String title = String.format("테스트 데이터: [%03d]", i);
             String content = String.format("[%03d]번째 게시글", i);
-            Board board = new Board(title, content);
+            Board board = new Board(title, content, testMember);
             this.boardRepository.save(board);
         }
 	}
