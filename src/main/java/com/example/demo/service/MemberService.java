@@ -38,8 +38,8 @@ public class MemberService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-//        Member memberEntity = memberRepository.findByUserId(username)   // JPA
-        Member memberEntity = memberJpqlRepository.findMemberById(username) //JPQL
+        Member memberEntity = memberRepository.findByUserId(username)   // JPA
+//        Member memberEntity = memberJpqlRepository.findMemberById(username) //JPQL
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         if (memberEntity.getUserId().equals(username)) {
