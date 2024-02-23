@@ -12,7 +12,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByUserId(String userId);
 //    boolean existByUserName(String userName);
 //    boolean existByUserId(String userId);
-
     @Modifying
     @Query(value = "INSERT INTO member (user_id, user_pw, email) VALUES (:userId, :userPw, :email)",nativeQuery = true)
     void insertMember(@Param("userId") String userId, @Param("userPw") String userPw, @Param("email")String email);

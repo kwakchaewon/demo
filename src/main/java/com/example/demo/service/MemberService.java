@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.MemberDto;
 import com.example.demo.entity.Member;
+import com.example.demo.repository.MemberJpqlRepository;
 import com.example.demo.repository.MemberRepository;
 import javassist.bytecode.DuplicateMemberException;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import java.util.Optional;
 @Service
 public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
+    private final MemberJpqlRepository memberJpqlRepository;
 //    private final PasswordEncoder passwordEncoder;
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -36,7 +38,8 @@ public class MemberService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        Member memberEntity = memberRepository.findByUserId(username)
+//        Member memberEntity = memberRepository.findByUserId(username)   // JPA
+        Member memberEntity = memberJpqlRepository.findMemberById(username) //JPQL
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         if (memberEntity.getUserId().equals(username)) {
