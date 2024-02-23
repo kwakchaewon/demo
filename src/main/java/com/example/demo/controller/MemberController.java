@@ -51,7 +51,7 @@ public class MemberController {
     }
 
     @PostMapping("/regist")
-    public String saveMember(@RequestBody @Valid MemberDto memberDto) throws Exception{
+    public String saveMember(@RequestBody MemberDto memberDto) throws Exception{
         memberService.saveMember(memberDto);
         return "success";
     }
