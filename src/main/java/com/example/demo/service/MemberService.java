@@ -68,15 +68,21 @@ public class MemberService implements UserDetailsService {
 
     @Transactional
     public void saveMember(MemberDto memberDto) throws Exception {
-//        this.validateMember(memberDto.getUserId());
-        Member newMember = Member.builder()
-                .email(memberDto.getEmail())
-                .userId(memberDto.getUserId())
-                .userPw(passwordEncoder.encode(memberDto.getUserPw()))
-                .build();
 
-    memberRepository.save(newMember);
+        // 1. JPA 기반 회원가입
+//        Member newMember = Member.builder()
+//                .email(memberDto.getEmail())
+//                .userId(memberDto.getUserId())
+//                .userPw(passwordEncoder.encode(memberDto.getUserPw()))
+//                .build();
+//
+//        memberRepository.save(newMember);
+
+        // 2. Native Query 기반 회원가입
+        memberRepository.insertMember(memberDto.getUserId(), passwordEncoder.encode(memberDto.getUserPw()), memberDto.getEmail());
     }
+
+
 
 //    private void validateMember(String userId) throws DuplicateMemberException {
 //        if(memberRepository.existByUserName(userId)){
