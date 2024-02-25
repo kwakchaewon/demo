@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.BoardCreateForm;
 import com.example.demo.dto.BoardDto;
+import com.example.demo.dto.BoardResponse;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.model.Header;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,14 +69,28 @@ public class BoardService {
         return this.boardRepository.save(board);
     }
 
-    public Board createBoard(BoardCreateForm boardCreateForm, Member _author){
+//    public Board createBoard(BoardCreateForm boardCreateForm, Member _author){
+//        Board board = Board.builder()
+//                .title(boardCreateForm.getTitle())
+//                .contents(boardCreateForm.getContents())
+//                .createdAt(LocalDateTime.now())
+//                .author(_author)
+//                .build();
+//        return boardRepository.save(board);
+//    }
+
+    public BoardResponse createBoard(BoardCreateForm boardCreateForm, Member _author){
+
+        // 1. board create
         Board board = Board.builder()
                 .title(boardCreateForm.getTitle())
                 .contents(boardCreateForm.getContents())
                 .createdAt(LocalDateTime.now())
                 .author(_author)
                 .build();
-        return boardRepository.save(board);
+
+        Long id = boardRepository.save(board).getId();
+        return new BoardResponse(id,true, "successfully created", board);
     }
 
     public Header<List<BoardDto>> getBoardList(Pageable pageable) {

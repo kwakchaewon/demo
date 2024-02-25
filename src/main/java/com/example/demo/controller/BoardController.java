@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
-import com.example.demo.controller.request.CreateAndEditBoardRequest;
 import com.example.demo.dto.BoardCreateForm;
 import com.example.demo.dto.BoardDto;
+import com.example.demo.dto.BoardResponse;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.model.Header;
@@ -14,16 +14,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,22 +71,34 @@ public class BoardController {
 //        return this.boardService.createBoard(boardDto, _member);
 //    }
 
+//    @PostMapping("/write")
+//    public ResponseEntity<?> createBoardDone(@Valid @RequestBody BoardCreateForm boardCreateForm,
+//                                                  @RequestHeader("Authorization") String authorizationHeader){
+//
+//        // title, contents 빈칸에 대한 유효성 검사
+//        if (boardCreateForm.getTitle() == null || boardCreateForm.getTitle().isEmpty()){
+//            return ResponseEntity.badRequest().body("게시글 제목은 필수입니다.");
+//        }
+//        else if(boardCreateForm.getContents() == null || boardCreateForm.getContents().isEmpty()){
+//            return ResponseEntity.badRequest().body("게시글 내용은 필수입니다.");
+//        } else {
+//            String token = authorizationHeader.substring(7);
+//            String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+//            Member _member = this.memberService.getMemberByUserId(_userId);
+//            Board newBoard = this.boardService.createBoard(boardCreateForm, _member);
+//            return ResponseEntity.ok(Long.toString(newBoard.getId()));
+//        }
+//    }
+
     @PostMapping("/write")
-    public ResponseEntity<String> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
-                                                  @RequestHeader("Authorization") String authorizationHeader){
-        // title, contents 빈칸에 대한 유효성 검사
-        if (boardCreateForm.getTitle() == null || boardCreateForm.getTitle().isEmpty()){
-            return ResponseEntity.badRequest().body("게시글 제목은 필수입니다.");
-        }
-        else if(boardCreateForm.getContents() == null || boardCreateForm.getContents().isEmpty()){
-            return ResponseEntity.badRequest().body("게시글 내용은 필수입니다.");
-        } else {
-            String token = authorizationHeader.substring(7);
-            String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
-            Member _member = this.memberService.getMemberByUserId(_userId);
-            Board newBoard = this.boardService.createBoard(boardCreateForm, _member);
-            return ResponseEntity.ok(Long.toString(newBoard.getId()));
-        }
+    public BoardResponse createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
+                                         @RequestHeader("Authorization") String authorizationHeader){
+
+        String _userId = getUserIdByToken(authorizationHeader);
+        Member _member = this.memberService.getMemberByUserId(_userId);
+        BoardResponse boardResponse = this.boardService.createBoard(boardCreateForm, _member);
+
+        return boardResponse;
     }
 
     /**
@@ -107,8 +115,7 @@ public class BoardController {
     @DeleteMapping("/{id}")
     public void deleteBoard(@PathVariable("id") Long id,
                             @RequestHeader("Authorization") String authorizationHeader){
-        String token = authorizationHeader.substring(7);
-        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+        String _userId = getUserIdByToken(authorizationHeader);
 
         Board board = this.boardService.getBoard(id);
 
@@ -135,8 +142,7 @@ public class BoardController {
     public Board updateBoard(@PathVariable("id") Long id,
                              @RequestBody BoardDto boardDto,
                              @RequestHeader("Authorization") String authorizationHeader){
-        String token = authorizationHeader.substring(7);
-        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+        String _userId = getUserIdByToken(authorizationHeader);
 
         Board board = this.boardService.getBoard(id);
 
@@ -164,8 +170,7 @@ public class BoardController {
     public ResponseEntity<String> checkUpdateAuth(@PathVariable("id") Long id,
                                                   @RequestHeader("Authorization") String authorizationHeader
     ){
-        String token = authorizationHeader.substring(7);
-        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+        String _userId = getUserIdByToken(authorizationHeader);
 
         Board board = this.boardService.getBoard(id);
 
@@ -174,5 +179,14 @@ public class BoardController {
         }else{
             return ResponseEntity.ok("수정 창으로 이동합니다.");
         }
+    }
+
+    /**
+     * 토큰 decode 후 userId 리턴
+     */
+    private String getUserIdByToken(String authorizationHeader) {
+        String token = authorizationHeader.substring(7);
+        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+        return _userId;
     }
 }
