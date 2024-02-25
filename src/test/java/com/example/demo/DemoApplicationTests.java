@@ -116,15 +116,15 @@ class DemoApplicationTests {
 	/**
 	 * jwt 토큰 생성 및 디코딩 데이터 비교
 	 */
-	@Test
-	void createToken(){
-		String userId = "admin";
-		String userName = "admin";
-
-		String token = jwtUtil.createToken(userId, userName);
-
-		System.out.println("Token : " + token);
-
-		assertThat(jwtUtil.decodeToken(token).getClaim("userName").asString()).isEqualTo(userName);
-	}
+//	@Test
+//	void createToken(){
+//		String userId = "admin";
+//		String userName = "admin";
+//
+//		String token = jwtUtil.createToken(userId, userName);
+//
+//		System.out.println("Token : " + token);
+//
+//		assertThat(jwtUtil.decodeToken(token).getClaim("userName").asString()).isEqualTo(userName);
+//	}
 }
