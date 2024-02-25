@@ -92,7 +92,7 @@ public class BoardController {
 
     @PostMapping("/write")
     public BoardResponse createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
-                                         @RequestHeader("Authorization") String authorizationHeader){
+                                         @RequestHeader("Access_TOKEN") String authorizationHeader){
 
         String _userId = getUserIdByToken(authorizationHeader);
         Member _member = this.memberService.getMemberByUserId(_userId);
@@ -114,7 +114,7 @@ public class BoardController {
      */
     @DeleteMapping("/{id}")
     public void deleteBoard(@PathVariable("id") Long id,
-                            @RequestHeader("Authorization") String authorizationHeader){
+                            @RequestHeader("Access_TOKEN") String authorizationHeader){
         String _userId = getUserIdByToken(authorizationHeader);
 
         Board board = this.boardService.getBoard(id);
@@ -141,7 +141,7 @@ public class BoardController {
     @PutMapping("/{id}")
     public Board updateBoard(@PathVariable("id") Long id,
                              @RequestBody BoardDto boardDto,
-                             @RequestHeader("Authorization") String authorizationHeader){
+                             @RequestHeader("Access_TOKEN") String authorizationHeader){
         String _userId = getUserIdByToken(authorizationHeader);
 
         Board board = this.boardService.getBoard(id);
@@ -168,7 +168,7 @@ public class BoardController {
      */
     @GetMapping("/{id}/updatecheck")
     public ResponseEntity<String> checkUpdateAuth(@PathVariable("id") Long id,
-                                                  @RequestHeader("Authorization") String authorizationHeader
+                                                  @RequestHeader("Access_TOKEN") String authorizationHeader
     ){
         String _userId = getUserIdByToken(authorizationHeader);
 
