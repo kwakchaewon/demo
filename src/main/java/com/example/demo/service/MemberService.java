@@ -87,14 +87,6 @@ public class MemberService implements UserDetailsService {
         memberRepository.insertMember(memberDto.getUserId(), passwordEncoder.encode(memberDto.getUserPw()), memberDto.getEmail());
     }
 
-
-
-//    private void validateMember(String userId) throws DuplicateMemberException {
-//        if(memberRepository.existByUserName(userId)){
-//            throw new DuplicateMemberException("중복된 id");
-//        }
-//    }
-
     public TokenDto login(LoginReqDto loginReqDto){
 //        // 아이디 검사
 //        Member member = memberRepository.findByUserId(loginReqDto.getUserId()).orElseThrow(() -> new RuntimeException("Not found Account"));
@@ -113,15 +105,6 @@ public class MemberService implements UserDetailsService {
         memberRepository.save(_member.get());
 
         return tokenDto;
-
-        // response 헤더에 ACCESS, REFRESH 토큰 재발급
-//        setHeader(response, tokenDto);
-//        return new GlobalResDto("Success Login", HttpStatus.OK.value());
-    }
-
-    private void setHeader(HttpServletResponse response, TokenDto tokenDto){
-        response.addHeader("ACCESS_TOKEN", tokenDto.getAccessToken());
-        response.addHeader("REFRESH_TOKEN" , tokenDto.getRefreshToken());
     }
 }
 
