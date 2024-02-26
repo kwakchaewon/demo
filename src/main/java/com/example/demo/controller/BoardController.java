@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.BoardCreateForm;
 import com.example.demo.dto.BoardDto;
-import com.example.demo.dto.BoardResponse;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.model.Header;
@@ -50,7 +49,7 @@ public class BoardController {
 
         String _userId = getUserIdByToken(authorizationHeader);
         Member _member = this.memberService.getMemberByUserId(_userId);
-        
+
         return this.boardService.createBoard(boardCreateForm, _member);
     }
 

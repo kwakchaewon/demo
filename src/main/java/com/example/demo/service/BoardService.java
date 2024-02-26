@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.dto.BoardCreateForm;
 import com.example.demo.dto.BoardDto;
-import com.example.demo.dto.BoardResponse;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.model.Header;
