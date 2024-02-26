@@ -23,7 +23,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JWTUtil {
     private final MemberRepository memberRepository;
-//    private final MemberService memberService;
     @Value("${jwt.secret}")
     private String secret;
 
@@ -31,7 +30,6 @@ public class JWTUtil {
     private static final Date REFRESH_TIME =  new Date(System.currentTimeMillis()+(7 * 24 * 60 * 60 * 1000L)); // 1주일
     public static final String ACCESS_TOKEN = "ACCESS_TOKEN";
     public static final String REFRESH_TOKEN = "REFRESH_TOKEN";
-
 
     public String createToken(String userId) {
         Algorithm algorithm = Algorithm.HMAC256(secret);

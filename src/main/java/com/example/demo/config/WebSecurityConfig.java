@@ -24,7 +24,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final TokenRequestFilter tokenRequestFilter;
-    private final JWTUtil jwtUtil;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
