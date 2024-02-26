@@ -107,7 +107,6 @@ public class BoardController {
                                                   @RequestHeader("Access_TOKEN") String authorizationHeader
     ){
         String _userId = getUserIdByToken(authorizationHeader);
-
         Board board = this.boardService.getBoard(id);
 
         if (!board.getAuthor().getUserId().equals(_userId)) {

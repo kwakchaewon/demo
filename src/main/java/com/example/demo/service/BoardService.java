@@ -4,7 +4,7 @@ import com.example.demo.dto.BoardCreateForm;
 import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
-import com.example.demo.model.Pagination;
+import com.example.demo.util.Pagination;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
