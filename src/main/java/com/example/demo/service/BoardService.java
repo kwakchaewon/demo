@@ -69,21 +69,13 @@ public class BoardService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public ResponseEntity<BoardDto> updateBoard(Long id, BoardDto boardDto, String authorizationHeader){
-        String _userId = getUserIdByToken(authorizationHeader);
-        Board board = this.getBoard(id);
-
-        // 수정 권한 검증
-        if (!board.getAuthor().getUserId().equals(_userId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-        } else {
-            board.changeBoard(boardDto.getTitle(), boardDto.getContents());
-            boardRepository.save(board);
-            boardDto.setId(board.getId());
-            boardDto.setCreatedAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")));
-            boardDto.setAuthor(board.getAuthor());
-            return new ResponseEntity<>(boardDto, HttpStatus.OK);
-        }
+    public ResponseEntity<BoardDto> updateBoard(Board board, BoardDto boardDto){
+        board.changeBoard(boardDto.getTitle(), boardDto.getContents());
+        boardRepository.save(board);
+        boardDto.setId(board.getId());
+        boardDto.setCreatedAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")));
+        boardDto.setAuthor(board.getAuthor());
+        return new ResponseEntity<>(boardDto, HttpStatus.OK);
     }
 
 

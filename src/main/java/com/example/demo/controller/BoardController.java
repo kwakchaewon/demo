@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,7 +87,14 @@ public class BoardController {
     public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
                              @RequestBody BoardDto boardDto,
                              @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
-        return boardService.updateBoard(id, boardDto, authorizationHeader);
+        String _userId = getUserIdByToken(authorizationHeader);
+        Board board = boardService.getBoard(id);
+
+        if (!board.getAuthor().getUserId().equals(_userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        } else {
+            return boardService.updateBoard(board, boardDto);
+        }
     }
 
     /**
