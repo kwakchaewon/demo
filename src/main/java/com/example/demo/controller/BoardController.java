@@ -4,7 +4,6 @@ import com.example.demo.dto.BoardCreateForm;
 import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
-import com.example.demo.model.Header;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
@@ -16,12 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
-import javax.validation.Valid;
-import java.security.Principal;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @RequestMapping("/board")
 @RestController
@@ -69,11 +63,9 @@ public class BoardController {
     public ResponseEntity deleteBoard(@PathVariable("id") Long id,
                             @RequestHeader("Access_TOKEN") String authorizationHeader){
         String _userId = getUserIdByToken(authorizationHeader);
-
         Board board = this.boardService.getBoard(id);
 
         if (!board.getAuthor().getUserId().equals(_userId)) {
-
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 권한이 없습니다.");
         }
 
@@ -101,7 +93,7 @@ public class BoardController {
      *  페이징 기반 게시판 목록
      */
     @GetMapping("")
-    public Header<List<BoardDto>> pagingBoardList(
+    public ResponseEntity<Map<String, Object>> pagingBoardList(
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
     ) {
         return boardService.getBoardList(pageable);
@@ -130,8 +122,7 @@ public class BoardController {
      */
     private String getUserIdByToken(String authorizationHeader) {
         String token = authorizationHeader.substring(7);
-        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
-        return _userId;
+        return jwtUtil.decodeToken(token).getClaim("userId").asString();
     }
 
     // 게시글 작성 유효성 검사 코드

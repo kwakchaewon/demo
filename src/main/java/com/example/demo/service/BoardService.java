@@ -4,7 +4,6 @@ import com.example.demo.dto.BoardCreateForm;
 import com.example.demo.dto.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
-import com.example.demo.model.Header;
 import com.example.demo.model.Pagination;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.JWTUtil;
@@ -14,13 +13,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BoardService {
@@ -118,8 +114,10 @@ public class BoardService {
         return new ResponseEntity<>(boardDto, HttpStatus.CREATED);
     }
 
-    public Header<List<BoardDto>> getBoardList(Pageable pageable) {
-        List<BoardDto> dtos = new ArrayList<>();
+    public ResponseEntity<Map<String, Object>> getBoardList(Pageable pageable) {
+
+        Map<String, Object> data = new HashMap();
+        List<BoardDto> boards = new ArrayList<>();
 
         Page<Board> boardEntities = boardRepository.findAllByOrderByIdDesc(pageable);
         for (Board entity : boardEntities) {
@@ -131,7 +129,7 @@ public class BoardService {
                     .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
                     .build();
 
-            dtos.add(dto);
+            boards.add(dto);
         }
 
         Pagination pagination = new Pagination(
@@ -141,7 +139,10 @@ public class BoardService {
                 , 10
         );
 
-        return Header.OK(dtos, pagination);
+        data.put("boards", boards);
+        data.put("pagination", pagination);
+
+        return new ResponseEntity<>(data ,HttpStatus.OK);
     }
 
     public Board getBoard(Long id){
