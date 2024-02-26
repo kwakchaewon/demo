@@ -7,11 +7,14 @@ import com.example.demo.entity.Member;
 import com.example.demo.model.Header;
 import com.example.demo.model.Pagination;
 import com.example.demo.repository.BoardRepository;
+import com.example.demo.util.JWTUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +25,8 @@ import java.util.Optional;
 @Service
 public class BoardService {
     private final BoardRepository boardRepository;
+    @Autowired
+    JWTUtil jwtUtil;
 
     public BoardService(BoardRepository boardRepository) {
         this.boardRepository = boardRepository;
@@ -59,16 +64,35 @@ public class BoardService {
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
     }
 
-    public void deleteBoardById(Long id){
+    public ResponseEntity deleteBoardById(Long id){
         this.boardRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public Board updateBoardById(Long id, BoardDto boardDto){
-        Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
-        board.setTitle(boardDto.getTitle());
-        board.setContents(boardDto.getContents());
-        return this.boardRepository.save(board);
+    public ResponseEntity<BoardDto> updateBoard(Long id, BoardDto boardDto, String authorizationHeader){
+        String _userId = getUserIdByToken(authorizationHeader);
+        Board board = this.getBoard(id);
+
+        // 수정 권한 검증
+        if (!board.getAuthor().getUserId().equals(_userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        } else {
+            board.changeBoard(boardDto.getTitle(), boardDto.getContents());
+            boardRepository.save(board);
+            boardDto.setId(board.getId());
+            boardDto.setCreatedAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")));
+            boardDto.setAuthor(board.getAuthor());
+            return new ResponseEntity<>(boardDto, HttpStatus.OK);
+        }
     }
+
+
+
+//        Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+//        board.setTitle(boardDto.getTitle());
+//        board.setContents(boardDto.getContents());
+//        return new ResponseEntity<>(,)
+
 
 //    public Board createBoard(BoardCreateForm boardCreateForm, Member _author){
 //        Board board = Board.builder()
@@ -131,6 +155,12 @@ public class BoardService {
     public Board getBoard(Long id){
         Optional<Board> board = this.boardRepository.findById(id);
         return board.get();
+    }
+
+    private String getUserIdByToken(String authorizationHeader) {
+        String token = authorizationHeader.substring(7);
+        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+        return _userId;
     }
 
 }

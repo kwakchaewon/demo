@@ -65,7 +65,7 @@ public class BoardController {
      * 게시글 삭제
      */
     @DeleteMapping("/{id}")
-    public void deleteBoard(@PathVariable("id") Long id,
+    public ResponseEntity deleteBoard(@PathVariable("id") Long id,
                             @RequestHeader("Access_TOKEN") String authorizationHeader){
         String _userId = getUserIdByToken(authorizationHeader);
 
@@ -76,25 +76,17 @@ public class BoardController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 권한이 없습니다.");
         }
 
-        boardService.deleteBoardById(id);
+        return boardService.deleteBoardById(id);
     }
 
     /**
      * 게시글 수정
      */
     @PutMapping("/{id}")
-    public Board updateBoard(@PathVariable("id") Long id,
+    public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
                              @RequestBody BoardDto boardDto,
-                             @RequestHeader("Access_TOKEN") String authorizationHeader){
-        String _userId = getUserIdByToken(authorizationHeader);
-
-        Board board = this.boardService.getBoard(id);
-
-        if (!board.getAuthor().getUserId().equals(_userId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
-        }
-
-        return boardService.updateBoardById(id, boardDto);
+                             @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
+        return boardService.updateBoard(id, boardDto, authorizationHeader);
     }
 
     /**
