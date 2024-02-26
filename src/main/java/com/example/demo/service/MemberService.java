@@ -6,23 +6,19 @@ import com.example.demo.repository.MemberJpqlRepository;
 import com.example.demo.repository.MemberRepository;
 import com.example.demo.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.GrantedAuthority;
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
-import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -31,6 +27,8 @@ import java.util.Optional;
 public class MemberService {
     private final JWTUtil jwtUtil;
     private final MemberRepository memberRepository;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final AuthenticationManager authenticationManager;
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -88,6 +86,21 @@ public class MemberService {
         memberRepository.save(_member.get());
 
         return tokenDto;
+    }
+
+    public UserDetails setAuth(LoginReqDto loginReqDto){
+        String userId = loginReqDto.getUserId();
+        String userPw = loginReqDto.getUserPw();
+
+        UserDetails loginUser = userDetailsService.loadUserByUsername(userId); //1. userId로 패스워드 가져오기
+        Authentication authentication = authenticationManager.authenticate(     //2. 가져온 패스워드와 입력한 비밀번호로 검증
+                new UsernamePasswordAuthenticationToken(loginUser, userPw)
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);   // 3. 검증 통과 후 authentication 세팅
+
+        return loginUser;
+
     }
 }
 

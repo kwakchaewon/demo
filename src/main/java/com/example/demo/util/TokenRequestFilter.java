@@ -22,12 +22,10 @@ import java.io.IOException;
 @Slf4j
 @Component
 public class TokenRequestFilter extends OncePerRequestFilter {
-    private final MemberService memberService;
     private final UserDetailsServiceImpl userDetailsService;
     private final JWTUtil jwtUtil;
 
-    public TokenRequestFilter(MemberService memberService, UserDetailsServiceImpl userDetailsService, JWTUtil jwtUtil) {
-        this.memberService = memberService;
+    public TokenRequestFilter(UserDetailsServiceImpl userDetailsService, JWTUtil jwtUtil) {
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
     }
