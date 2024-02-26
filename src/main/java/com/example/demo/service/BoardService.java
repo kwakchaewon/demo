@@ -53,6 +53,7 @@ public class BoardService {
                 .title(board.getTitle())
                 .contents(board.getContents())
                 .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
+                .author(board.getAuthor())
                 .build();
 
         return boardDto;
