@@ -10,6 +10,8 @@ import com.example.demo.model.Pagination;
 import com.example.demo.repository.BoardRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -79,9 +81,8 @@ public class BoardService {
 //        return boardRepository.save(board);
 //    }
 
-    public BoardResponse createBoard(BoardCreateForm boardCreateForm, Member _author){
+    public ResponseEntity<BoardDto> createBoard(BoardCreateForm boardCreateForm, Member _author){
 
-        // 1. board create
         Board board = Board.builder()
                 .title(boardCreateForm.getTitle())
                 .contents(boardCreateForm.getContents())
@@ -90,7 +91,16 @@ public class BoardService {
                 .build();
 
         Long id = boardRepository.save(board).getId();
-        return new BoardResponse(id,true, "successfully created", board);
+
+        BoardDto boardDto = BoardDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .contents(board.getContents())
+                .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
+                .author(board.getAuthor())
+                .build();
+
+        return new ResponseEntity<>(boardDto, HttpStatus.CREATED);
     }
 
     public Header<List<BoardDto>> getBoardList(Pageable pageable) {

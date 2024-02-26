@@ -45,14 +45,13 @@ public class BoardController {
      * 게시글 작성
      */
     @PostMapping("")
-    public BoardResponse createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
+    public ResponseEntity<BoardDto> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
 
         String _userId = getUserIdByToken(authorizationHeader);
         Member _member = this.memberService.getMemberByUserId(_userId);
-        BoardResponse boardResponse = this.boardService.createBoard(boardCreateForm, _member);
-
-        return boardResponse;
+        
+        return this.boardService.createBoard(boardCreateForm, _member);
     }
 
     /**
