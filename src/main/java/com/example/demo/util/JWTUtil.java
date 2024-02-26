@@ -5,7 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.example.demo.dto.TokenDto;
+import com.example.demo.dto.response.TokenDto;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

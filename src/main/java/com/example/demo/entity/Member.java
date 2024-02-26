@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.dto.MemberReqDto;
+import com.example.demo.dto.request.MemberReqDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

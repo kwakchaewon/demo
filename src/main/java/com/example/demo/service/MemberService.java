@@ -1,8 +1,9 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.*;
+import com.example.demo.dto.request.LoginReqDto;
+import com.example.demo.dto.response.MemberDto;
+import com.example.demo.dto.response.TokenDto;
 import com.example.demo.entity.Member;
-import com.example.demo.repository.MemberJpqlRepository;
 import com.example.demo.repository.MemberRepository;
 import com.example.demo.util.JWTUtil;
 import lombok.RequiredArgsConstructor;

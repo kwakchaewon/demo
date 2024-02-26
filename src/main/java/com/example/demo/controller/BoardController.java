@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.BoardCreateForm;
-import com.example.demo.dto.BoardDto;
+import com.example.demo.dto.request.BoardCreateForm;
+import com.example.demo.dto.response.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.service.BoardService;
