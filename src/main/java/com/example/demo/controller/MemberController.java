@@ -68,7 +68,7 @@ public class MemberController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);   // 3. 검증 통과 후 authentication 세팅
 
-        TokenDto tokenDto = memberService.login(loginReqDto);    // 4. 토큰 발급 및 관련 로직
+        TokenDto tokenDto = memberService.issueToken(loginReqDto);    // 4. 토큰 발급 및 관련 로직
 
         Map<String, Object> result = new HashMap<>();
 

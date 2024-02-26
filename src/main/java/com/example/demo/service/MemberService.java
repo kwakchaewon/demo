@@ -32,7 +32,6 @@ public class MemberService implements UserDetailsService {
     private final JWTUtil jwtUtil;
     private final MemberRepository memberRepository;
     private final MemberJpqlRepository memberJpqlRepository;
-//    private final PasswordEncoder passwordEncoder;
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -87,7 +86,7 @@ public class MemberService implements UserDetailsService {
         memberRepository.insertMember(memberDto.getUserId(), passwordEncoder.encode(memberDto.getUserPw()), memberDto.getEmail());
     }
 
-    public TokenDto login(LoginReqDto loginReqDto){
+    public TokenDto issueToken(LoginReqDto loginReqDto){
 //        // 아이디 검사
 //        Member member = memberRepository.findByUserId(loginReqDto.getUserId()).orElseThrow(() -> new RuntimeException("Not found Account"));
 //
