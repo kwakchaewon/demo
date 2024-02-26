@@ -7,6 +7,8 @@ import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -66,8 +68,8 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public String signUp(@RequestBody MemberDto memberDto) throws Exception{
+    public ResponseEntity<String> signUp(@RequestBody MemberDto memberDto) throws Exception{
         memberService.saveMember(memberDto);
-        return "success";
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
