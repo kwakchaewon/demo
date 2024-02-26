@@ -35,7 +35,7 @@ public class TokenRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            if ("/member/login".equals(request.getRequestURI()) || "/member/signup".equals(request.getRequestURI()) || "/member/login2".equals(request.getRequestURI())) {
+            if ("/member/login".equals(request.getRequestURI()) || "/member/signup".equals(request.getRequestURI())) {
                 doFilter(request, response, filterChain);
             } else {
 

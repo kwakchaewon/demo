@@ -57,8 +57,8 @@ public class MemberController {
     /**
      * REFRESH TOKEN 활용 로그인
      */
-    @PostMapping("/login2")
-    public ResponseEntity<Map<String, Object>> login2(@RequestBody LoginReqDto loginReqDto) {
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginReqDto loginReqDto) {
         String userId = loginReqDto.getUserId();
         String userPw = loginReqDto.getUserPw();
 
