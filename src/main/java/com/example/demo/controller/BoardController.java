@@ -112,7 +112,7 @@ public class BoardController {
     /**
      *  게시글 수정 권한 검증
      */
-    @GetMapping("/{id}/updatecheck")
+    @GetMapping("/{id}/check")
     public ResponseEntity<String> checkUpdateAuth(@PathVariable("id") Long id,
                                                   @RequestHeader("Access_TOKEN") String authorizationHeader
     ){
