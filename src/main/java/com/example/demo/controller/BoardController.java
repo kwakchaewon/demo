@@ -92,7 +92,7 @@ public class BoardController {
 
     @PostMapping("/write")
     public BoardResponse createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
-                                         @RequestHeader("Access_TOKEN") String authorizationHeader){
+                                         @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
 
         String _userId = getUserIdByToken(authorizationHeader);
         Member _member = this.memberService.getMemberByUserId(_userId);

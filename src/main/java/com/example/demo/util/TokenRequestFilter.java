@@ -37,14 +37,17 @@ public class TokenRequestFilter extends OncePerRequestFilter {
             } else {
 
                 // 1. Access / Refresh 헤더에서 토큰을 가져옴.
-                String accessToken = jwtUtil.getHeaderToken(request, "ACCESS_TOKEN");
-                String refreshToken = jwtUtil.getHeaderToken(request, "REFRESH_TOKEN");
+//                String accessToken = jwtUtil.getHeaderToken(request, "ACCESS_TOKEN");
+                String accessToken = parseJwt(request, "ACCESS_TOKEN");
 
-                String token = parseJwt(request, "ACCESS_TOKEN");
+//                String refreshToken = jwtUtil.getHeaderToken(request, "REFRESH_TOKEN");
+                String refreshToken = parseJwt(request, "ACCESS_TOKEN");
 
-                if (token != null) {
+//                String token = parseJwt(request, "ACCESS_TOKEN");
+
+                if (accessToken != null) {
                     // 2-1. 어세스 토큰값이 유효하다면 setAuthentication를 통해 security context에 인증 정보저장
-                    DecodedJWT tokenInfo = jwtUtil.decodeToken(token);
+                    DecodedJWT tokenInfo = jwtUtil.decodeToken(accessToken);
 
                     if (tokenInfo != null) {
                         String userId = tokenInfo.getClaim("userId").asString();
