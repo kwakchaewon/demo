@@ -14,15 +14,6 @@ public class MemberJpqlRepository {
     @Autowired
     private EntityManager entityManager;
 
-//    public void insertMemberByJpql(String user_id, String user_pw, String email){
-//        String jpql = "INSERT INTO Member  m (m.userId, m.userPw, m.email) VALUES (:username, :user_pw, :email)";
-//        entityManager.createQuery(jpql)
-//                .setParameter("user_id", user_id)
-//                .setParameter("user_pw", user_pw)
-//                .setParameter("email", email)
-//                .executeUpdate();
-//    }
-
     @Transactional(readOnly = true)
     public Optional<Member> findMemberById(String userId){
         String jpql = "SELECT m FROM Member m WHERE m.userId = :userId";

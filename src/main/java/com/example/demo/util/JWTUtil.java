@@ -41,7 +41,7 @@ public class JWTUtil {
 //                .withClaim("userName", userName)
                 .withIssuedAt(new Date())
 //                .withExpiresAt(new Date(System.currentTimeMillis()+3000)) // 만료시간: 30 sec
-                .withExpiresAt(new Date(System.currentTimeMillis()+1800000)) // 만료시간: 30 min
+                .withExpiresAt(new Date(System.currentTimeMillis()+1_800_000)) // 만료시간: 30 min
                 .sign(algorithm);
     }
 

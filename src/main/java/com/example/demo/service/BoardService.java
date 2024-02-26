@@ -36,7 +36,6 @@ public class BoardService {
                     .id(entity.getId())
                     .title(entity.getTitle())
                     .contents(entity.getContents())
-//                    .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
                     .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
                     .build();
 

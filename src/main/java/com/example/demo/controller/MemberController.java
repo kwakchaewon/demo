@@ -72,7 +72,7 @@ public class MemberController {
 
         Map<String, Object> result = new HashMap<>();
 
-//        result.put("user_id", loginUser.getUsername());
+        result.put("user_id", loginUser.getUsername());
         result.put("user_role", loginUser.getAuthorities().stream().findFirst().get().getAuthority());
         result.put("ACCESS_TOKEN", tokenDto.getAccessToken());
         result.put("REFRESH_TOKEN", tokenDto.getRefreshToken());

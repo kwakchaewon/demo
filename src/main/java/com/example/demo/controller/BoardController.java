@@ -41,23 +41,6 @@ public class BoardController {
         this.boardService = boardService;
     }
 
-
-//    /**
-//     *  게시판 목록
-//     */
-//    @GetMapping("/list")
-//    public List<BoardDto> getBoards(){
-//        return boardService.findAllBoard();
-//    }
-
-    /**
-     * 게시글 작성폼
-     */
-    @GetMapping("/write")
-    public String createBoard(){
-        return "createBoard API";
-    }
-
     /**
      * 게시글 작성
      */
@@ -125,14 +108,6 @@ public class BoardController {
         }
 
         boardService.deleteBoardById(id);
-    }
-
-    /**
-     * 게시글 수정 폼
-     */
-    @GetMapping("/update/{id}")
-    public String updateBoardForm(@PathVariable("id") Integer id){
-        return "updateBoardForm API";
     }
 
     /**

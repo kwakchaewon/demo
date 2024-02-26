@@ -14,7 +14,6 @@ public class BoardResponse {
     private Long id;
     private boolean success;
     private String message;
-//    private HashMap<String,Object> data;
     private Board board;
 
     public BoardResponse(Long id, boolean success, String message, Board board) {
