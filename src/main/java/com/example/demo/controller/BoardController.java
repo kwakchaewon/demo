@@ -44,36 +44,7 @@ public class BoardController {
     /**
      * 게시글 작성
      */
-//    @PostMapping("/write")
-//    public Board createBoardDone(@RequestBody @Valid BoardDto boardDto,
-//                                 @RequestHeader("Authorization") String authorizationHeader){
-//
-//        String token = authorizationHeader.substring(7);
-//        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
-//        Member _member = this.memberService.getMemberByUserId(_userId);
-//        return this.boardService.createBoard(boardDto, _member);
-//    }
-
-//    @PostMapping("/write")
-//    public ResponseEntity<?> createBoardDone(@Valid @RequestBody BoardCreateForm boardCreateForm,
-//                                                  @RequestHeader("Authorization") String authorizationHeader){
-//
-//        // title, contents 빈칸에 대한 유효성 검사
-//        if (boardCreateForm.getTitle() == null || boardCreateForm.getTitle().isEmpty()){
-//            return ResponseEntity.badRequest().body("게시글 제목은 필수입니다.");
-//        }
-//        else if(boardCreateForm.getContents() == null || boardCreateForm.getContents().isEmpty()){
-//            return ResponseEntity.badRequest().body("게시글 내용은 필수입니다.");
-//        } else {
-//            String token = authorizationHeader.substring(7);
-//            String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
-//            Member _member = this.memberService.getMemberByUserId(_userId);
-//            Board newBoard = this.boardService.createBoard(boardCreateForm, _member);
-//            return ResponseEntity.ok(Long.toString(newBoard.getId()));
-//        }
-//    }
-
-    @PostMapping("/write")
+    @PostMapping("")
     public BoardResponse createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
 
@@ -131,7 +102,7 @@ public class BoardController {
     /**
      *  페이징 기반 게시판 목록
      */
-    @GetMapping("/list")
+    @GetMapping("")
     public Header<List<BoardDto>> pagingBoardList(
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
     ) {
@@ -164,4 +135,34 @@ public class BoardController {
         String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
         return _userId;
     }
+
+    // 게시글 작성 유효성 검사 코드
+    //    @PostMapping("/write")
+//    public Board createBoardDone(@RequestBody @Valid BoardDto boardDto,
+//                                 @RequestHeader("Authorization") String authorizationHeader){
+//
+//        String token = authorizationHeader.substring(7);
+//        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+//        Member _member = this.memberService.getMemberByUserId(_userId);
+//        return this.boardService.createBoard(boardDto, _member);
+//    }
+
+//    @PostMapping("/write")
+//    public ResponseEntity<?> createBoardDone(@Valid @RequestBody BoardCreateForm boardCreateForm,
+//                                                  @RequestHeader("Authorization") String authorizationHeader){
+//
+//        // title, contents 빈칸에 대한 유효성 검사
+//        if (boardCreateForm.getTitle() == null || boardCreateForm.getTitle().isEmpty()){
+//            return ResponseEntity.badRequest().body("게시글 제목은 필수입니다.");
+//        }
+//        else if(boardCreateForm.getContents() == null || boardCreateForm.getContents().isEmpty()){
+//            return ResponseEntity.badRequest().body("게시글 내용은 필수입니다.");
+//        } else {
+//            String token = authorizationHeader.substring(7);
+//            String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
+//            Member _member = this.memberService.getMemberByUserId(_userId);
+//            Board newBoard = this.boardService.createBoard(boardCreateForm, _member);
+//            return ResponseEntity.ok(Long.toString(newBoard.getId()));
+//        }
+//    }
 }
