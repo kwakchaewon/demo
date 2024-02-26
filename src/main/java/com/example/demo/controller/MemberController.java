@@ -4,6 +4,7 @@ import com.example.demo.dto.LoginReqDto;
 import com.example.demo.dto.MemberDto;
 import com.example.demo.dto.TokenDto;
 import com.example.demo.service.MemberService;
+import com.example.demo.service.UserDetailsServiceImpl;
 import com.example.demo.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ public class MemberController {
     private final JWTUtil jwtUtil;
     private final MemberService memberService;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsServiceImpl userDetailsService;
 
 //    @PostMapping("/login")
 //    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> paramMap) {
@@ -60,7 +62,7 @@ public class MemberController {
         String userId = loginReqDto.getUserId();
         String userPw = loginReqDto.getUserPw();
 
-        UserDetails loginUser = memberService.loadUserByUsername(userId); //1. userId로 패스워드 가져오기
+        UserDetails loginUser = userDetailsService.loadUserByUsername(userId); //1. userId로 패스워드 가져오기
 
         Authentication authentication = authenticationManager.authenticate(     //2. 가져온 패스워드와 입력한 비밀번호로 검증
                 new UsernamePasswordAuthenticationToken(loginUser, userPw)

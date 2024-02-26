@@ -2,6 +2,7 @@ package com.example.demo.util;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.demo.service.MemberService;
+import com.example.demo.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,10 +23,12 @@ import java.io.IOException;
 @Component
 public class TokenRequestFilter extends OncePerRequestFilter {
     private final MemberService memberService;
+    private final UserDetailsServiceImpl userDetailsService;
     private final JWTUtil jwtUtil;
 
-    public TokenRequestFilter(MemberService memberService, JWTUtil jwtUtil) {
+    public TokenRequestFilter(MemberService memberService, UserDetailsServiceImpl userDetailsService, JWTUtil jwtUtil) {
         this.memberService = memberService;
+        this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
     }
 
@@ -46,7 +49,7 @@ public class TokenRequestFilter extends OncePerRequestFilter {
 
                     if (tokenInfo != null) {
                         String userId = tokenInfo.getClaim("userId").asString();
-                        UserDetails loginUser = memberService.loadUserByUsername(userId);
+                        UserDetails loginUser = userDetailsService.loadUserByUsername(userId);
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                                 loginUser, null, loginUser.getAuthorities()
                         );
@@ -68,7 +71,7 @@ public class TokenRequestFilter extends OncePerRequestFilter {
                             // 헤더에 어세스 토큰 추가
                             jwtUtil.setHeaderAccessToken(response, newAccessToken);
                             // Security context에 인증 정보 넣기
-                            UserDetails loginUser = memberService.loadUserByUsername(userId);
+                            UserDetails loginUser = userDetailsService.loadUserByUsername(userId);
                             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                                     loginUser, null, loginUser.getAuthorities()
                             );

@@ -28,27 +28,11 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class MemberService implements UserDetailsService {
+public class MemberService {
     private final JWTUtil jwtUtil;
     private final MemberRepository memberRepository;
-    private final MemberJpqlRepository memberJpqlRepository;
 
     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-
-//        Member memberEntity = memberRepository.findByUserId(username)   // JPA
-        Member memberEntity = memberJpqlRepository.findMemberById(username) //JPQL
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-
-        if (memberEntity.getUserId().equals(username)) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        }
-
-        return new User(memberEntity.getUserId(), memberEntity.getUserPw(), authorities);
-    }
 
     public Member getMember(Long id) {
         Optional<Member> _member = this.memberRepository.findById(id);
