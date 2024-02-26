@@ -42,7 +42,7 @@ public class BoardController {
     public ResponseEntity<BoardDto> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
 
-        String _userId = getUserIdByToken(authorizationHeader);
+        String _userId = boardService.getUserIdByToken(authorizationHeader);
         Member _member = this.memberService.getMemberByUserId(_userId);
 
         return this.boardService.createBoard(boardCreateForm, _member);
@@ -62,7 +62,7 @@ public class BoardController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteBoard(@PathVariable("id") Long id,
                             @RequestHeader("Access_TOKEN") String authorizationHeader){
-        String _userId = getUserIdByToken(authorizationHeader);
+        String _userId =boardService.getUserIdByToken(authorizationHeader);
         Board board = this.boardService.getBoard(id);
 
         if (!board.getAuthor().getUserId().equals(_userId)) {
@@ -79,7 +79,7 @@ public class BoardController {
     public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
                              @RequestBody BoardDto boardDto,
                              @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
-        String _userId = getUserIdByToken(authorizationHeader);
+        String _userId = boardService.getUserIdByToken(authorizationHeader);
         Board board = boardService.getBoard(id);
 
         if (!board.getAuthor().getUserId().equals(_userId)) {
@@ -106,7 +106,7 @@ public class BoardController {
     public ResponseEntity<String> checkUpdateAuth(@PathVariable("id") Long id,
                                                   @RequestHeader("Access_TOKEN") String authorizationHeader
     ){
-        String _userId = getUserIdByToken(authorizationHeader);
+        String _userId = boardService.getUserIdByToken(authorizationHeader);
         Board board = this.boardService.getBoard(id);
 
         if (!board.getAuthor().getUserId().equals(_userId)) {
@@ -114,14 +114,6 @@ public class BoardController {
         }else{
             return ResponseEntity.ok("수정 창으로 이동합니다.");
         }
-    }
-
-    /**
-     * 토큰 decode 후 userId 리턴
-     */
-    private String getUserIdByToken(String authorizationHeader) {
-        String token = authorizationHeader.substring(7);
-        return jwtUtil.decodeToken(token).getClaim("userId").asString();
     }
 
     // 게시글 작성 유효성 검사 코드

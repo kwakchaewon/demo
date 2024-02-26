@@ -150,10 +150,9 @@ public class BoardService {
         return board.get();
     }
 
-    private String getUserIdByToken(String authorizationHeader) {
+    public String getUserIdByToken(String authorizationHeader) {
         String token = authorizationHeader.substring(7);
-        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
-        return _userId;
+        return jwtUtil.decodeToken(token).getClaim("userId").asString();
     }
 
 }
