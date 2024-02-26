@@ -57,7 +57,7 @@ public class BoardController {
      * 게시글 상세
      */
     @GetMapping("/{id}")
-    public BoardDto detailBoard(@PathVariable("id") Long id) throws Exception {
+    public ResponseEntity<BoardDto> detailBoard(@PathVariable("id") Long id) throws Exception {
         return boardService.findBoardById(id);
     }
 

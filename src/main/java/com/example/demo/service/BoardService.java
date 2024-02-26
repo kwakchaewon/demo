@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,8 +45,9 @@ public class BoardService {
         return boardDtos;
     }
 
-    public BoardDto findBoardById(Long id) {
+    public ResponseEntity<BoardDto> findBoardById(Long id) {
         Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+
         BoardDto boardDto =  BoardDto.builder()
                 .id(board.getId())
                 .title(board.getTitle())
@@ -56,7 +56,7 @@ public class BoardService {
                 .author(board.getAuthor())
                 .build();
 
-        return boardDto;
+        return new ResponseEntity<>(boardDto, HttpStatus.OK);
     }
 
     public void deleteBoardById(Long id){
