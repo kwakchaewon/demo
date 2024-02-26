@@ -80,7 +80,7 @@ public class MemberController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/regist")
+    @PostMapping("/signup")
     public String signUp(@RequestBody MemberDto memberDto) throws Exception{
         memberService.saveMember(memberDto);
         return "success";
