@@ -9,18 +9,23 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+
+/**
+ * 페이지네이션과 정렬을 처리 설정 클래스
+ */
+
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         SortHandlerMethodArgumentResolver sortArgumentResolver = new SortHandlerMethodArgumentResolver();
-        sortArgumentResolver.setSortParameter("sortBy");
-        sortArgumentResolver.setPropertyDelimiter("-");
+        sortArgumentResolver.setSortParameter("sortBy"); // sortBy 요청 파라미터를 통해 정렬정보 설정
+        sortArgumentResolver.setPropertyDelimiter("-"); // 정렬 방법 지정시 사용할 문자열 -
 
         PageableHandlerMethodArgumentResolver pageableArgumentResolver = new PageableHandlerMethodArgumentResolver(sortArgumentResolver);
         pageableArgumentResolver.setOneIndexedParameters(true);
         pageableArgumentResolver.setMaxPageSize(500);
-        pageableArgumentResolver.setFallbackPageable(PageRequest.of(0, 10));
+        pageableArgumentResolver.setFallbackPageable(PageRequest.of(0, 10)); // 기본 페이지와 페이지 사이즈 설정
         argumentResolvers.add(pageableArgumentResolver);
     }
 }
