@@ -42,7 +42,6 @@ public class BoardService {
 
             boardDtos.add(dto);
         }
-
         return boardDtos;
     }
 
@@ -73,8 +72,6 @@ public class BoardService {
         boardDto.setAuthor(board.getAuthor());
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
     }
-
-
 
 //        Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 //        board.setTitle(boardDto.getTitle());
@@ -150,9 +147,8 @@ public class BoardService {
         return board.get();
     }
 
-    public String getUserIdByToken(String authorizationHeader) {
+    public String getUserIdByToken(String authorizationHeader, String secret) {
         String token = authorizationHeader.substring(7);
-        return jwtUtil.decodeToken(token).getClaim("userId").asString();
+        return jwtUtil.decodeToken(token, secret).getClaim("userId").asString();
     }
-
 }

@@ -101,7 +101,6 @@ public class MemberService {
         SecurityContextHolder.getContext().setAuthentication(authentication);   // 3. 검증 통과 후 authentication 세팅
 
         return loginUser;
-
     }
 }
 

@@ -8,6 +8,7 @@ import com.example.demo.service.BoardService;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -15,12 +16,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @RequestMapping("/board")
 @RestController
 @Validated
 public class BoardController {
+
+    @Value("${jwt.secret_access}")
+    private String secret_access;
+
+
 
     @Autowired
     private BoardService boardService;
@@ -42,7 +50,7 @@ public class BoardController {
     public ResponseEntity<BoardDto> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
 
-        String _userId = boardService.getUserIdByToken(authorizationHeader);
+        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Member _member = this.memberService.getMemberByUserId(_userId);
 
         return this.boardService.createBoard(boardCreateForm, _member);
@@ -62,7 +70,7 @@ public class BoardController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteBoard(@PathVariable("id") Long id,
                             @RequestHeader("Access_TOKEN") String authorizationHeader){
-        String _userId =boardService.getUserIdByToken(authorizationHeader);
+        String _userId =boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
 
         if (!board.getAuthor().getUserId().equals(_userId)) {
@@ -79,7 +87,7 @@ public class BoardController {
     public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
                              @RequestBody BoardDto boardDto,
                              @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
-        String _userId = boardService.getUserIdByToken(authorizationHeader);
+        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = boardService.getBoard(id);
 
         if (!board.getAuthor().getUserId().equals(_userId)) {
@@ -94,8 +102,10 @@ public class BoardController {
      */
     @GetMapping("")
     public ResponseEntity<Map<String, Object>> pagingBoardList(
-            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
+            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
+            HttpServletRequest request
     ) {
+        String token = jwtUtil.getHeaderToken(request, "ACCESS_TOKEN");
         return boardService.getBoardList(pageable);
     }
 
@@ -104,9 +114,9 @@ public class BoardController {
      */
     @GetMapping("/{id}/check")
     public ResponseEntity<String> checkUpdateAuth(@PathVariable("id") Long id,
-                                                  @RequestHeader("Access_TOKEN") String authorizationHeader
+                                                  @RequestHeader("ACCESS_TOKEN") String authorizationHeader
     ){
-        String _userId = boardService.getUserIdByToken(authorizationHeader);
+        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
 
         if (!board.getAuthor().getUserId().equals(_userId)) {

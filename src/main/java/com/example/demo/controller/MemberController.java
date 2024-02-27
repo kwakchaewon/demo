@@ -7,6 +7,7 @@ import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,12 @@ public class MemberController {
     private final JWTUtil jwtUtil;
     private final MemberService memberService;
 
+    @Value("${jwt.secret_access}")
+    private String secret_access;
+
+    @Value("${jwt.secret_refresh}")
+    private String secret_refresh;
+
     /**
      * REFRESH TOKEN 활용 로그인
      */
@@ -32,13 +39,17 @@ public class MemberController {
 
         UserDetails loginUser = memberService.setAuth(loginReqDto);   // 1. 로그인 검증 및 auth 세팅
         TokenDto tokenDto = memberService.issueToken(loginReqDto);    // 2. 토큰 발급 및 관련 로직
+//        long ACCESS_EXP = jwtUtil.decodeToken(tokenDto.getAccessToken(), secret_access).getExpiresAt().getTime();
+        int ACCESS_EXP = 1/(24*60);
+        int REFRESH_EXP = 7;
 
         Map<String, Object> result = new HashMap<>();
 
-        result.put("user_id", loginUser.getUsername());
         result.put("user_role", loginUser.getAuthorities().stream().findFirst().get().getAuthority());
         result.put("ACCESS_TOKEN", tokenDto.getAccessToken());
         result.put("REFRESH_TOKEN", tokenDto.getRefreshToken());
+        result.put("ACCESS_EXP", ACCESS_EXP);
+        result.put("REFRESH_EXP", REFRESH_EXP);
 
         return ResponseEntity.ok(result);
     }
@@ -72,4 +83,5 @@ public class MemberController {
 //
 //        return ResponseEntity.ok(result);
 //    }
+
 }

@@ -23,27 +23,40 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JWTUtil {
     private final MemberRepository memberRepository;
-    @Value("${jwt.secret}")
-    private String secret;
+    @Value("${jwt.secret_access}")
+    private String secret_access;
+
+    @Value("${jwt.secret_refresh}")
+    private String secret_refresh;
+
+
 
     private static final Date ACCESS_TIME =  new Date(System.currentTimeMillis()+(60 * 60 * 1000L)); // 1시간
     private static final Date REFRESH_TIME =  new Date(System.currentTimeMillis()+(7 * 24 * 60 * 60 * 1000L)); // 1주일
     public static final String ACCESS_TOKEN = "ACCESS_TOKEN";
     public static final String REFRESH_TOKEN = "REFRESH_TOKEN";
 
-    public String createToken(String userId) {
+    public String createToken(String userId, String secret) {
+        Date exTime = new Date();
+
+        if (secret.equals(secret_access)){
+            exTime = ACCESS_TIME;
+        }else{
+            exTime = REFRESH_TIME;
+        }
+
         Algorithm algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
                 .withIssuer("vue-board")
                 .withClaim("userId", userId)
 //                .withClaim("userName", userName)
-                .withIssuedAt(new Date())
-//                .withExpiresAt(new Date(System.currentTimeMillis()+3000)) // 만료시간: 30 sec
-                .withExpiresAt(new Date(System.currentTimeMillis()+1_800_000)) // 만료시간: 30 min
+//                .withExpiresAt(exTime)
+//                .withExpiresAt(new Date(System.currentTimeMillis()+30000)) // 만료시간: 30 sec
+                .withExpiresAt(exTime)
                 .sign(algorithm);
     }
 
-    public DecodedJWT decodeToken(String token) {
+    public DecodedJWT decodeToken(String token, String secret) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm)
@@ -62,7 +75,7 @@ public class JWTUtil {
 
 
     // userId 기반 토큰 생성
-    public String createToken2(String userId, String type){
+    public String createToken2(String userId, String type, String secret){
         Algorithm algorithm = Algorithm.HMAC256(secret);
         Date expTime = type.equals("ACCESS_TOKEN") ? ACCESS_TIME : REFRESH_TIME;
 
@@ -76,13 +89,13 @@ public class JWTUtil {
 
     // 토큰 생성
     public TokenDto createAllToken(String userId) {
-        return new TokenDto(createToken2(userId, "ACCESS_TOKEN"), createToken2(userId, "REFRESH_TOKEN"));
+        return new TokenDto(createToken2(userId, "ACCESS_TOKEN", secret_access), createToken2(userId, "REFRESH_TOKEN", secret_refresh));
     }
 
     //토큰 검증
-    public Boolean validateToken(String token){
+    public Boolean validateToken(String token, String secret){
         try {
-            this.decodeToken(token);
+            this.decodeToken(token, secret);
             return true;
         } catch (Exception e){
             log.error(e.getMessage());
@@ -92,13 +105,13 @@ public class JWTUtil {
 
     // refreshToken 토큰 검증
     // db에 저장되어 있는 token과 비교
-    public Boolean validateRefreshToken(String token){
+    public Boolean validateRefreshToken(String token,  String secret){
 
         // 1차 토큰 검증
-        if(!validateToken(token)) return false;
+        if(!validateToken(token, secret)) return false;
 
         // 2차 DB 토큰 검증
-        Optional<Member> _member = memberRepository.findByUserId(getUserIdFromToken(token));
+        Optional<Member> _member = memberRepository.findByUserId(getUserIdFromToken(token, secret_refresh));
 
         // Refresh 토큰이 존재하고 디코딩 결과값이 같다면 True 리턴
         return _member.isPresent() && token.equals(_member.get().getRefreshToken());
@@ -107,8 +120,8 @@ public class JWTUtil {
     /**
      * 토큰 decode 후 userId 리턴
      */
-    public String getUserIdFromToken(String token) {
-        return this.decodeToken(token).getClaim("userId").asString();
+    public String getUserIdFromToken(String token,String secret) {
+        return this.decodeToken(token, secret).getClaim("userId").asString();
     }
 
     // 인증 객체 생성
