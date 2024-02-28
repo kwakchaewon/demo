@@ -1,16 +1,26 @@
 package com.example.demo.dto.request;
 
+import com.example.demo.entity.Member;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.*;
+import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor
+//@AllArgsConstructor
 public class MemberReqDto {
+
+//    private final PasswordEncoder passwordEncoder;
+
     @Pattern(regexp = "^[a-zA-Z0-9]{4,12}$", message = "아이디: 4~12자의 숫자,영문을 입력해주세요.")
     private String userId;
 
@@ -24,8 +34,30 @@ public class MemberReqDto {
             message = "이메일: 이메일 주소 양식을 입력해주세요.")
     private String email;
 
+//    @JsonCreator
+//    public MemberReqDto (@JsonProperty("userId") String userId,
+//                         @JsonProperty("userPw") String userPw,
+//                         @JsonProperty("email") String email,
+//                         @JsonProperty("userPw") String userPwCk
+//    ){
+//        this.userId= userId;
+//        this.userId= userPw;
+//        this.userId= email;
+//        this.userId= userPwCk;
+//    }
+
     @AssertTrue(message = "비밀번호와 비밀번호 확인이 일치하지 않습니다.")
     public boolean isPasswordConfirmed() {
         return userPw != null && userPw.equals(userPwCk);
     }
+
+//    public Member toEntity(){
+//        Member member = Member.builder()
+//                .userId(this.getUserId())
+//                .userPw(passwordEncoder.encode(this.getUserPw()))
+//                .email(this.getEmail())
+//                .createdAt(LocalDateTime.now())
+//                .build();
+//        return member;
+//    }
 }

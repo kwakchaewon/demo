@@ -59,19 +59,21 @@ public class MemberService {
     @Transactional
     public void saveMember(MemberReqDto memberReqDto) {
 
+//        Member newMember = memberReqDto.toEntity();
+
         // 1. JPA 기반 회원가입
-//        Member newMember = Member.builder()
-//                .email(memberDto.getEmail())
-//                .userId(memberDto.getUserId())
-//                .userPw(passwordEncoder.encode(memberDto.getUserPw()))
-//                .build();
-//
+        Member newMember = Member.builder()
+                .userId(memberReqDto.getUserId())
+                .userPw(passwordEncoder.encode(memberReqDto.getUserPw()))
+                .email(memberReqDto.getEmail())
+                .createdAt(LocalDateTime.now())
+                .build();
 //        memberRepository.save(newMember);
 
         // 2. Native Query 기반 회원가입
         LocalDateTime createdAt = LocalDateTime.now();
-        memberRepository.insertMember(memberReqDto.getUserId(), passwordEncoder.encode(memberReqDto.getUserPw()),
-                memberReqDto.getEmail(),createdAt);
+        memberRepository.insertMember(memberReqDto.getUserId(), passwordEncoder.encode(memberReqDto.getUserPw()),memberReqDto.getEmail(),createdAt);
+//        memberRepository.insertMember(newMember);
     }
 
     public TokenDto issueToken(LoginReqDto loginReqDto){
