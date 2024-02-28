@@ -26,7 +26,9 @@ public class Board {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne
+    private LocalDateTime updatedAt;
+
+    @ManyToOne @Column(nullable = false)
     private Member author;
 
     public void changeBoard(String title, String contents){
