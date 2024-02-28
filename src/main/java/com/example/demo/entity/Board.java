@@ -1,11 +1,9 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.response.BoardDto;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -32,9 +30,10 @@ public class Board {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public void changeBoard(String title, String contents){
+    public void update(BoardDto boardDto){
         this.title = title;
         this.contents = contents;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public Board(String title, String contents) {
@@ -43,6 +42,7 @@ public class Board {
         this.createdAt = LocalDateTime.now();
     }
 
+    @Builder
     public Board(String title, String contents, Member member) {
         this.title = title;
         this.contents = contents;

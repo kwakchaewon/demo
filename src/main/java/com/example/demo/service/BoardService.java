@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.request.BoardCreateDto;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
@@ -65,8 +64,9 @@ public class BoardService {
     }
 
     public ResponseEntity<BoardDto> updateBoard(Board board, BoardDto boardDto){
-        board.changeBoard(boardDto.getTitle(), boardDto.getContents());
+        board.update(boardDto);
         boardRepository.save(board);
+
         boardDto.setId(board.getId());
         boardDto.setCreatedAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")));
         boardDto.setAuthor(board.getMember());
@@ -89,18 +89,18 @@ public class BoardService {
 //        return boardRepository.save(board);
 //    }
 
-    public ResponseEntity<BoardDto> createBoard(BoardCreateDto boardCreateDto, Member _author){
+    public ResponseEntity<BoardDto> createBoard(BoardDto boardDto, Member _author){
 
         Board board = Board.builder()
-                .title(boardCreateDto.getTitle())
-                .contents(boardCreateDto.getContents())
+                .title(boardDto.getTitle())
+                .contents(boardDto.getContents())
                 .createdAt(LocalDateTime.now())
                 .member(_author)
                 .build();
 
         Long id = boardRepository.save(board).getId();
 
-        BoardDto boardDto = BoardDto.builder()
+        BoardDto newBoardDto = BoardDto.builder()
                 .id(board.getId())
                 .title(board.getTitle())
                 .contents(board.getContents())
@@ -108,7 +108,7 @@ public class BoardService {
                 .author(board.getMember())
                 .build();
 
-        return new ResponseEntity<>(boardDto, HttpStatus.CREATED);
+        return new ResponseEntity<>(newBoardDto, HttpStatus.CREATED);
     }
 
     public ResponseEntity<Map<String, Object>> getBoardList(Pageable pageable) {
