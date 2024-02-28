@@ -119,5 +119,15 @@ public class MemberService {
 
         return validatorResult;
     }
+
+    /* 아이디 중복 확인 */
+    public boolean checkUseridDuplication(MemberReqDto memberReqDto){
+        return memberRepository.existsByUserId(memberReqDto.getUserId());
+    }
+
+    /* 이메일 중복 확인 */
+    public boolean checkEmailDuplication(MemberReqDto memberReqDto){
+        return memberRepository.existsByEmail(memberReqDto.getEmail());
+    }
 }
 

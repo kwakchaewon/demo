@@ -66,9 +66,23 @@ public class MemberController {
             response.put("errorMessages",validatorResult);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-
-        memberService.saveMember(memberReqDto);
-        return new ResponseEntity<>(HttpStatus.OK);
+        // 아이디 중복시,
+        else if (memberService.checkUseridDuplication(memberReqDto)){
+            Map<String, String> validatorResult = new HashMap<>();
+            validatorResult.put("duplicate_userId", "이미 존재하는 아이디 입니다.");
+            response.put("errorMessages",validatorResult);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        // 이메일 중복시
+        else if (memberService.checkEmailDuplication(memberReqDto)){
+            Map<String, String> validatorResult = new HashMap<>();
+            validatorResult.put("duplicate_email", "이미 존재하는 이메일 입니다.");
+            response.put("errorMessages",validatorResult);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        } else {
+            memberService.saveMember(memberReqDto);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
 
     // 검증이 포함된 access 로그인

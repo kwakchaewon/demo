@@ -14,4 +14,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying
     @Query(value = "INSERT INTO member (user_id, user_pw, email, created_at) VALUES (:userId, :userPw, :email, :createdAt)",nativeQuery = true)
     void insertMember(@Param("userId") String userId, @Param("userPw") String userPw, @Param("email") String email, @Param("createdAt") LocalDateTime createdAt);
+
+    Boolean existsByUserId(String userId);
+    Boolean existsByEmail(String email);
 }
