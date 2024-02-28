@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 import java.util.zip.DataFormatException;
@@ -48,23 +49,14 @@ class DemoApplicationTests {
 	@Test
 	@Order(1)
 	void createTestUser(){
-//		String encPw = passwordEncoder.encode("admin");
-//
-//		Member testMember = Member.builder()
-//				.userId("admin")
-//				.userPw(encPw)
-//				.email("admin@naver.com")
-//				.build();
-//
-//		memberRepository.save(testMember);
-
 		for (int i = 1; i<= 10; i++){
-			String encPw = passwordEncoder.encode("admin"+i);
+			String encPw = passwordEncoder.encode("@a12345678");
 
 			Member testMember = Member.builder()
-					.userId("admin"+i)
+					.userId("test"+i)
 					.userPw(encPw)
-					.email("admin" + i + "@naver.com")
+					.email("test" + i + "@naver.com")
+					.createdAt(LocalDateTime.now())
 					.build();
 			memberRepository.save(testMember);}
 	}
@@ -74,10 +66,11 @@ class DemoApplicationTests {
 	 */
 	@Test
 	@Order(2)
-	void createBoard() throws Exception {
-		for(int i = 1; i<=120; i++) {
+	void createBoard() {
+		for(int i = 1; i<=50; i++) {
             Random random = new Random();
-            long randomId = random.nextInt(5) + 1L;
+            long randomId = random.nextInt(9) + 1L;
+
             Member testMember = memberService.getMember(randomId);
             String title = String.format("테스트 데이터: [%03d]", i);
             String content = String.format("[%03d]번째 게시글", i);
