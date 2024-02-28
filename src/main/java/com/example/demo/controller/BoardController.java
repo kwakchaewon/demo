@@ -73,7 +73,7 @@ public class BoardController {
         String _userId =boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
 
-        if (!board.getAuthor().getUserId().equals(_userId)) {
+        if (!board.getMember().getUserId().equals(_userId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 권한이 없습니다.");
         }
 
@@ -90,7 +90,7 @@ public class BoardController {
         String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = boardService.getBoard(id);
 
-        if (!board.getAuthor().getUserId().equals(_userId)) {
+        if (!board.getMember().getUserId().equals(_userId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         } else {
             return boardService.updateBoard(board, boardDto);
@@ -119,7 +119,7 @@ public class BoardController {
         String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
 
-        if (!board.getAuthor().getUserId().equals(_userId)) {
+        if (!board.getMember().getUserId().equals(_userId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }else{
             return ResponseEntity.ok("수정 창으로 이동합니다.");

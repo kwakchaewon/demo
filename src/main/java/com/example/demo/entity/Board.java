@@ -28,8 +28,9 @@ public class Board {
 
     private LocalDateTime updatedAt;
 
-    @ManyToOne @Column(nullable = false)
-    private Member author;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     public void changeBoard(String title, String contents){
         this.title = title;
@@ -46,7 +47,7 @@ public class Board {
         this.title = title;
         this.contents = contents;
         this.createdAt = LocalDateTime.now();
-        this.author = member;
+        this.member = member;
     }
 
     @Override

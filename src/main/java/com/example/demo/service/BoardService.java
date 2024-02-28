@@ -53,7 +53,7 @@ public class BoardService {
                 .title(board.getTitle())
                 .contents(board.getContents())
                 .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
-                .author(board.getAuthor())
+                .author(board.getMember())
                 .build();
 
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
@@ -69,7 +69,7 @@ public class BoardService {
         boardRepository.save(board);
         boardDto.setId(board.getId());
         boardDto.setCreatedAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")));
-        boardDto.setAuthor(board.getAuthor());
+        boardDto.setAuthor(board.getMember());
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
     }
 
@@ -95,7 +95,7 @@ public class BoardService {
                 .title(boardCreateForm.getTitle())
                 .contents(boardCreateForm.getContents())
                 .createdAt(LocalDateTime.now())
-                .author(_author)
+                .member(_author)
                 .build();
 
         Long id = boardRepository.save(board).getId();
@@ -105,7 +105,7 @@ public class BoardService {
                 .title(board.getTitle())
                 .contents(board.getContents())
                 .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
-                .author(board.getAuthor())
+                .author(board.getMember())
                 .build();
 
         return new ResponseEntity<>(boardDto, HttpStatus.CREATED);
@@ -124,7 +124,7 @@ public class BoardService {
                     .id(entity.getId())
                     .title(entity.getTitle())
                     .contents(entity.getContents())
-                    .author(entity.getAuthor())
+                    .author(entity.getMember())
                     .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
                     .build();
 
