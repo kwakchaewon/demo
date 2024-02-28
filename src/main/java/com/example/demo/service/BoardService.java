@@ -52,7 +52,7 @@ public class BoardService {
                 .title(board.getTitle())
                 .contents(board.getContents())
                 .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
-                .author(board.getMember())
+                .member(board.getMember())
                 .build();
 
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
@@ -66,10 +66,7 @@ public class BoardService {
     public ResponseEntity<BoardDto> updateBoard(Board board, BoardDto boardDto){
         board.update(boardDto);
         boardRepository.save(board);
-
-        boardDto.setId(board.getId());
-        boardDto.setCreatedAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")));
-        boardDto.setAuthor(board.getMember());
+        boardDto.updateIdAndAuthor(board);
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
     }
 
@@ -105,7 +102,7 @@ public class BoardService {
                 .title(board.getTitle())
                 .contents(board.getContents())
                 .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
-                .author(board.getMember())
+                .member(board.getMember())
                 .build();
 
         return new ResponseEntity<>(newBoardDto, HttpStatus.CREATED);
@@ -124,7 +121,7 @@ public class BoardService {
                     .id(entity.getId())
                     .title(entity.getTitle())
                     .contents(entity.getContents())
-                    .author(entity.getMember())
+                    .member(entity.getMember())
                     .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
                     .build();
 
