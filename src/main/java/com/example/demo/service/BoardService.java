@@ -117,6 +117,8 @@ public class BoardService {
         List<BoardDto> boards = new ArrayList<>();
 
         Page<Board> boardEntities = boardRepository.findAllByOrderByIdDesc(pageable);
+        // Board jpa 로  native query로 만들어야 됐다.
+        
         for (Board entity : boardEntities) {
             BoardDto dto = BoardDto.builder()
                     .id(entity.getId())
@@ -140,6 +142,7 @@ public class BoardService {
         data.put("pagination", pagination);
 
         return new ResponseEntity<>(data ,HttpStatus.OK);
+        // 컨트롤러 단에서 담기 + 예외 처리
     }
 
     public Board getBoard(Long id){

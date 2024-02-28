@@ -15,14 +15,9 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @Builder
 public class MemberDto {
-
-    @Size(min = 3, max = 25)
-    @NotEmpty(message = "사용자ID는 필수항목입니다.")
     private String userId;
 
-    @NotEmpty(message = "비밀번호는 필수항목입니다.")
     private String userPw;
 
-    @NotEmpty(message = "이메일은 필수항목입니다.") @Email
     private String email;
 }

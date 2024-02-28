@@ -105,7 +105,7 @@ public class BoardController {
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
             HttpServletRequest request
     ) {
-        String token = jwtUtil.getHeaderToken(request, "ACCESS_TOKEN");
+//        String token = jwtUtil.getHeaderToken(request, "ACCESS_TOKEN");
         return boardService.getBoardList(pageable);
     }
 
