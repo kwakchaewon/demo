@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.request.BoardCreateForm;
+import com.example.demo.dto.request.BoardCreateDto;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
@@ -89,11 +89,11 @@ public class BoardService {
 //        return boardRepository.save(board);
 //    }
 
-    public ResponseEntity<BoardDto> createBoard(BoardCreateForm boardCreateForm, Member _author){
+    public ResponseEntity<BoardDto> createBoard(BoardCreateDto boardCreateDto, Member _author){
 
         Board board = Board.builder()
-                .title(boardCreateForm.getTitle())
-                .contents(boardCreateForm.getContents())
+                .title(boardCreateDto.getTitle())
+                .contents(boardCreateDto.getContents())
                 .createdAt(LocalDateTime.now())
                 .member(_author)
                 .build();

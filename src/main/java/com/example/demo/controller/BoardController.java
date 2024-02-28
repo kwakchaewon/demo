@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.request.BoardCreateForm;
+import com.example.demo.dto.request.BoardCreateDto;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.Map;
 
 @RequestMapping("/board")
@@ -47,13 +48,13 @@ public class BoardController {
      * 게시글 작성
      */
     @PostMapping("")
-    public ResponseEntity<BoardDto> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
+    public ResponseEntity<BoardDto> createBoardDone(@Valid @RequestBody BoardCreateDto boardCreateDto,
                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
 
         String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Member _member = this.memberService.getMemberByUserId(_userId);
 
-        return this.boardService.createBoard(boardCreateForm, _member);
+        return this.boardService.createBoard(boardCreateDto, _member);
     }
 
     /**
