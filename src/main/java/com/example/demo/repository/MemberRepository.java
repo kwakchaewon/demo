@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByUserId(String userId);
     @Modifying
-    @Query(value = "INSERT INTO member (user_id, user_pw, email) VALUES (:userId, :userPw, :email)",nativeQuery = true)
-    void insertMember(@Param("userId") String userId, @Param("userPw") String userPw, @Param("email")String email);
+    @Query(value = "INSERT INTO member (user_id, user_pw, email, created_at) VALUES (:userId, :userPw, :email, :createdAt)",nativeQuery = true)
+    void insertMember(@Param("userId") String userId, @Param("userPw") String userPw, @Param("email") String email, @Param("createdAt") LocalDateTime createdAt);
 }

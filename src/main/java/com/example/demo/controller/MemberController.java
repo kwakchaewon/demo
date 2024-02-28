@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.LoginReqDto;
-import com.example.demo.dto.response.MemberDto;
+import com.example.demo.dto.request.MemberReqDto;
 import com.example.demo.dto.response.TokenDto;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
@@ -11,8 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,8 +23,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/member")
 public class MemberController {
-    private final JWTUtil jwtUtil;
     private final MemberService memberService;
+    private final JWTUtil jwtUtil;
 
     @Value("${jwt.secret_access}")
     private String secret_access;
@@ -55,8 +56,18 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUp(@RequestBody MemberDto memberDto) throws Exception{
-        memberService.saveMember(memberDto);
+    public ResponseEntity<HashMap<String,Object>> signUp(@Valid @RequestBody MemberReqDto memberReqDto,
+                                              BindingResult bindingResult) {
+        HashMap<String,Object> response = new HashMap<>();
+
+        // @Valid 기반 회원가입 유효성 검사
+        if(bindingResult.hasErrors()){
+            Map<String, String> validatorResult = memberService.validateHandling(bindingResult);
+            response.put("errorMessages",validatorResult);
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+        memberService.saveMember(memberReqDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

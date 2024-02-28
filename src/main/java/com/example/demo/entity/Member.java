@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -29,6 +30,9 @@ public class Member {
 
     private String refreshToken;
 
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
     public String refreshTokenUpdate(String token){
         this.refreshToken = token;
         return token;
@@ -38,5 +42,6 @@ public class Member {
         this.userId = memberReqDto.getUserId();
         this.userPw = memberReqDto.getUserPw();
         this.email = memberReqDto.getEmail();
+        this.createdAt = LocalDateTime.now();
     }
 }
