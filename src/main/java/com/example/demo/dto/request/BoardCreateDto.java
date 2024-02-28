@@ -2,15 +2,14 @@ package com.example.demo.dto.request;
 
 import lombok.*;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoardCreateForm {
+public class BoardCreateDto {
     @NotBlank(message = "제목을 입력하세요.")
     private String title;
 
