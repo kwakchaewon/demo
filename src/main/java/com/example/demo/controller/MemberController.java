@@ -66,14 +66,14 @@ public class MemberController {
             response.put("errorMessages",validatorResult);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-        // 아이디 중복시,
+        // 아이디 중복 검사
         else if (memberService.checkUseridDuplication(memberReqDto)){
             Map<String, String> validatorResult = new HashMap<>();
             validatorResult.put("duplicate_userId", "이미 존재하는 아이디 입니다.");
             response.put("errorMessages",validatorResult);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-        // 이메일 중복시
+        // 이메일 중복 검사
         else if (memberService.checkEmailDuplication(memberReqDto)){
             Map<String, String> validatorResult = new HashMap<>();
             validatorResult.put("duplicate_email", "이미 존재하는 이메일 입니다.");
