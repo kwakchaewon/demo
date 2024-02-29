@@ -66,7 +66,7 @@ public class Board {
                 .title(this.getTitle())
                 .contents(this.getContents())
                 .createdAt(this.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
-                .member(this.getMember())
+                .memberDto(this.getMember().ofMemberDto())
                 .build();
 
         return boardDto;

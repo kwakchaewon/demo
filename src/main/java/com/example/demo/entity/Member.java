@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.dto.request.MemberReqDto;
+import com.example.demo.dto.response.MemberDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -43,5 +44,14 @@ public class Member {
         this.userPw = memberReqDto.getUserPw();
         this.email = memberReqDto.getEmail();
         this.createdAt = LocalDateTime.now();
+    }
+
+    public MemberDto ofMemberDto(){
+        MemberDto memberDto =  MemberDto.builder()
+                .id(this.id)
+                .userId(this.userId)
+                .build();
+
+        return memberDto;
     }
 }

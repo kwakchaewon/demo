@@ -53,7 +53,7 @@ public class BoardService {
                 .title(board.getTitle())
                 .contents(board.getContents())
                 .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
-                .member(board.getMember())
+                .memberDto(board.getMember().ofMemberDto())
                 .build();
 
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
@@ -91,7 +91,7 @@ public class BoardService {
                     .id(entity.getId())
                     .title(entity.getTitle())
                     .contents(entity.getContents())
-                    .member(entity.getMember())
+                    .memberDto(entity.getMember().ofMemberDto())
                     .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
                     .build();
 

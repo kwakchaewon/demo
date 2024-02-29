@@ -16,9 +16,6 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @Builder
 public class MemberDto {
+    private Long id;
     private String userId;
-
-    private String userPw;
-
-    private String email;
 }

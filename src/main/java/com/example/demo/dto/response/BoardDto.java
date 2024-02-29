@@ -2,6 +2,7 @@ package com.example.demo.dto.response;
 
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
+import com.example.demo.service.MemberService;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,9 +24,8 @@ public class BoardDto {
     private String contents;
     private String createdAt;
     private String updatedAt;
-    private Member member;
-
     private String errMsg;
+    private MemberDto memberDto;
 
 
     /**
@@ -33,18 +33,20 @@ public class BoardDto {
      */
     public void updateIdAndAuthor(Board board){
         this.id = board.getId();
-        this.member = board.getMember();
+        this.memberDto = board.getMember().ofMemberDto();
         this.createdAt = board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
         this.updatedAt = board.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
     }
 
-    public Board toEntity(){
-        return Board.builder()
-                .title(title)
-                .contents(contents)
-                .member(member)
-                .build();
-    }
+//    public Board toEntity(){
+//
+//
+//        return Board.builder()
+//                .title(title)
+//                .contents(contents)
+//                .member(member)
+//                .build();
+//    }
 
     public BoardDto(String errorMsg) {
         this.errMsg = errorMsg;
