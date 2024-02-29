@@ -103,7 +103,8 @@ public class BoardController {
         Board board = boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+            boardDto.setErrMsg("수정권한이 없습니다.");
+            return new ResponseEntity<>(boardDto ,HttpStatus.BAD_REQUEST);
         } else {
             return boardService.updateBoard(board, boardDto);
         }
@@ -137,34 +138,4 @@ public class BoardController {
             return ResponseEntity.ok("수정 창으로 이동합니다.");
         }
     }
-
-    // 게시글 작성 유효성 검사 코드
-    //    @PostMapping("/write")
-//    public Board createBoardDone(@RequestBody @Valid BoardDto boardDto,
-//                                 @RequestHeader("Authorization") String authorizationHeader){
-//
-//        String token = authorizationHeader.substring(7);
-//        String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
-//        Member _member = this.memberService.getMemberByUserId(_userId);
-//        return this.boardService.createBoard(boardDto, _member);
-//    }
-
-//    @PostMapping("/write")
-//    public ResponseEntity<?> createBoardDone(@Valid @RequestBody BoardCreateForm boardCreateForm,
-//                                                  @RequestHeader("Authorization") String authorizationHeader){
-//
-//        // title, contents 빈칸에 대한 유효성 검사
-//        if (boardCreateForm.getTitle() == null || boardCreateForm.getTitle().isEmpty()){
-//            return ResponseEntity.badRequest().body("게시글 제목은 필수입니다.");
-//        }
-//        else if(boardCreateForm.getContents() == null || boardCreateForm.getContents().isEmpty()){
-//            return ResponseEntity.badRequest().body("게시글 내용은 필수입니다.");
-//        } else {
-//            String token = authorizationHeader.substring(7);
-//            String _userId = jwtUtil.decodeToken(token).getClaim("userId").asString();
-//            Member _member = this.memberService.getMemberByUserId(_userId);
-//            Board newBoard = this.boardService.createBoard(boardCreateForm, _member);
-//            return ResponseEntity.ok(Long.toString(newBoard.getId()));
-//        }
-//    }
 }
