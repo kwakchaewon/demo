@@ -34,7 +34,6 @@ public class BoardDto {
     public void updateIdAndAuthor(Board board){
         this.id = board.getId();
         this.memberDto = board.getMember().ofMemberDto();
-        this.createdAt = board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
         this.updatedAt = board.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
     }
 
