@@ -29,8 +29,6 @@ public class BoardController {
     @Value("${jwt.secret_access}")
     private String secret_access;
 
-
-
     @Autowired
     private BoardService boardService;
 
@@ -115,10 +113,8 @@ public class BoardController {
      */
     @GetMapping("")
     public ResponseEntity<Map<String, Object>> pagingBoardList(
-            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
-            HttpServletRequest request
+            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
     ) {
-//        String token = jwtUtil.getHeaderToken(request, "ACCESS_TOKEN");
         return boardService.getBoardList(pageable);
     }
 

@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.LoginReqDto;
 import com.example.demo.dto.request.MemberReqDto;
-import com.example.demo.dto.response.MemberDto;
 import com.example.demo.dto.response.TokenDto;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.MemberRepository;
