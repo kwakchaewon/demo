@@ -4,6 +4,7 @@ import com.example.demo.dto.request.LoginReqDto;
 import com.example.demo.dto.request.MemberReqDto;
 import com.example.demo.dto.response.TokenDto;
 import com.example.demo.service.MemberService;
+import com.example.demo.util.CustomVal;
 import com.example.demo.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +27,7 @@ import java.util.Map;
 public class MemberController {
     private final MemberService memberService;
     private final JWTUtil jwtUtil;
+    private final CustomVal customVal;
 
     @Value("${jwt.secret_access}")
     private String secret_access;
@@ -41,7 +44,7 @@ public class MemberController {
         UserDetails loginUser = memberService.setAuth(loginReqDto);   // 1. 로그인 검증 및 auth 세팅
         TokenDto tokenDto = memberService.issueToken(loginReqDto);    // 2. 토큰 발급 및 관련 로직
 //        long ACCESS_EXP = jwtUtil.decodeToken(tokenDto.getAccessToken(), secret_access).getExpiresAt().getTime();
-        int ACCESS_EXP = 1/(24*60);
+        int ACCESS_EXP = 1 / (24 * 60);
         int REFRESH_EXP = 7;
 
         Map<String, Object> result = new HashMap<>();
@@ -56,37 +59,37 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<HashMap<String,Object>> signUp(@Valid @RequestBody MemberReqDto memberReqDto,
-                                              BindingResult bindingResult) {
-        HashMap<String,Object> response = new HashMap<>();
+    public ResponseEntity<HashMap<String, Object>> signUp(@Valid @RequestBody MemberReqDto memberReqDto,
+                                                          BindingResult bindingResult) {
+        HashMap<String, Object> response = new HashMap<>();
 
-        // @Valid 기반 회원가입 유효성 검사
-        if(bindingResult.hasErrors()){
-            Map<String, String> validatorResult = memberService.validateHandling(bindingResult);
-            response.put("errorMessages",validatorResult);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        // @Valid 기반 유효성 검사
+        if (bindingResult.hasErrors()) {
+            return customVal.validateHandling(bindingResult, response);
         }
         // 아이디 중복 검사
-        else if (memberService.checkUseridDuplication(memberReqDto)){
+        else if (memberService.checkUseridDuplication(memberReqDto)) {
             Map<String, String> validatorResult = new HashMap<>();
             validatorResult.put("duplicate_userId", "이미 존재하는 아이디 입니다.");
-            response.put("errorMessages",validatorResult);
+            response.put("errorMessages", validatorResult);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
         // 이메일 중복 검사
-        else if (memberService.checkEmailDuplication(memberReqDto)){
+        else if (memberService.checkEmailDuplication(memberReqDto)) {
             Map<String, String> validatorResult = new HashMap<>();
             validatorResult.put("duplicate_email", "이미 존재하는 이메일 입니다.");
-            response.put("errorMessages",validatorResult);
+            response.put("errorMessages", validatorResult);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } else {
             memberService.saveMember(memberReqDto);
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
+}
 
-    // 검증이 포함된 access 로그인
-    //    @PostMapping("/login")
+
+        // 검증이 포함된 access 로그인
+        //    @PostMapping("/login")
 //    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> paramMap) {
 //        String userId = paramMap.get("user_id");
 //        String userPw = paramMap.get("user_pw");
@@ -108,5 +111,3 @@ public class MemberController {
 //
 //        return ResponseEntity.ok(result);
 //    }
-
-}
