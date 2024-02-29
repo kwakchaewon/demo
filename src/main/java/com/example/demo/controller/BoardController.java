@@ -53,7 +53,6 @@ public class BoardController {
 
         String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Member _member = this.memberService.getMemberByUserId(_userId);
-
         return this.boardService.createBoard(boardCreateForm, _member);
     }
 
