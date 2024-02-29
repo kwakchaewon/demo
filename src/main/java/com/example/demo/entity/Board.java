@@ -28,12 +28,13 @@ public class Board {
 
     private LocalDateTime updatedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
-    private List<Comment> commentList;
+//    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+//    @OrderBy("createdAt desc")
+//    private List<Comment> comments;
 
     public void update(BoardDto boardDto){
         this.title = title;
@@ -70,7 +71,6 @@ public class Board {
                 .title(this.getTitle())
                 .contents(this.getContents())
                 .createdAt(this.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
-                .memberDto(this.getMember().ofMemberDto())
                 .build();
 
         return boardDto;

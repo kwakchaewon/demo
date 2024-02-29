@@ -1,50 +1,59 @@
 package com.example.demo.dto.response;
 
 import com.example.demo.entity.Board;
-import com.example.demo.entity.Member;
-import com.example.demo.service.MemberService;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class BoardDto {
     private Long id;
     private String title;
     private String contents;
-    private String createdAt;
-    private String updatedAt;
+    private String createdAt, updatedAt;
+    private String memberId;
     private String errMsg;
-    private MemberDto memberDto;
-
 
     /**
      * 수정 시, 제목, 내용 제외한 나머지 필드 업데이트
      */
     public void updateIdAndAuthor(Board board){
         this.id = board.getId();
-        this.memberDto = board.getMember().ofMemberDto();
         this.updatedAt = board.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
     }
 
-//    public Board toEntity(){
-//
-//
-//        return Board.builder()
-//                .title(title)
-//                .contents(contents)
-//                .member(member)
-//                .build();
+    /**
+     * Entity -> Dto
+     */
+    public BoardDto(Board board){
+        this.id = board.getId();
+        this.title = board.getTitle();
+        this.contents = board.getContents();
+        this.createdAt = board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
+        this.memberId = board.getMember().getUserId();
+//        this.comments = board.getComments().stream().map(CommentDto::new).collect(Collectors.toList());
+    }
+
+//    public BoardDto(Board board){
+//        this.id = board.getId();
+//        this.title = board.getTitle();
+//        this.writer = board.getMember().getUserId();
+//        this.contents = board.getContents();
+//        this.createdAt = board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
+//        this.memberId = board.getMember().getId();
+//        this.comments = board.getComments().stream().map(CommentDto::new).collect(Collectors.toList());
 //    }
 
     public BoardDto(String errorMsg) {

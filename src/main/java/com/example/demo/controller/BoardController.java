@@ -2,11 +2,15 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.response.BoardDto;
+import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
+import com.example.demo.entity.Comment;
 import com.example.demo.entity.Member;
 import com.example.demo.service.BoardService;
+import com.example.demo.service.CommentService;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +23,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RequestMapping("/board")
 @RestController
 @Validated
+@RequiredArgsConstructor
 public class BoardController {
 
     @Value("${jwt.secret_access}")
@@ -34,6 +41,9 @@ public class BoardController {
 
     @Autowired
     private MemberService memberService;
+
+    @Autowired
+    private CommentService commentService;
 
     @Autowired
     JWTUtil jwtUtil;
@@ -70,8 +80,30 @@ public class BoardController {
      * 게시글 상세
      */
     @GetMapping("/{id}")
-    public ResponseEntity<BoardDto> detailBoard(@PathVariable("id") Long id) throws Exception {
-        return boardService.findBoardById(id);
+    public BoardDto detailBoard(@PathVariable("id") Long id) {
+        Map<String, Object> response = new HashMap<>();
+        BoardDto boardDto = boardService.findBoardById(id);
+//        List<CommentDto> comments = boardDto.getComments();
+
+        // 댓글 목록
+//        if(comments != null && !comments.isEmpty()){
+//            response.put("comments", comments);
+//        }
+
+//        /* 사용자 관련 */
+//        if (user != null) {
+//            model.addAttribute("user", user.getNickname());
+//
+//            /*게시글 작성자 본인인지 확인*/
+//            if (dto.getUserId().equals(user.getId())) {
+//                model.addAttribute("writer", true);
+//            }
+//        }
+
+        // 게시글 상세
+//        response.put("boardInfo", boardDto);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+        return boardDto;
     }
 
     /**
@@ -133,5 +165,10 @@ public class BoardController {
         }else{
             return ResponseEntity.ok("수정 창으로 이동합니다.");
         }
+    }
+
+    @GetMapping("{id}/comment")
+    public List<Comment> commentList(@PathVariable("id") Long id){
+        return commentService.getCommentList(id);
     }
 }

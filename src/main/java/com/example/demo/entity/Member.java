@@ -29,6 +29,7 @@ public class Member {
     @Column(length = 100, unique = true, nullable = false)
     private String email;
 
+    @Column
     private String refreshToken;
 
     @Column(nullable = false)

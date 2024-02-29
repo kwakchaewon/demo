@@ -45,18 +45,21 @@ public class BoardService {
         return boardDtos;
     }
 
-    public ResponseEntity<BoardDto> findBoardById(Long id) {
+    public BoardDto findBoardById(Long id) {
         Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
 
-        BoardDto boardDto =  BoardDto.builder()
-                .id(board.getId())
-                .title(board.getTitle())
-                .contents(board.getContents())
-                .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
-                .memberDto(board.getMember().ofMemberDto())
-                .build();
+        BoardDto boardDto = new BoardDto(board);
 
-        return new ResponseEntity<>(boardDto, HttpStatus.OK);
+//        BoardDto boardDto =  BoardDto.builder()
+//                .id(board.getId())
+//                .title(board.getTitle())
+//                .contents(board.getContents())
+//                .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
+//                .writer(board.getMember().getUserId())
+//                .comments(board.getComments().)
+//                .build();
+
+        return boardDto;
     }
 
     public ResponseEntity deleteBoardById(Long id){
@@ -91,7 +94,6 @@ public class BoardService {
                     .id(entity.getId())
                     .title(entity.getTitle())
                     .contents(entity.getContents())
-                    .memberDto(entity.getMember().ofMemberDto())
                     .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
                     .build();
 
@@ -113,8 +115,13 @@ public class BoardService {
     }
 
     public Board getBoard(Long id){
-        Optional<Board> board = this.boardRepository.findById(id);
-        return board.get();
+        Optional<Board> _board = this.boardRepository.findById(id);
+
+        if (_board.isPresent()) {
+            return _board.get();
+        } else {
+            throw new NoSuchElementException("Board is not found");
+        }
     }
 
     public String getUserIdByToken(String authorizationHeader, String secret) {
