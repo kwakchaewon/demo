@@ -48,12 +48,24 @@ public class BoardController {
      * 게시글 작성
      */
     @PostMapping("")
-    public ResponseEntity<BoardDto> createBoardDone(@Valid @RequestBody BoardCreateForm boardCreateForm,
+    public ResponseEntity<BoardDto> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
 
-        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
-        Member _member = this.memberService.getMemberByUserId(_userId);
-        return this.boardService.createBoard(boardCreateForm, _member);
+        // 빈 제목 유효성 검사
+        if (boardCreateForm.getTitle().trim().isEmpty()){
+            BoardDto boardDto = new BoardDto("빈 제목은 입력할 수 없습니다.");
+            return new ResponseEntity<>(boardDto, HttpStatus.BAD_REQUEST);
+        }
+        // 빈 내용 유효성 검사
+        else if (boardCreateForm.getContents().trim().isEmpty()) {
+            BoardDto boardDto = new BoardDto("빈 내용 입력할 수 없습니다.");
+            return new ResponseEntity<>(boardDto, HttpStatus.BAD_REQUEST);
+        }
+        else {
+            String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
+            Member _member = this.memberService.getMemberByUserId(_userId);
+            return this.boardService.createBoard(boardCreateForm, _member);
+        }
     }
 
     /**

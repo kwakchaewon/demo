@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -18,16 +19,13 @@ import java.time.format.DateTimeFormatter;
 @Builder
 public class BoardDto {
     private Long id;
-
-    @NotEmpty(message = "제목은 필수 항목입니다.")
-    @Size(max = 200, message = "제목은 200자 이상 넘길 수 없습니다.")
     private String title;
-
-    @NotEmpty(message = "제목은 필수 항목입니다.")
     private String contents;
     private String createdAt;
     private String updatedAt;
     private Member member;
+
+    private String errMsg;
 
 
     /**
@@ -46,5 +44,9 @@ public class BoardDto {
                 .contents(contents)
                 .member(member)
                 .build();
+    }
+
+    public BoardDto(String errorMsg) {
+        this.errMsg = errorMsg;
     }
 }
