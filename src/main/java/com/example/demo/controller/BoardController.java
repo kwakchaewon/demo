@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
@@ -47,13 +48,13 @@ public class BoardController {
      * 게시글 작성
      */
     @PostMapping("")
-    public ResponseEntity<BoardDto> createBoardDone(@Valid @RequestBody BoardDto boardDto,
+    public ResponseEntity<BoardDto> createBoardDone(@Valid @RequestBody BoardCreateForm boardCreateForm,
                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
 
         String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Member _member = this.memberService.getMemberByUserId(_userId);
 
-        return this.boardService.createBoard(boardDto, _member);
+        return this.boardService.createBoard(boardCreateForm, _member);
     }
 
     /**

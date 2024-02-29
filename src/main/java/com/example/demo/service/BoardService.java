@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
@@ -70,42 +71,11 @@ public class BoardService {
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
     }
 
-//        Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
-//        board.setTitle(boardDto.getTitle());
-//        board.setContents(boardDto.getContents());
-//        return new ResponseEntity<>(,)
-
-
-//    public Board createBoard(BoardCreateForm boardCreateForm, Member _author){
-//        Board board = Board.builder()
-//                .title(boardCreateForm.getTitle())
-//                .contents(boardCreateForm.getContents())
-//                .createdAt(LocalDateTime.now())
-//                .author(_author)
-//                .build();
-//        return boardRepository.save(board);
-//    }
-
-    public ResponseEntity<BoardDto> createBoard(BoardDto boardDto, Member _author){
-
-        Board board = Board.builder()
-                .title(boardDto.getTitle())
-                .contents(boardDto.getContents())
-                .createdAt(LocalDateTime.now())
-                .member(_author)
-                .build();
-
-        Long id = boardRepository.save(board).getId();
-
-        BoardDto newBoardDto = BoardDto.builder()
-                .id(board.getId())
-                .title(board.getTitle())
-                .contents(board.getContents())
-                .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
-                .member(board.getMember())
-                .build();
-
-        return new ResponseEntity<>(newBoardDto, HttpStatus.CREATED);
+    public ResponseEntity<BoardDto> createBoard(BoardCreateForm boardCreateForm, Member member){
+        Board board = boardCreateForm.toEntity(member);
+        boardRepository.save(board);
+        BoardDto boardDto = board.of();
+        return new ResponseEntity<>(boardDto, HttpStatus.CREATED);
     }
 
     public ResponseEntity<Map<String, Object>> getBoardList(Pageable pageable) {

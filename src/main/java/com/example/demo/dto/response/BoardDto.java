@@ -39,4 +39,12 @@ public class BoardDto {
         this.createdAt = board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
         this.updatedAt = board.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
     }
+
+    public Board toEntity(){
+        return Board.builder()
+                .title(title)
+                .contents(contents)
+                .member(member)
+                .build();
+    }
 }

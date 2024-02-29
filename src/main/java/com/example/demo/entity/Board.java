@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Data
@@ -57,5 +58,17 @@ public class Board {
                 ", title='" + title + '\'' +
                 ", contents='" + contents + '\'' +
                 '}';
+    }
+
+    public BoardDto of(){
+        BoardDto boardDto = BoardDto.builder()
+                .id(this.getId())
+                .title(this.getTitle())
+                .contents(this.getContents())
+                .createdAt(this.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
+                .member(this.getMember())
+                .build();
+
+        return boardDto;
     }
 }
