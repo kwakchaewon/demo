@@ -1,9 +1,12 @@
 package com.example.demo;
 
 import com.example.demo.entity.Board;
+import com.example.demo.entity.Comment;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.BoardRepository;
+import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.MemberRepository;
+import com.example.demo.service.BoardService;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
 import org.junit.jupiter.api.MethodOrderer;
@@ -33,7 +36,11 @@ class DemoApplicationTests {
 	@Autowired
 	private MemberRepository memberRepository;
 	@Autowired
+	private CommentRepository commentRepository;
+	@Autowired
 	private MemberService memberService;
+	@Autowired
+	private BoardService boardService;
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -62,7 +69,7 @@ class DemoApplicationTests {
 	}
 
 	/**
-	 *  Board 테스트 데이터 300개 생성
+	 *  Board 테스트 데이터 50개 생성
 	 */
 	@Test
 	@Order(2)
@@ -77,6 +84,30 @@ class DemoApplicationTests {
             Board board = new Board(title, content, testMember);
             this.boardRepository.save(board);
         }
+	}
+
+	/**
+	 * Comment 테스트 데이터 50개 생성
+	 */
+	@Test
+	@Order(3)
+	void createComment(){
+		for(int i = 1; i<=50; i++) {
+			// 작성자 랜덤
+			Random memberRd = new Random();
+			long memberId = memberRd.nextInt(9) + 1L;
+
+			Random boardRd = new Random();
+			long boardId = memberRd.nextInt(49) + 1L;
+
+			Member _member = memberService.getMember(memberId);
+			Board _board = boardService.getBoard(boardId);
+
+			String contents = String.format("테스트 [%03d] 댓글", i);
+			Comment comment = new Comment(contents, _member, _board);
+
+			this.commentRepository.save(comment);
+		}
 	}
 
 	/**
