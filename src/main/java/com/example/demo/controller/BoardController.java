@@ -64,23 +64,17 @@ public class BoardController {
      */
     @PostMapping("")
     public ResponseEntity<BoardDto> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
-                                         @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
+                                         @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
 
-        // 빈 제목 유효성 검사
-//        if (boardCreateForm.getTitle().trim().isEmpty()){
-//            BoardDto boardDto = new BoardDto("빈 제목은 입력할 수 없습니다.");
-//            throw new CustomException(HttpStatus.BAD_REQUEST, )
-//        }
-//        // 빈 내용 유효성 검사
-//        else if (boardCreateForm.getContents().trim().isEmpty()) {
-//            BoardDto boardDto = new BoardDto("빈 내용 입력할 수 없습니다.");
-//            return new ResponseEntity<>(boardDto, HttpStatus.BAD_REQUEST);
-//        }
-//        else {
+        // 빈 제목, 내용 유효성 검사
+        if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()){
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_ONLY_BLANL);
+        }
+        else {
             String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
             Member _member = this.memberService.getMemberByUserId(_userId);
             return this.boardService.createBoard(boardCreateForm, _member);
-//        }
+        }
     }
 
     /**
@@ -166,7 +160,7 @@ public class BoardController {
     ) throws CustomException {
         String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
-        
+
         if (!board.getMember().getUserId().equals(_userId)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NO_AUTHORIZATION);
         }else{
