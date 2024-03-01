@@ -22,7 +22,7 @@ public class CustomExceptionHandler {
         Map<String, String> map = new HashMap<>();
 
         map.put("type", e.getHttpType());
-        map.put("code", Integer.toString(e.getHttpCode()));
+        map.put("status", Integer.toString(e.getHttpCode()));
         map.put("message", e.getExceptionClass().getExceptionClass());
 
         return new ResponseEntity<>(map, headers, e.getHttpStatus());
