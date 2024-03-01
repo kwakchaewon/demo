@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BoardService {
@@ -47,18 +48,7 @@ public class BoardService {
 
     public BoardDto findBoardById(Long id) {
         Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
-
         BoardDto boardDto = new BoardDto(board);
-
-//        BoardDto boardDto =  BoardDto.builder()
-//                .id(board.getId())
-//                .title(board.getTitle())
-//                .contents(board.getContents())
-//                .createdAt(board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss")))
-//                .writer(board.getMember().getUserId())
-//                .comments(board.getComments().)
-//                .build();
-
         return boardDto;
     }
 
@@ -84,34 +74,21 @@ public class BoardService {
     public ResponseEntity<Map<String, Object>> getBoardList(Pageable pageable) {
 
         Map<String, Object> data = new HashMap();
-        List<BoardDto> boards = new ArrayList<>();
+        Page<Board> boardList = boardRepository.findAllByOrderByIdDesc(pageable);
 
-        Page<Board> boardEntities = boardRepository.findAllByOrderByIdDesc(pageable);
-        // Board jpa 로  native query로 만들어야 됐다.
-        
-        for (Board entity : boardEntities) {
-            BoardDto dto = BoardDto.builder()
-                    .id(entity.getId())
-                    .title(entity.getTitle())
-                    .contents(entity.getContents())
-                    .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
-                    .build();
-
-            boards.add(dto);
-        }
+        List<BoardDto> boardDtoList =  boardList.stream().map(BoardDto::new).collect(Collectors.toList());
 
         Pagination pagination = new Pagination(
-                (int) boardEntities.getTotalElements()
+                (int) boardList.getTotalElements()
                 , pageable.getPageNumber() + 1
                 , pageable.getPageSize()
                 , 10
         );
 
-        data.put("boards", boards);
+        data.put("boards", boardDtoList);
         data.put("pagination", pagination);
 
         return new ResponseEntity<>(data ,HttpStatus.OK);
-        // 컨트롤러 단에서 담기 + 예외 처리
     }
 
     public Board getBoard(Long id){
