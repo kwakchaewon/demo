@@ -11,7 +11,10 @@ public class Constants {
 
         // 회원가입 관련
         SIGNUP_USERID_DUPLICATE("이미 존재하는 아이디입니다."),
-        SIGNUP_EMAIL_DUPLICATE("이미 존재하는 이메일입니다.");
+        SIGNUP_EMAIL_DUPLICATE("이미 존재하는 이메일입니다."),
+
+        // 댓글
+        COMMENT_BOARD_NOTFOUND("해당 게시글이 존재하지 않습니다.");
 
         private String exceptionClass;
 

@@ -8,12 +8,17 @@ import com.example.demo.entity.Member;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.MemberRepository;
+import com.example.demo.util.exception.Constants;
+import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -28,10 +33,14 @@ public class CommentService {
 //        return new ResponseEntity<>(_commentList, HttpStatus.OK);
 //    }
 
-    public List<Comment> getCommentList(Long id){
+    public List<CommentDto> getCommentList(Long id) throws CustomException {
+
+        // 찾는 Board 가 없다면 400 반환
         Board board = boardRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("댓글 쓰기 실패: 해당 게시글이 존재하지 않습니다." + id));
-        return commentRepository.findCommentsByBoard(board);
+                new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_BOARD_NOTFOUND));
+        List<Comment> commentList = commentRepository.findByBoard(board);
+
+        return commentList.stream().map(CommentDto::new).collect(Collectors.toList());
     }
 
     public Long commentSave(String userId, Long id, CommentReqDto dto){

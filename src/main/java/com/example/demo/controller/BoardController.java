@@ -4,12 +4,14 @@ import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
-import com.example.demo.entity.Comment;
 import com.example.demo.entity.Member;
+import com.example.demo.repository.BoardRepository;
+import com.example.demo.repository.CommentRepository;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
+import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,8 +23,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +44,12 @@ public class BoardController {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private BoardRepository boardRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Autowired
     JWTUtil jwtUtil;
@@ -168,7 +174,8 @@ public class BoardController {
     }
 
     @GetMapping("{id}/comment")
-    public List<Comment> commentList(@PathVariable("id") Long id){
-        return commentService.getCommentList(id);
+    public ResponseEntity commentList(@PathVariable("id") Long id) throws CustomException {
+        List<CommentDto> commentDtoList = commentService.getCommentList(id);
+        return new ResponseEntity(commentDtoList, HttpStatus.OK);
     }
 }
