@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.dto.request.MemberReqDto;
+import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.MemberDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,10 +40,10 @@ public class Member {
         return token;
     }
 
-    public Member (MemberReqDto memberReqDto){
-        this.userId = memberReqDto.getUserId();
-        this.userPw = memberReqDto.getUserPw();
-        this.email = memberReqDto.getEmail();
+    public Member (SignupForm signupForm){
+        this.userId = signupForm.getUserId();
+        this.userPw = signupForm.getUserPw();
+        this.email = signupForm.getEmail();
         this.createdAt = LocalDateTime.now();
     }
 

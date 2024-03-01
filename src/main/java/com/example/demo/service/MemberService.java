@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.request.LoginReqDto;
-import com.example.demo.dto.request.MemberReqDto;
+import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.TokenDto;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.MemberRepository;
@@ -19,8 +19,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -56,10 +54,10 @@ public class MemberService {
     }
 
     @Transactional
-    public void saveMember(MemberReqDto memberReqDto) {
+    public void saveMember(SignupForm signupForm) {
         // Native Query 기반 회원가입
         LocalDateTime createdAt = LocalDateTime.now();
-        memberRepository.insertMember(memberReqDto.getUserId(), passwordEncoder.encode(memberReqDto.getUserPw()),memberReqDto.getEmail(),createdAt);
+        memberRepository.insertMember(signupForm.getUserId(), passwordEncoder.encode(signupForm.getUserPw()), signupForm.getEmail(),createdAt);
     }
 
     public TokenDto issueToken(LoginReqDto loginReqDto){
@@ -97,13 +95,13 @@ public class MemberService {
     }
 
     /* 아이디 중복 확인 */
-    public boolean checkUseridDuplication(MemberReqDto memberReqDto){
-        return memberRepository.existsByUserId(memberReqDto.getUserId());
+    public boolean checkUseridDuplication(SignupForm signupForm){
+        return memberRepository.existsByUserId(signupForm.getUserId());
     }
 
     /* 이메일 중복 확인 */
-    public boolean checkEmailDuplication(MemberReqDto memberReqDto){
-        return memberRepository.existsByEmail(memberReqDto.getEmail());
+    public boolean checkEmailDuplication(SignupForm signupForm){
+        return memberRepository.existsByEmail(signupForm.getEmail());
     }
 }
 
