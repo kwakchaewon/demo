@@ -161,16 +161,16 @@ public class BoardController {
      *  게시글 수정 권한 검증
      */
     @GetMapping("/{id}/check")
-    public ResponseEntity<String> checkUpdateAuth(@PathVariable("id") Long id,
+    public ResponseEntity checkUpdateAuth(@PathVariable("id") Long id,
                                                   @RequestHeader("ACCESS_TOKEN") String authorizationHeader
-    ){
+    ) throws CustomException {
         String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
-
+        
         if (!board.getMember().getUserId().equals(_userId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NO_AUTHORIZATION);
         }else{
-            return ResponseEntity.ok("수정 창으로 이동합니다.");
+            return new ResponseEntity<>(HttpStatus.OK);
         }
     }
 
