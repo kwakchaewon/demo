@@ -11,6 +11,7 @@ import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
+import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,20 +67,20 @@ public class BoardController {
                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
 
         // 빈 제목 유효성 검사
-        if (boardCreateForm.getTitle().trim().isEmpty()){
-            BoardDto boardDto = new BoardDto("빈 제목은 입력할 수 없습니다.");
-            return new ResponseEntity<>(boardDto, HttpStatus.BAD_REQUEST);
-        }
-        // 빈 내용 유효성 검사
-        else if (boardCreateForm.getContents().trim().isEmpty()) {
-            BoardDto boardDto = new BoardDto("빈 내용 입력할 수 없습니다.");
-            return new ResponseEntity<>(boardDto, HttpStatus.BAD_REQUEST);
-        }
-        else {
+//        if (boardCreateForm.getTitle().trim().isEmpty()){
+//            BoardDto boardDto = new BoardDto("빈 제목은 입력할 수 없습니다.");
+//            throw new CustomException(HttpStatus.BAD_REQUEST, )
+//        }
+//        // 빈 내용 유효성 검사
+//        else if (boardCreateForm.getContents().trim().isEmpty()) {
+//            BoardDto boardDto = new BoardDto("빈 내용 입력할 수 없습니다.");
+//            return new ResponseEntity<>(boardDto, HttpStatus.BAD_REQUEST);
+//        }
+//        else {
             String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
             Member _member = this.memberService.getMemberByUserId(_userId);
             return this.boardService.createBoard(boardCreateForm, _member);
-        }
+//        }
     }
 
     /**
@@ -134,13 +135,14 @@ public class BoardController {
     @PutMapping("/{id}")
     public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
                              @RequestBody BoardDto boardDto,
-                             @RequestHeader("ACCESS_TOKEN") String authorizationHeader){
+                             @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+
         String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
-            boardDto.setErrMsg("수정권한이 없습니다.");
-            return new ResponseEntity<>(boardDto ,HttpStatus.BAD_REQUEST);
+
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NO_AUTHORIZATION);
         } else {
             return boardService.updateBoard(board, boardDto);
         }
@@ -173,7 +175,10 @@ public class BoardController {
         }
     }
 
-    @GetMapping("{id}/comment")
+    /**
+     * 상세 게시판 댓글 조회
+     */
+    @GetMapping("/{id}/comment")
     public ResponseEntity commentList(@PathVariable("id") Long id) throws CustomException {
         List<CommentDto> commentDtoList = commentService.getCommentList(id);
         return new ResponseEntity(commentDtoList, HttpStatus.OK);
