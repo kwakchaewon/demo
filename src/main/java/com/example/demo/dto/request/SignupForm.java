@@ -1,23 +1,12 @@
 package com.example.demo.dto.request;
 
-import com.example.demo.entity.Member;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.validation.constraints.*;
-import java.time.LocalDateTime;
 
 @Getter
 //@AllArgsConstructor
-public class MemberReqDto {
+public class SignupForm {
 
 //    private final PasswordEncoder passwordEncoder;
 
