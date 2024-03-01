@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.LoginReqDto;
-import com.example.demo.dto.request.MemberReqDto;
+import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.TokenDto;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.CustomVal;
 import com.example.demo.util.JWTUtil;
+import com.example.demo.util.exception.Constants;
+import com.example.demo.util.exception.CustomException;
+import com.example.demo.util.exception.CustomExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +47,7 @@ public class MemberController {
         UserDetails loginUser = memberService.setAuth(loginReqDto);   // 1. 로그인 검증 및 auth 세팅
         TokenDto tokenDto = memberService.issueToken(loginReqDto);    // 2. 토큰 발급 및 관련 로직
 //        long ACCESS_EXP = jwtUtil.decodeToken(tokenDto.getAccessToken(), secret_access).getExpiresAt().getTime();
-        int ACCESS_EXP = 1 / (24 * 60);
+        int ACCESS_EXP = 5 / (24 * 60);
         int REFRESH_EXP = 7;
 
         Map<String, Object> result = new HashMap<>();
@@ -59,29 +62,24 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<HashMap<String, Object>> signUp(@Valid @RequestBody MemberReqDto memberReqDto,
-                                                          BindingResult bindingResult) {
-        HashMap<String, Object> response = new HashMap<>();
-
+    public ResponseEntity<String> signUp(@RequestBody SignupForm signupForm,
+                                                          BindingResult bindingResult) throws CustomException {
         // @Valid 기반 유효성 검사
-        if (bindingResult.hasErrors()) {
-            return customVal.validateHandling(bindingResult, response);
-        }
+//        if (bindingResult.hasErrors()) {
+//            HashMap<String, Object> response = new HashMap<>();
+//            return customVal.validateHandling(bindingResult, response);
+//        }
         // 아이디 중복 검사
-        else if (memberService.checkUseridDuplication(memberReqDto)) {
-            Map<String, String> validatorResult = new HashMap<>();
-            validatorResult.put("duplicate_userId", "이미 존재하는 아이디 입니다.");
-            response.put("errorMessages", validatorResult);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        if (memberService.checkUseridDuplication(signupForm)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.SIGNUP_USERID_DUPLICATE);
         }
         // 이메일 중복 검사
-        else if (memberService.checkEmailDuplication(memberReqDto)) {
-            Map<String, String> validatorResult = new HashMap<>();
-            validatorResult.put("duplicate_email", "이미 존재하는 이메일 입니다.");
-            response.put("errorMessages", validatorResult);
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        } else {
-            memberService.saveMember(memberReqDto);
+        else if (memberService.checkEmailDuplication(signupForm)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.SIGNUP_EMAIL_DUPLICATE);
+        } 
+        // 회원가입 성공
+        else {
+            memberService.saveMember(signupForm);
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
