@@ -25,7 +25,7 @@ public class CustomVal {
 //    }
 
     @Transactional(readOnly = true)
-    public  ResponseEntity<HashMap<String,Object>> validateHandling(BindingResult bindingResult, HashMap<String,Object> response) {
+    public  ResponseEntity validateHandling(BindingResult bindingResult, HashMap<String,Object> response) {
 
         Map<String, String> validatorResult = new HashMap<>();
 
@@ -34,7 +34,7 @@ public class CustomVal {
             validatorResult.put(validKeyName, error.getDefaultMessage());
         }
 
-        response.put("errorMessages",validatorResult);
+        response.put("val_result",validatorResult);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

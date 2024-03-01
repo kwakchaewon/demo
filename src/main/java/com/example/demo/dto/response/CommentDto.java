@@ -16,19 +16,12 @@ public class CommentDto {
     private Long id;
     private String contents;
     private String createdAt;
-//    private String memberId;
-//    private Long boardId;
-//    @Builder
-//    public CommentDto (Comment comment){
-//        this.id = comment.getId();
-//        this.contents = comment.getContents();
-//        this.createdAt = comment.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
-//        this.memberId = comment.getMember().getUserId();
-//    }
+    private String memberId;
 
     public CommentDto(Comment comment) {
         this.id = comment.getId();
         this.contents = comment.getContents();
         this.createdAt = comment.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
+        this.memberId = comment.getMember().getUserId();
     }
 }
