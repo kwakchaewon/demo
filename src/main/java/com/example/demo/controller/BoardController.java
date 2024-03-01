@@ -118,15 +118,15 @@ public class BoardController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity deleteBoard(@PathVariable("id") Long id,
-                            @RequestHeader("Access_TOKEN") String authorizationHeader){
+                            @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
         String _userId =boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제 권한이 없습니다.");
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NO_AUTHORIZATION);
+        } else {
+            return boardService.deleteBoardById(id);
         }
-
-        return boardService.deleteBoardById(id);
     }
 
     /**
@@ -141,7 +141,6 @@ public class BoardController {
         Board board = boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
-
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NO_AUTHORIZATION);
         } else {
             return boardService.updateBoard(board, boardDto);
