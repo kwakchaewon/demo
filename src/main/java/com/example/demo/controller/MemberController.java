@@ -62,13 +62,7 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUp(@RequestBody SignupForm signupForm,
-                                                          BindingResult bindingResult) throws CustomException {
-        // @Valid 기반 유효성 검사
-//        if (bindingResult.hasErrors()) {
-//            HashMap<String, Object> response = new HashMap<>();
-//            return customVal.validateHandling(bindingResult, response);
-//        }
+    public ResponseEntity<String> signUp(@RequestBody SignupForm signupForm) throws CustomException {
         // 아이디 중복 검사
         if (memberService.checkUseridDuplication(signupForm)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.SIGNUP_USERID_DUPLICATE);
