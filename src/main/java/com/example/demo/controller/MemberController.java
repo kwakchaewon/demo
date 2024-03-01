@@ -8,17 +8,13 @@ import com.example.demo.util.CustomVal;
 import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
-import com.example.demo.util.exception.CustomExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
