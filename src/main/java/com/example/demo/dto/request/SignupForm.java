@@ -1,15 +1,9 @@
 package com.example.demo.dto.request;
-
 import lombok.Getter;
-
 import javax.validation.constraints.*;
 
 @Getter
-//@AllArgsConstructor
 public class SignupForm {
-
-//    private final PasswordEncoder passwordEncoder;
-
     @Pattern(regexp = "^[a-zA-Z0-9]{4,12}$", message = "아이디: 4~12자의 숫자,영문을 입력해주세요.")
     private String userId;
 

@@ -9,6 +9,7 @@ import com.example.demo.repository.MemberRepository;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
+import com.example.demo.util.exception.CustomException;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -91,7 +92,7 @@ class DemoApplicationTests {
 	 */
 	@Test
 	@Order(3)
-	void createComment(){
+	void createComment() throws CustomException {
 		for(int i = 1; i<=50; i++) {
 			// 작성자 랜덤
 			Random memberRd = new Random();

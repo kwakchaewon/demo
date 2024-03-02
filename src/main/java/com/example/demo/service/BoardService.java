@@ -7,6 +7,8 @@ import com.example.demo.entity.Member;
 import com.example.demo.util.Pagination;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.JWTUtil;
+import com.example.demo.util.exception.Constants;
+import com.example.demo.util.exception.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -91,13 +93,13 @@ public class BoardService {
         return new ResponseEntity<>(data ,HttpStatus.OK);
     }
 
-    public Board getBoard(Long id){
+    public Board getBoard(Long id) throws CustomException {
         Optional<Board> _board = this.boardRepository.findById(id);
 
         if (_board.isPresent()) {
             return _board.get();
         } else {
-            throw new NoSuchElementException("Board is not found");
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NOT_FOUND);
         }
     }
 
