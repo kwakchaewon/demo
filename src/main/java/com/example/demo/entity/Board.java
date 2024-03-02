@@ -32,9 +32,9 @@ public class Board {
     @JoinColumn(name = "member_id")
     private Member member;
 
-//    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
 //    @OrderBy("createdAt desc")
-//    private List<Comment> comments;
+    private List<Comment> comments;
 
     public void update(BoardDto boardDto){
         this.title = title;
