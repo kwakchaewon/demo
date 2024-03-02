@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.response.CommentDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @AllArgsConstructor
@@ -38,5 +40,15 @@ public class Comment {
         this.createdAt = LocalDateTime.now();
         this.member = _member;
         this.board = _board;
+    }
+
+    public CommentDto of(){
+        CommentDto commentDto = CommentDto.builder()
+                .id(this.getId())
+                .contents(this.getContents())
+                .createdAt(this.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
+                .memberId(this.getMember().getUserId())
+                .build();
+    return commentDto;
     }
 }

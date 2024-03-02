@@ -12,16 +12,19 @@ import java.time.format.DateTimeFormatter;
 
 @AllArgsConstructor
 @Data
+@Builder
 public class CommentDto {
     private Long id;
     private String contents;
     private String createdAt;
     private String memberId;
+    private Long boardId;
 
     public CommentDto(Comment comment) {
         this.id = comment.getId();
         this.contents = comment.getContents();
         this.createdAt = comment.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
         this.memberId = comment.getMember().getUserId();
+        this.boardId = comment.getBoard().getId();
     }
 }

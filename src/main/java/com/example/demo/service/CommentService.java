@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.request.CommentReqDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
@@ -26,13 +27,6 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
 
-
-//    public ResponseEntity<List<Comment>> getCommentList(Long id){
-//        Board _board =  boardRepository.getById(id);
-//        List<Comment> _commentList = commentRepository.findByBoardId(id);
-//        return new ResponseEntity<>(_commentList, HttpStatus.OK);
-//    }
-
     public List<CommentDto> getCommentList(Long id) throws CustomException {
 
         // 찾는 Board 가 없다면 400 반환
@@ -52,5 +46,12 @@ public class CommentService {
         dto.setBoard(board);
 
         return dto.getId();
+    }
+
+    public ResponseEntity createComment(CommentCreateForm commentCreateForm, Member member, Board board){
+        Comment comment = commentCreateForm.toEntity(member, board);
+        commentRepository.save(comment);
+        CommentDto commentDto = comment.of();
+        return new ResponseEntity<>(commentDto,HttpStatus.OK);
     }
 }

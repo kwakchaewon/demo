@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.BoardCreateForm;
+import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
@@ -64,13 +65,12 @@ public class BoardController {
      */
     @PostMapping("")
     public ResponseEntity<BoardDto> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
-                                         @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+                                                    @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
 
         // 빈 제목, 내용 유효성 검사
-        if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()){
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_ONLY_BLANL);
-        }
-        else {
+        if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_ONLY_BLANk);
+        } else {
             String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
             Member _member = this.memberService.getMemberByUserId(_userId);
             return this.boardService.createBoard(boardCreateForm, _member);
@@ -82,28 +82,7 @@ public class BoardController {
      */
     @GetMapping("/{id}")
     public BoardDto detailBoard(@PathVariable("id") Long id) {
-        Map<String, Object> response = new HashMap<>();
         BoardDto boardDto = boardService.findBoardById(id);
-//        List<CommentDto> comments = boardDto.getComments();
-
-        // 댓글 목록
-//        if(comments != null && !comments.isEmpty()){
-//            response.put("comments", comments);
-//        }
-
-//        /* 사용자 관련 */
-//        if (user != null) {
-//            model.addAttribute("user", user.getNickname());
-//
-//            /*게시글 작성자 본인인지 확인*/
-//            if (dto.getUserId().equals(user.getId())) {
-//                model.addAttribute("writer", true);
-//            }
-//        }
-
-        // 게시글 상세
-//        response.put("boardInfo", boardDto);
-//        return new ResponseEntity<>(response, HttpStatus.OK);
         return boardDto;
     }
 
@@ -112,8 +91,8 @@ public class BoardController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity deleteBoard(@PathVariable("id") Long id,
-                            @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
-        String _userId =boardService.getUserIdByToken(authorizationHeader, secret_access);
+                                      @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
+        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
@@ -128,8 +107,8 @@ public class BoardController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
-                             @RequestBody BoardDto boardDto,
-                             @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+                                                @RequestBody BoardDto boardDto,
+                                                @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
 
         String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = boardService.getBoard(id);
@@ -142,7 +121,7 @@ public class BoardController {
     }
 
     /**
-     *  페이징 기반 게시판 목록
+     * 페이징 기반 게시판 목록
      */
     @GetMapping("")
     public ResponseEntity<Map<String, Object>> pagingBoardList(
@@ -152,18 +131,17 @@ public class BoardController {
     }
 
     /**
-     *  게시글 수정 권한 검증
+     * 게시글 수정 권한 검증
      */
     @GetMapping("/{id}/check")
     public ResponseEntity checkUpdateAuth(@PathVariable("id") Long id,
-                                                  @RequestHeader("ACCESS_TOKEN") String authorizationHeader
-    ) throws CustomException {
+                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
         String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NO_AUTHORIZATION);
-        }else{
+        } else {
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
@@ -175,5 +153,27 @@ public class BoardController {
     public ResponseEntity commentList(@PathVariable("id") Long id) throws CustomException {
         List<CommentDto> commentDtoList = commentService.getCommentList(id);
         return new ResponseEntity(commentDtoList, HttpStatus.OK);
+    }
+
+    /**
+     * 댓글 작성
+     */
+    @PostMapping("/{id}/comment")
+    public ResponseEntity createComment(@PathVariable("id") Long id,
+                                        @RequestBody CommentCreateForm commentCreateForm,
+                                        @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+        // 1. 작성자 가져오기
+        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
+        Member member = memberService.getMemberByUserId(_userId);
+
+        // 2. 게시글 가져오기
+        Board board = this.boardService.getBoard(id);
+
+        // 빈 내용 유효성 검사
+        if (commentCreateForm.getContents().trim().isEmpty()) {
+            return new ResponseEntity<>("빈 내용 입력할 수 없습니다.", HttpStatus.BAD_REQUEST);
+        } else {
+            return commentService.createComment(commentCreateForm, member, board);
+        }
     }
 }

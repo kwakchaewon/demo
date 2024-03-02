@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+@RequestMapping("/comment")
 @RestController
 @RequiredArgsConstructor
 public class CommentController {
@@ -29,7 +31,7 @@ public class CommentController {
     /**
      * 댓글 작성
      */
-    @PostMapping("/board/{id}/comments")
+    @PostMapping("")
     public ResponseEntity createCommnet(
             @PathVariable Long id,
             @RequestBody CommentReqDto commentReqDto,
@@ -46,13 +48,4 @@ public class CommentController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
-
-    /**
-     * 댓글 전체 보기
-     */
-//    @GetMapping("/{id}")
-//    public ResponseEntity<List<Comment>> commentList(@PathVariable("id") Long id){
-//        return commentService.getCommentList(id);
-//    }
-
 }
