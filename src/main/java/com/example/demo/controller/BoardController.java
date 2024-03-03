@@ -96,7 +96,7 @@ public class BoardController {
         Board board = this.boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NO_AUTHORIZATION);
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             return boardService.deleteBoardById(id);
         }
@@ -114,7 +114,7 @@ public class BoardController {
         Board board = boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NO_AUTHORIZATION);
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             return boardService.updateBoard(board, boardDto);
         }
@@ -140,7 +140,7 @@ public class BoardController {
         Board board = this.boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NO_AUTHORIZATION);
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             return new ResponseEntity<>(HttpStatus.OK);
         }

@@ -62,9 +62,10 @@ public class CommentController {
 
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
         Comment comment = this.commentService.getComment(id);
+//        Board board = this.boardService.getBoard(id);
 
         if (!comment.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_NO_AUTHORIZATION);
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             return commentService.deleteCommentById(id);
         }
