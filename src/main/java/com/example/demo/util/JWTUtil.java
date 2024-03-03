@@ -151,4 +151,9 @@ public class JWTUtil {
     public String getHeaderToken(HttpServletRequest request, String type) {
         return type.equals("ACCESS_TOKEN") ? request.getHeader(ACCESS_TOKEN) :request.getHeader(REFRESH_TOKEN);
     }
+
+    public String getUserIdByToken(String authorizationHeader, String secret) {
+        String token = authorizationHeader.substring(7);
+        return this.decodeToken(token, secret).getClaim("userId").asString();
+    }
 }

@@ -71,7 +71,7 @@ public class BoardController {
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_ONLY_BLANk);
         } else {
-            String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
+            String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
             Member _member = this.memberService.getMemberByUserId(_userId);
             return this.boardService.createBoard(boardCreateForm, _member);
         }
@@ -92,7 +92,7 @@ public class BoardController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteBoard(@PathVariable("id") Long id,
                                       @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
-        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
+        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
@@ -110,7 +110,7 @@ public class BoardController {
                                                 @RequestBody BoardDto boardDto,
                                                 @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
 
-        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
+        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
         Board board = boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
@@ -136,7 +136,7 @@ public class BoardController {
     @GetMapping("/{id}/check")
     public ResponseEntity checkUpdateAuth(@PathVariable("id") Long id,
                                           @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
-        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
+        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
         Board board = this.boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
@@ -163,7 +163,7 @@ public class BoardController {
                                         @RequestBody CommentCreateForm commentCreateForm,
                                         @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
         // 1. 작성자 가져오기
-        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
+        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
         Member member = memberService.getMemberByUserId(_userId);
 
         // 2. 게시글 가져오기

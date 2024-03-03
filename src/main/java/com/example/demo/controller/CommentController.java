@@ -4,9 +4,11 @@ import com.example.demo.entity.Member;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.MemberService;
+import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,9 @@ public class CommentController {
     @Value("${jwt.secret_access}")
     private String secret_access;
 
+    @Autowired
+    private final JWTUtil jwtUtil;
+
     /**
      * 댓글 작성
      */
@@ -34,7 +39,7 @@ public class CommentController {
             @RequestBody CommentReqDto commentReqDto,
             @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
 
-        String _userId = boardService.getUserIdByToken(authorizationHeader, secret_access);
+        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
         Member _member = this.memberService.getMemberByUserId(_userId);
 
         // 빈 내용 유효성 검사

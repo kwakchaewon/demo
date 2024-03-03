@@ -94,6 +94,7 @@ public class BoardService {
     }
 
     public Board getBoard(Long id) throws CustomException {
+
         Optional<Board> _board = this.boardRepository.findById(id);
 
         if (_board.isPresent()) {
@@ -101,10 +102,5 @@ public class BoardService {
         } else {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NOT_FOUND);
         }
-    }
-
-    public String getUserIdByToken(String authorizationHeader, String secret) {
-        String token = authorizationHeader.substring(7);
-        return jwtUtil.decodeToken(token, secret).getClaim("userId").asString();
     }
 }
