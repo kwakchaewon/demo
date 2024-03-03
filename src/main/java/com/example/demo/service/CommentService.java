@@ -54,4 +54,21 @@ public class CommentService {
         CommentDto commentDto = comment.of();
         return new ResponseEntity<>(commentDto,HttpStatus.OK);
     }
+
+    public Comment getComment(Long id) throws CustomException {
+
+        Optional<Comment> _comment = this.commentRepository.findById(id);
+
+        if (_comment.isPresent()) {
+            return _comment.get();
+        } else {
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_NOT_FOUND);
+        }
+    }
+
+    public ResponseEntity deleteCommentById(Long id){
+        this.commentRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

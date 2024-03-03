@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 import com.example.demo.dto.request.CommentReqDto;
+import com.example.demo.entity.Board;
+import com.example.demo.entity.Comment;
 import com.example.demo.entity.Member;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
@@ -54,12 +56,18 @@ public class CommentController {
     /**
      * 댓글 삭제
      */
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity deleteComment(@PathVariable("id") Long id,
-//                                        @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
-//
-//
-//
-//    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteComment(@PathVariable("id") Long id,
+                                        @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
+
+        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+        Comment comment = this.commentService.getComment(id);
+
+        if (!comment.getMember().getUserId().equals(_userId)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_NO_AUTHORIZATION);
+        } else {
+            return commentService.deleteCommentById(id);
+        }
+    }
 
 }

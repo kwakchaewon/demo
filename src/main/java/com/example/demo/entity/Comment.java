@@ -51,4 +51,16 @@ public class Comment {
                 .build();
     return commentDto;
     }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", contents='" + contents + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", board=" + board.getId() +
+                ", member=" + member.getUserId() +
+                '}';
+    }
 }
