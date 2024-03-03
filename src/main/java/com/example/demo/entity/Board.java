@@ -9,7 +9,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -26,9 +27,10 @@ public class Board {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne //(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
@@ -37,8 +39,8 @@ public class Board {
     private List<Comment> comments;
 
     public void update(BoardDto boardDto){
-        this.title = title;
-        this.contents = contents;
+        this.title = boardDto.getTitle();
+        this.contents = boardDto.getContents();
         this.updatedAt = LocalDateTime.now();
     }
 
