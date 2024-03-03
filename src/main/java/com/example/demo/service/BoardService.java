@@ -62,7 +62,7 @@ public class BoardService {
     public ResponseEntity<BoardDto> updateBoard(Board board, BoardDto boardDto){
         board.update(boardDto);
         boardRepository.save(board);
-        boardDto.updateIdAndAuthor(board);
+        boardDto.updateIdAndMemberId(board);
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
     }
 

@@ -19,10 +19,11 @@ public class BoardDto {
     private String memberId;
 
     /**
-     * 수정 시, 제목, 내용 제외한 나머지 필드 업데이트
+     * 수정 시, 제목, 내용 변경 및 memberId 값 추가
      */
-    public void updateIdAndAuthor(Board board){
+    public void updateIdAndMemberId(Board board){
         this.id = board.getId();
+        this.memberId = board.getMember().getUserId();
         this.updatedAt = board.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
     }
 
