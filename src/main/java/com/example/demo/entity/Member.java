@@ -2,14 +2,12 @@ package com.example.demo.entity;
 
 import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.MemberDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -34,6 +32,10 @@ public class Member {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
+//    @OrderBy("createdAt desc")
+    private List<Comment> comments;
 
     public String refreshTokenUpdate(String token){
         this.refreshToken = token;
