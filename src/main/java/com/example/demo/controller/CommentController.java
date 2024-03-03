@@ -1,10 +1,5 @@
 package com.example.demo.controller;
-
-import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.request.CommentReqDto;
-import com.example.demo.dto.response.BoardDto;
-import com.example.demo.dto.response.CommentDto;
-import com.example.demo.entity.Comment;
 import com.example.demo.entity.Member;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
@@ -50,4 +45,16 @@ public class CommentController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
+
+    /**
+     * 댓글 삭제
+     */
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity deleteComment(@PathVariable("id") Long id,
+//                                        @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
+//
+//
+//
+//    }
+
 }
