@@ -48,8 +48,8 @@ public class BoardService {
         return boardDtos;
     }
 
-    public BoardDto findBoardById(Long id) {
-        Board board = boardRepository.findById(id).orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+    public BoardDto findBoardById(Long id) throws CustomException {
+        Board board = boardRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_BOARD_NOTFOUND));
         BoardDto boardDto = new BoardDto(board);
         return boardDto;
     }

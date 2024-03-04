@@ -81,9 +81,9 @@ public class BoardController {
      * 게시글 상세
      */
     @GetMapping("/{id}")
-    public BoardDto detailBoard(@PathVariable("id") Long id) {
+    public ResponseEntity<BoardDto> detailBoard(@PathVariable("id") Long id) throws CustomException {
         BoardDto boardDto = boardService.findBoardById(id);
-        return boardDto;
+        return new ResponseEntity<>(boardDto, HttpStatus.OK);
     }
 
     /**
