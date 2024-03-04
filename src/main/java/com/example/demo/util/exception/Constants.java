@@ -21,8 +21,10 @@ public class Constants {
 
         // 댓글 관련
         COMMENT_BOARD_NOTFOUND("해당 게시글이 존재하지 않습니다."),
-        COMMENT_NOT_FOUND("해당 댓글이 존재하지 않습니다."),
+        COMMENT_NOT_FOUND("댓글을 찾을 수 없습니다."),
         COMMENT_ONLY_BLANk("빈 내용은 입력할 수 없습니다.");
+        
+        
 
         private String exceptionClass;
 

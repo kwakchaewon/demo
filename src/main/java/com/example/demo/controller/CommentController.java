@@ -1,5 +1,8 @@
 package com.example.demo.controller;
+import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.request.CommentReqDto;
+import com.example.demo.dto.response.BoardDto;
+import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Comment;
 import com.example.demo.entity.Member;
@@ -71,4 +74,46 @@ public class CommentController {
         }
     }
 
+    /**
+     * 댓글 수정
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<CommentDto> updateComment(@PathVariable("id") Long id,
+                                                    @RequestBody CommentCreateForm commentCreateForm,
+                                                    @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
+
+        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+        Comment comment = this.commentService.getComment(id);
+
+        if (!comment.getMember().getUserId().equals(_userId)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
+        } else {
+            return commentService.updateComment(comment, commentCreateForm);
+        }
+    }
+
+    /**
+     * 댓글 수정 권한 검증
+     */
+    @GetMapping("/{id}/check")
+    public ResponseEntity checkCommentUpdateAuth(@PathVariable("id") Long id,
+                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+        Comment comment = this.commentService.getComment(id);
+
+        if (!comment.getMember().getUserId().equals(_userId)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
+        } else {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+    }
+
+    /**
+     * 상세 댓글 조회
+     */
+    @GetMapping("/{id}")
+    public CommentDto detailBoard(@PathVariable("id") Long id) throws CustomException {
+        CommentDto commentDto = commentService.findCommentById(id);
+        return commentDto;
+    }
 }

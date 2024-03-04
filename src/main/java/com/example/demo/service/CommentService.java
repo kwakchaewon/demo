@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.request.CommentReqDto;
+import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Comment;
@@ -71,4 +72,16 @@ public class CommentService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public ResponseEntity<CommentDto> updateComment(Comment comment, CommentCreateForm commentCreateForm){
+        comment.update(commentCreateForm);
+        commentRepository.save(comment);
+        CommentDto commentDto = new CommentDto(comment);
+        return new ResponseEntity<>(commentDto ,HttpStatus.OK);
+    }
+
+    public CommentDto findCommentById(Long id) throws CustomException {
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_NOT_FOUND));
+        CommentDto commentDto = new CommentDto(comment);
+        return commentDto;
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.CommentDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,5 +63,10 @@ public class Comment {
                 ", board=" + board.getId() +
                 ", member=" + member.getUserId() +
                 '}';
+    }
+
+    public void update(CommentCreateForm commentCreateForm){
+        this.contents =  commentCreateForm.getContents();
+        this.updatedAt = LocalDateTime.now();
     }
 }
