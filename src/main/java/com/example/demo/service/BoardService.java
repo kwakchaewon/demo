@@ -31,25 +31,25 @@ public class BoardService {
         this.boardRepository = boardRepository;
     }
 
-    public List<BoardDto> findAllBoard(){
-        List<Board> boards =  this.boardRepository.findAll();
-        List<BoardDto> boardDtos = new ArrayList<>();
-
-        for (Board entity : boards) {
-            BoardDto dto = BoardDto.builder()
-                    .id(entity.getId())
-                    .title(entity.getTitle())
-                    .contents(entity.getContents())
-                    .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
-                    .build();
-
-            boardDtos.add(dto);
-        }
-        return boardDtos;
-    }
+//    public List<BoardDto> findAllBoard(){
+//        List<Board> boards =  this.boardRepository.findAll();
+//        List<BoardDto> boardDtos = new ArrayList<>();
+//
+//        for (Board entity : boards) {
+//            BoardDto dto = BoardDto.builder()
+//                    .id(entity.getId())
+//                    .title(entity.getTitle())
+//                    .contents(entity.getContents())
+//                    .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
+//                    .build();
+//
+//            boardDtos.add(dto);
+//        }
+//        return boardDtos;
+//    }
 
     public BoardDto findBoardById(Long id) throws CustomException {
-        Board board = boardRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_BOARD_NOTFOUND));
+        Board board = boardRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NOT_FOUND));
         BoardDto boardDto = new BoardDto(board);
         return boardDto;
     }

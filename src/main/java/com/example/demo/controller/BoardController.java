@@ -113,6 +113,7 @@ public class BoardController {
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
         Board board = boardService.getBoard(id);
 
+        // 수정 권한 검증
         if (!board.getMember().getUserId().equals(_userId)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
@@ -166,12 +167,12 @@ public class BoardController {
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
         Member member = memberService.getMemberByUserId(_userId);
 
-        // 2. 게시글 가져오기
+        // 2. 게시글 가져오기 및 게시글 부재 유효성 검사
         Board board = this.boardService.getBoard(id);
 
-        // 빈 내용 유효성 검사
+        // 3. 빈 내용 유효성 검사
         if (commentCreateForm.getContents().trim().isEmpty()) {
-            return new ResponseEntity<>("빈 내용 입력할 수 없습니다.", HttpStatus.BAD_REQUEST);
+            throw  new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_ONLY_BLANk);
         } else {
             return commentService.createComment(commentCreateForm, member, board);
         }
