@@ -34,7 +34,11 @@ public class BoardDto {
         this.id = board.getId();
         this.title = board.getTitle();
         this.contents = board.getContents();
-        this.createdAt = board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
+        this.createdAt = board.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
         this.memberId = board.getMember().getUserId();
+
+        if (board.getUpdatedAt()!=null){
+            this.updatedAt = board.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
+        }
     }
 }
