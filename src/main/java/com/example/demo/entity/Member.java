@@ -18,10 +18,10 @@ public class Member {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true) @NotBlank
+    @Column(unique = true, nullable = false)
     private String userId;
 
-    @Column(nullable = false) @NotBlank
+    @Column(nullable = false)
     private String userPw;
 
     @Column(length = 100, unique = true, nullable = false)

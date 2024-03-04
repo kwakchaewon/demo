@@ -25,14 +25,15 @@ public class Comment {
     private String contents;
     @Column(nullable = false)
     private LocalDateTime createdAt;
+    @Column
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "board_id")
+    @JoinColumn(name = "board_id", nullable = false)
     private Board board;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @Builder
