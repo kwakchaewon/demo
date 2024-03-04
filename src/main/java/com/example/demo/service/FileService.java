@@ -2,7 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.FileRequestForm;
 import com.example.demo.entity.Board;
-import com.example.demo.entity.File;
+import com.example.demo.entity.FileTable;
 import com.example.demo.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class FileService {
             return;
         }
 
-        List<File> files = new ArrayList<>();
+        List<FileTable> files = new ArrayList<>();
 
         for(FileRequestForm file: _files){
             files.add(file.toEntity(board));

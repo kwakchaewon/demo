@@ -21,7 +21,9 @@ public class Constants {
 
         // 자원 관련
         BOARD_NOTFOUND("게시글을 찾을 수 없습니다."), //404
-        COMMENT_NOTFOUND("댓글을 찾을 수 없습니다."); // 404
+        COMMENT_NOTFOUND("댓글을 찾을 수 없습니다."), // 404
+
+        MULTIFILE_EXCEPTION("MULTIFILE_EXCEPTION"); // 400
 
         private String exceptionClass;
 

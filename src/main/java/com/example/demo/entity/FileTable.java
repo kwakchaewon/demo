@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Entity
-public class File {
+public class FileTable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
