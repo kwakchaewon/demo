@@ -53,7 +53,7 @@ public class CommentService {
         Comment comment = commentCreateForm.toEntity(member, board);
         commentRepository.save(comment);
         CommentDto commentDto = comment.of();
-        return new ResponseEntity<>(commentDto,HttpStatus.OK);
+        return new ResponseEntity<>(commentDto,HttpStatus.CREATED);
     }
 
     public Comment getComment(Long id) throws CustomException {
