@@ -32,5 +32,5 @@ public class File {
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private int size;
+    private long size;
 }
