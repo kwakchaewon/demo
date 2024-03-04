@@ -49,7 +49,7 @@ public class BoardService {
 //    }
 
     public BoardDto findBoardById(Long id) throws CustomException {
-        Board board = boardRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NOT_FOUND));
+        Board board = boardRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
         BoardDto boardDto = new BoardDto(board);
         return boardDto;
     }
@@ -100,7 +100,7 @@ public class BoardService {
         if (_board.isPresent()) {
             return _board.get();
         } else {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_NOT_FOUND);
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND);
         }
     }
 }

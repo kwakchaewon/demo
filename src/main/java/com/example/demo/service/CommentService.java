@@ -32,7 +32,7 @@ public class CommentService {
 
         // 찾는 Board 가 없다면 400 반환
         Board board = boardRepository.findById(id).orElseThrow(() ->
-                new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_BOARD_NOTFOUND));
+                new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
         List<Comment> commentList = commentRepository.findByBoard(board);
 
         return commentList.stream().map(CommentDto::new).collect(Collectors.toList());
@@ -63,7 +63,7 @@ public class CommentService {
         if (_comment.isPresent()) {
             return _comment.get();
         } else {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_NOT_FOUND);
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND);
         }
     }
 
@@ -80,7 +80,7 @@ public class CommentService {
     }
 
     public CommentDto findCommentById(Long id) throws CustomException {
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_NOT_FOUND));
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND));
         CommentDto commentDto = new CommentDto(comment);
         return commentDto;
     }

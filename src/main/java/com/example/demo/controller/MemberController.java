@@ -58,14 +58,14 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUp(@RequestBody SignupForm signupForm) throws CustomException {
+    public ResponseEntity signUp(@RequestBody SignupForm signupForm) throws CustomException {
         // 아이디 중복 검사
         if (memberService.checkUseridDuplication(signupForm)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.SIGNUP_USERID_DUPLICATE);
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.USERID_DUPLICATED);
         }
         // 이메일 중복 검사
         else if (memberService.checkEmailDuplication(signupForm)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.SIGNUP_EMAIL_DUPLICATE);
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.EMAIL_DUPLICATED);
         } 
         // 회원가입 성공
         else {

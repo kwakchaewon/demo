@@ -49,7 +49,7 @@ public class CommentController {
 
         // 빈 내용 유효성 검사
         if (commentReqDto.getContents().trim().isEmpty()) {
-            throw  new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_ONLY_BLANk);
+            throw  new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
             commentService.commentSave(_member.getUserId(), id, commentReqDto);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -68,7 +68,7 @@ public class CommentController {
 //        Board board = this.boardService.getBoard(id);
 
         if (!comment.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
+            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             return commentService.deleteCommentById(id);
         }
@@ -86,7 +86,7 @@ public class CommentController {
         Comment comment = this.commentService.getComment(id);
 
         if (!comment.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
+            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             return commentService.updateComment(comment, commentCreateForm);
         }
@@ -102,7 +102,7 @@ public class CommentController {
         Comment comment = this.commentService.getComment(id);
 
         if (!comment.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
+            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             return new ResponseEntity<>(HttpStatus.OK);
         }

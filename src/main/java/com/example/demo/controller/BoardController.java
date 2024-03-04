@@ -69,7 +69,7 @@ public class BoardController {
 
         // 빈 제목, 내용 유효성 검사
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.BOARD_ONLY_BLANk);
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
             String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
             Member _member = this.memberService.getMemberByUserId(_userId);
@@ -96,7 +96,7 @@ public class BoardController {
         Board board = this.boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
+            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             return boardService.deleteBoardById(id);
         }
@@ -115,7 +115,7 @@ public class BoardController {
 
         // 수정 권한 검증
         if (!board.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
+            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             return boardService.updateBoard(board, boardDto);
         }
@@ -141,7 +141,7 @@ public class BoardController {
         Board board = this.boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.NO_AUTHORIZATION);
+            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -172,7 +172,7 @@ public class BoardController {
 
         // 3. 빈 내용 유효성 검사
         if (commentCreateForm.getContents().trim().isEmpty()) {
-            throw  new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.COMMENT_ONLY_BLANk);
+            throw  new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
             return commentService.createComment(commentCreateForm, member, board);
         }
