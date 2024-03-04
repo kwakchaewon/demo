@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 public class CommentDto {
     private Long id;
     private String contents;
-    private String createdAt;
+    private String createdAt, updatedAt;
     private String memberId;
     private Long boardId;
 
@@ -26,5 +26,9 @@ public class CommentDto {
         this.createdAt = comment.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
         this.memberId = comment.getMember().getUserId();
         this.boardId = comment.getBoard().getId();
+
+        if (comment.getUpdatedAt()!=null){
+            this.updatedAt = comment.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
+        }
     }
 }
