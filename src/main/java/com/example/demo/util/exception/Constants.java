@@ -10,21 +10,18 @@ public class Constants {
         OK("Success"),
 
         // 회원가입 관련
-        SIGNUP_USERID_DUPLICATE("이미 존재하는 아이디입니다."),
-        SIGNUP_EMAIL_DUPLICATE("이미 존재하는 이메일입니다."),
+        USERID_DUPLICATED("이미 존재하는 아이디입니다."), // 400
+        EMAIL_DUPLICATED("이미 존재하는 이메일입니다."), // 400
 
-        // 게시판 관련
-        NO_AUTHORIZATION("권한이 없습니다."),
-        BOARD_ONLY_BLANk("빈 내용은 입력할 수 없습니다."),
-        BOARD_NOT_FOUND("게시글을 찾을 수 없습니다."),
+        // 권한 관련
+        NO_AUTHORIZATION("권한이 없습니다."), // 403
 
+        // 유효성 검사
+        ONLY_BLANk("빈 내용은 입력할 수 없습니다."), //400
 
-        // 댓글 관련
-        COMMENT_BOARD_NOTFOUND("해당 게시글이 존재하지 않습니다."),
-        COMMENT_NOT_FOUND("댓글을 찾을 수 없습니다."),
-        COMMENT_ONLY_BLANk("빈 내용은 입력할 수 없습니다.");
-        
-        
+        // 자원 관련
+        BOARD_NOTFOUND("게시글을 찾을 수 없습니다."), //404
+        COMMENT_NOTFOUND("댓글을 찾을 수 없습니다."); // 404
 
         private String exceptionClass;
 

@@ -30,7 +30,7 @@ public class CommentService {
 
     public List<CommentDto> getCommentList(Long id) throws CustomException {
 
-        // 찾는 Board 가 없다면 400 반환
+        // 찾는 Board 가 없다면 404 반환
         Board board = boardRepository.findById(id).orElseThrow(() ->
                 new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
         List<Comment> commentList = commentRepository.findByBoard(board);
