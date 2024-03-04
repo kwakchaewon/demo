@@ -1,9 +1,11 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.request.BoardCreateForm;
+import com.example.demo.dto.request.FileRequestForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
+import com.example.demo.util.FileUtils;
 import com.example.demo.util.Pagination;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.JWTUtil;
@@ -16,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -26,6 +29,11 @@ public class BoardService {
     private final BoardRepository boardRepository;
     @Autowired
     JWTUtil jwtUtil;
+
+    @Autowired
+    private FileService fileService;
+
+    private FileUtils fileUtils;
 
     public BoardService(BoardRepository boardRepository) {
         this.boardRepository = boardRepository;
@@ -66,9 +74,12 @@ public class BoardService {
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
     }
 
-    public ResponseEntity<BoardDto> createBoard(BoardCreateForm boardCreateForm, Member member){
+    public ResponseEntity<BoardDto> createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
         Board board = boardCreateForm.toEntity(member);
         boardRepository.save(board);
+
+        List<FileRequestForm> files = fileUtils.uploadFiles(boardCreateForm.getFiles());
+        fileService.saveFiles(board, files);
         BoardDto boardDto = board.of();
         return new ResponseEntity<>(boardDto, HttpStatus.CREATED);
     }

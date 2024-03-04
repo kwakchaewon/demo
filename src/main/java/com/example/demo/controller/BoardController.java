@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.request.CommentCreateForm;
+import com.example.demo.dto.request.FileRequestForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
@@ -10,7 +11,9 @@ import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.CommentRepository;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
+import com.example.demo.service.FileService;
 import com.example.demo.service.MemberService;
+import com.example.demo.util.FileUtils;
 import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
@@ -25,6 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +60,12 @@ public class BoardController {
     @Autowired
     JWTUtil jwtUtil;
 
+    @Autowired
+    private FileService fileService;
+
+    @Autowired
+    private FileUtils fileUtils;
+
     public BoardController(BoardService boardService) {
         this.boardService = boardService;
     }
@@ -65,7 +75,7 @@ public class BoardController {
      */
     @PostMapping("")
     public ResponseEntity<BoardDto> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
-                                                    @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+                                                    @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException, IOException {
 
         // 빈 제목, 내용 유효성 검사
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
