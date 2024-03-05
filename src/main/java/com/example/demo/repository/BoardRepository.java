@@ -14,5 +14,7 @@ import java.util.Optional;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findAllByOrderByIdDesc(Pageable pageable);
+
+    Page<BoardDto> findAllBoardDtoByOrderByIdDesc(Pageable pageable);
     Optional<BoardDto>  findBoardDtoById(Long id);
 }

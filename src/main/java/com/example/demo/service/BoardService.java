@@ -85,7 +85,7 @@ public class BoardService {
         }
     }
 
-    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
+    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) {
         Board board = boardCreateForm.toEntity(member);
         return boardRepository.save(board).of();
     }
@@ -93,11 +93,7 @@ public class BoardService {
     public Map<String, Object> getBoardList(Pageable pageable) {
 
         Map<String, Object> data = new HashMap();
-        Page<Board> boardList = boardRepository.findAllByOrderByIdDesc(pageable);
-
-        List<BoardDto> boardDtoList =  boardList.stream().map(BoardDto::new).collect(Collectors.toList());
-
-
+        Page<BoardDto> boardList = boardRepository.findAllBoardDtoByOrderByIdDesc(pageable);
 
         Pagination pagination = new Pagination(
                 (int) boardList.getTotalElements()
@@ -106,7 +102,7 @@ public class BoardService {
                 , 10
         );
 
-        data.put("boards", boardDtoList);
+        data.put("boards", boardList);
         data.put("pagination", pagination);
 
         return data;
