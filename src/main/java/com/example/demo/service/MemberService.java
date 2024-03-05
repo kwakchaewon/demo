@@ -6,8 +6,11 @@ import com.example.demo.dto.response.TokenDto;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.MemberRepository;
 import com.example.demo.util.JWTUtil;
+import com.example.demo.util.exception.Constants;
+import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,13 +46,13 @@ public class MemberService {
         }
     }
 
-    public Member getMemberByUserId(String userId) {
+    public Member getMemberByUserId(String userId) throws CustomException {
         Optional<Member> _member = this.memberRepository.findByUserId(userId);
 
         if (_member.isPresent()) {
             return _member.get();
         } else {
-            throw new NoSuchElementException("Member is not found");
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.USER_INVALID);
         }
     }
 

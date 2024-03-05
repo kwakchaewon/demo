@@ -15,6 +15,7 @@ public class Constants {
 
         // 권한 관련
         NO_AUTHORIZATION("권한이 없습니다."), // 403
+        USER_INVALID("유효하지 않은 사용자입니다."), // 401
 
         // 유효성 검사
         ONLY_BLANk("빈 내용은 입력할 수 없습니다."), //400
@@ -22,6 +23,7 @@ public class Constants {
         // 자원 관련
         BOARD_NOTFOUND("게시글을 찾을 수 없습니다."), //404
         COMMENT_NOTFOUND("댓글을 찾을 수 없습니다."), // 404
+        UNKNOWN_ERROR("알 수 없는 오류가 발생했습니다."), // 400
 
         MULTIFILE_EXCEPTION("MULTIFILE_EXCEPTION"); // 400
 

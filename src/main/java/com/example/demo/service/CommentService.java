@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.request.CommentReqDto;
-import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Comment;
@@ -14,7 +13,6 @@ import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,8 +27,6 @@ public class CommentService {
     private final MemberRepository memberRepository;
 
     public List<CommentDto> getCommentList(Long id) throws CustomException {
-
-        // 찾는 Board 가 없다면 404 반환
         Board board = boardRepository.findById(id).orElseThrow(() ->
                 new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
         List<Comment> commentList = commentRepository.findByBoard(board);
@@ -49,11 +45,11 @@ public class CommentService {
         return dto.getId();
     }
 
-    public ResponseEntity createComment(CommentCreateForm commentCreateForm, Member member, Board board){
+
+    public CommentDto createComment(CommentCreateForm commentCreateForm, Member member, Board board){
         Comment comment = commentCreateForm.toEntity(member, board);
         commentRepository.save(comment);
-        CommentDto commentDto = comment.of();
-        return new ResponseEntity<>(commentDto,HttpStatus.CREATED);
+        return comment.of();
     }
 
     public Comment getComment(Long id) throws CustomException {
@@ -67,16 +63,19 @@ public class CommentService {
         }
     }
 
-    public ResponseEntity deleteCommentById(Long id){
-        this.commentRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public void deleteCommentById(Long id) throws CustomException {
+        try {
+            this.commentRepository.deleteById(id);
+        }
+        catch (Exception e){
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.UNKNOWN_ERROR);
+        }
     }
 
-    public ResponseEntity<CommentDto> updateComment(Comment comment, CommentCreateForm commentCreateForm){
+    public CommentDto updateComment(Comment comment, CommentCreateForm commentCreateForm){
         comment.update(commentCreateForm);
         commentRepository.save(comment);
-        CommentDto commentDto = new CommentDto(comment);
-        return new ResponseEntity<>(commentDto ,HttpStatus.OK);
+        return new CommentDto(comment);
     }
 
     public CommentDto findCommentById(Long id) throws CustomException {

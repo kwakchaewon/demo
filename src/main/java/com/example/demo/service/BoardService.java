@@ -57,34 +57,39 @@ public class BoardService {
 //    }
 
     public BoardDto findBoardById(Long id) throws CustomException {
+        // 게시글이 부재할 경우 NOT_FOUND 반환
         Board board = boardRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
         BoardDto boardDto = new BoardDto(board);
         return boardDto;
     }
 
-    public ResponseEntity deleteBoardById(Long id){
-        this.boardRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public void deleteBoardById(Long id) throws CustomException {
+        try {
+            this.boardRepository.deleteById(id);
+        }
+        catch (Exception e){
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.UNKNOWN_ERROR);
+        }
     }
 
-    public ResponseEntity<BoardDto> updateBoard(Board board, BoardDto boardDto){
+    public BoardDto updateBoard(Board board, BoardDto boardDto){
         board.update(boardDto);
         boardRepository.save(board);
         boardDto.updateIdAndMemberId(board);
-        return new ResponseEntity<>(boardDto, HttpStatus.OK);
+        return boardDto;
     }
 
     public ResponseEntity<BoardDto> createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
         Board board = boardCreateForm.toEntity(member);
         boardRepository.save(board);
 
-        List<FileRequestForm> files = fileUtils.uploadFiles(boardCreateForm.getFiles());
-        fileService.saveFiles(board, files);
+//        List<FileRequestForm> files = fileUtils.uploadFiles(boardCreateForm.getFiles());
+//        fileService.saveFiles(board, files);
         BoardDto boardDto = board.of();
         return new ResponseEntity<>(boardDto, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<Map<String, Object>> getBoardList(Pageable pageable) {
+    public Map<String, Object> getBoardList(Pageable pageable) {
 
         Map<String, Object> data = new HashMap();
         Page<Board> boardList = boardRepository.findAllByOrderByIdDesc(pageable);
@@ -101,7 +106,7 @@ public class BoardService {
         data.put("boards", boardDtoList);
         data.put("pagination", pagination);
 
-        return new ResponseEntity<>(data ,HttpStatus.OK);
+        return data;
     }
 
     public Board getBoard(Long id) throws CustomException {

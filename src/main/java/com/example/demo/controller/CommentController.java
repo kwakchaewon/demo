@@ -1,14 +1,8 @@
 package com.example.demo.controller;
 import com.example.demo.dto.request.CommentCreateForm;
-import com.example.demo.dto.request.CommentReqDto;
-import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
-import com.example.demo.entity.Board;
 import com.example.demo.entity.Comment;
-import com.example.demo.entity.Member;
-import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
-import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
@@ -19,42 +13,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RequestMapping("/comment")
 @RestController
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
-    private final BoardService boardService;
-    private final MemberService memberService;
 
     @Value("${jwt.secret_access}")
     private String secret_access;
 
     @Autowired
     private final JWTUtil jwtUtil;
-
-//    /**
-//     * 댓글 작성
-//     */
-//    @PostMapping("")
-//    public ResponseEntity createCommment(
-//            @PathVariable Long id,
-//            @RequestBody CommentReqDto commentReqDto,
-//            @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
-//
-//        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
-//        Member _member = this.memberService.getMemberByUserId(_userId);
-//
-//        // 빈 내용 유효성 검사
-//        if (commentReqDto.getContents().trim().isEmpty()) {
-//            throw  new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
-//        } else {
-//            commentService.commentSave(_member.getUserId(), id, commentReqDto);
-//            return new ResponseEntity<>(HttpStatus.OK);
-//        }
-//    }
 
     /**
      * 댓글 삭제
@@ -63,14 +33,19 @@ public class CommentController {
     public ResponseEntity deleteComment(@PathVariable("id") Long id,
                                         @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
 
+        // 1. userId 추출
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+        
+        // 2. Comment 추출 (실패시, 404 반환)
         Comment comment = this.commentService.getComment(id);
-//        Board board = this.boardService.getBoard(id);
 
+        // 3. 삭제 권한 검증 (실패시 403 반환)
         if (!comment.getMember().getUserId().equals(_userId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
-            return commentService.deleteCommentById(id);
+            // 4. 댓글 삭제 성공시 200 반환 (실패시 400 반환)
+            commentService.deleteCommentById(id);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
     }
 
@@ -82,13 +57,19 @@ public class CommentController {
                                                     @RequestBody CommentCreateForm commentCreateForm,
                                                     @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
 
+        // 1. userId 추출
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+
+        // 2. Comment 추출 (실패시, 404 반환)
         Comment comment = this.commentService.getComment(id);
 
+        // 3. 수정 권한 검증 (실패시 403 반환)
         if (!comment.getMember().getUserId().equals(_userId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
-            return commentService.updateComment(comment, commentCreateForm);
+            // 4. 댓글 수정 성공시 200 반환
+            CommentDto commentDto = commentService.updateComment(comment, commentCreateForm);
+            return new ResponseEntity<>(commentDto, HttpStatus.OK);
         }
     }
 
@@ -98,12 +79,18 @@ public class CommentController {
     @GetMapping("/{id}/check")
     public ResponseEntity checkCommentUpdateAuth(@PathVariable("id") Long id,
                                           @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+        // 1. userId 추출
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+
+        // 2. Comment 추출 (실패시, 404 반환)
         Comment comment = this.commentService.getComment(id);
 
+        // 3. 수정 권한 검증 (실패시 403 반환)
         if (!comment.getMember().getUserId().equals(_userId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
+            
+            // 4. 권한 검증 성공시 200 반환
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
@@ -112,8 +99,12 @@ public class CommentController {
      * 상세 댓글 조회
      */
     @GetMapping("/{id}")
-    public CommentDto detailBoard(@PathVariable("id") Long id) throws CustomException {
+    public ResponseEntity<CommentDto> detailBoard(@PathVariable("id") Long id) throws CustomException {
+
+        // 1. id기반 댓글 찾기 (실패시, 404 반환)
         CommentDto commentDto = commentService.findCommentById(id);
-        return commentDto;
+        
+        // 2. 성공시 200 반환
+        return new ResponseEntity<>(commentDto, HttpStatus.OK);
     }
 }

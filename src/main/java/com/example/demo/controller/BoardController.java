@@ -2,13 +2,10 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.request.CommentCreateForm;
-import com.example.demo.dto.request.FileRequestForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
-import com.example.demo.repository.BoardRepository;
-import com.example.demo.repository.CommentRepository;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.FileService;
@@ -26,10 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,12 +45,6 @@ public class BoardController {
 
     @Autowired
     private CommentService commentService;
-
-    @Autowired
-    private BoardRepository boardRepository;
-
-    @Autowired
-    private CommentRepository commentRepository;
 
     @Autowired
     JWTUtil jwtUtil;
@@ -102,13 +91,20 @@ public class BoardController {
     @DeleteMapping("/{id}")
     public ResponseEntity deleteBoard(@PathVariable("id") Long id,
                                       @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
+
+        // 1. userId 추출
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+
+        // 2. Board 추출 (실패시 404 반환)
         Board board = this.boardService.getBoard(id);
 
+        // 3. 삭제 권한 검증 (실패시 403 반환)
         if (!board.getMember().getUserId().equals(_userId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
-            return boardService.deleteBoardById(id);
+            // 4. 게시글 삭제 및 200 반환
+            boardService.deleteBoardById(id);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
     }
 
@@ -119,15 +115,19 @@ public class BoardController {
     public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
                                                 @RequestBody BoardDto boardDto,
                                                 @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
-
+        // 1. userId 추출
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+
+        // 2. Board 추출 (실패시 404 반환)
         Board board = boardService.getBoard(id);
 
-        // 수정 권한 검증
+        // 3. 수정 권한 검증 (실패시 403 반환)
         if (!board.getMember().getUserId().equals(_userId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
-            return boardService.updateBoard(board, boardDto);
+            // 4. 게시글 수정 및 200 반환
+            BoardDto updatedBoard = boardService.updateBoard(board, boardDto);
+            return new ResponseEntity<>(updatedBoard, HttpStatus.OK);
         }
     }
 
@@ -138,7 +138,8 @@ public class BoardController {
     public ResponseEntity<Map<String, Object>> pagingBoardList(
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
     ) {
-        return boardService.getBoardList(pageable);
+        Map<String, Object> data = boardService.getBoardList(pageable);
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     /**
@@ -147,12 +148,17 @@ public class BoardController {
     @GetMapping("/{id}/check")
     public ResponseEntity checkUpdateAuth(@PathVariable("id") Long id,
                                           @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+        // 1. userId 추출
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+
+        // 2. Board 추출 (실패시 404 반환)
         Board board = this.boardService.getBoard(id);
 
         if (!board.getMember().getUserId().equals(_userId)) {
+            // 3. 수정 권한 검증 (실패시 403 반환)
             throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
+            // 4. 검증 성공시 200 반환
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
@@ -161,30 +167,37 @@ public class BoardController {
      * 상세 게시판 댓글 조회
      */
     @GetMapping("/{id}/comment")
-    public ResponseEntity commentList(@PathVariable("id") Long id) throws CustomException {
+    public ResponseEntity<List<CommentDto>> commentList(@PathVariable("id") Long id) throws CustomException {
+        // 1. boardId 로 해당 게시글 댓글 조회 (실패시 404 반환)
         List<CommentDto> commentDtoList = commentService.getCommentList(id);
-        return new ResponseEntity(commentDtoList, HttpStatus.OK);
+        
+        // 2. 댓글 조회 성공시 200 반환
+        return new ResponseEntity<>(commentDtoList, HttpStatus.OK);
     }
 
     /**
      * 댓글 작성
      */
     @PostMapping("/{id}/comment")
-    public ResponseEntity createComment(@PathVariable("id") Long id,
-                                        @RequestBody CommentCreateForm commentCreateForm,
-                                        @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
-        // 1. 작성자 가져오기
+    public ResponseEntity<CommentDto> createComment(@PathVariable("id") Long id,
+                                                 @RequestBody CommentCreateForm commentCreateForm,
+                                                 @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+        // 1. userId 추출
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+
+        // 2. Member 추출 (실패시 401 반환)
         Member member = memberService.getMemberByUserId(_userId);
 
-        // 2. 게시글 가져오기 및 게시글 부재 유효성 검사
+        // 3. Board 추출 (실패시 404 반환)
         Board board = this.boardService.getBoard(id);
 
-        // 3. 빈 내용 유효성 검사
+        // 4. 빈 내용 유효성 검사 (실패시 400 반환)
         if (commentCreateForm.getContents().trim().isEmpty()) {
             throw  new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
-            return commentService.createComment(commentCreateForm, member, board);
+            // 5. 댓글 작성 성공시 200 반환
+            CommentDto commentDto = commentService.createComment(commentCreateForm, member, board);
+            return new ResponseEntity<>(commentDto, HttpStatus.OK);
         }
     }
 }
