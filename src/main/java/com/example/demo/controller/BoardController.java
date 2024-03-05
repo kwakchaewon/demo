@@ -66,13 +66,14 @@ public class BoardController {
     public ResponseEntity<BoardDto> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
                                                     @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException, IOException {
 
-        // 빈 제목, 내용 유효성 검사
+        // 1. 빈 제목, 내용 유효성 검사 (실패시, 400 반환)
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
             String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
             Member _member = this.memberService.getMemberByUserId(_userId);
-            return this.boardService.createBoard(boardCreateForm, _member);
+            BoardDto boardDto = this.boardService.createBoard(boardCreateForm, _member);
+            return new ResponseEntity<>(boardDto,HttpStatus.OK);
         }
     }
 

@@ -85,14 +85,9 @@ public class BoardService {
         }
     }
 
-    public ResponseEntity<BoardDto> createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
+    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
         Board board = boardCreateForm.toEntity(member);
-        boardRepository.save(board);
-
-//        List<FileRequestForm> files = fileUtils.uploadFiles(boardCreateForm.getFiles());
-//        fileService.saveFiles(board, files);
-        BoardDto boardDto = board.of();
-        return new ResponseEntity<>(boardDto, HttpStatus.CREATED);
+        return boardRepository.save(board).of();
     }
 
     public Map<String, Object> getBoardList(Pageable pageable) {
