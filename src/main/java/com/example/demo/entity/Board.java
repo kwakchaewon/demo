@@ -38,7 +38,7 @@ public class Board {
 //    @OrderBy("createdAt desc")
     private List<Comment> comments;
 
-    public void update(BoardDto boardDto){
+    public void updateTitleAndContents(BoardDto boardDto){
         this.title = boardDto.getTitle();
         this.contents = boardDto.getContents();
         this.updatedAt = LocalDateTime.now();
@@ -74,6 +74,10 @@ public class Board {
                 .contents(this.getContents())
                 .createdAt(this.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
                 .build();
+
+        if (updatedAt!=null){
+            boardDto.setUpdatedAt(this.updatedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")));
+        }
 
         return boardDto;
     }

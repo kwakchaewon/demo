@@ -1,10 +1,13 @@
 package com.example.demo.dto.response;
 
 import com.example.demo.entity.Board;
+import com.example.demo.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Data
@@ -19,15 +22,6 @@ public class BoardDto {
     private String memberId;
 
     /**
-     * 수정 시, 제목, 내용 변경 및 memberId 값 추가
-     */
-    public void updateIdAndMemberId(Board board){
-        this.id = board.getId();
-        this.memberId = board.getMember().getUserId();
-        this.updatedAt = board.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss"));
-    }
-
-    /**
      * Entity -> Dto
      */
     public BoardDto(Board board){
@@ -39,6 +33,20 @@ public class BoardDto {
 
         if (board.getUpdatedAt()!=null){
             this.updatedAt = board.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
+        }
+    }
+
+    /**
+     * Projection
+     */
+    public BoardDto(Long id, String title, String contents, LocalDateTime createdAt, LocalDateTime updatedAt, Member member){
+        this.id = id;
+        this.title = title;
+        this.contents = contents;
+        this.createdAt = createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
+        this.memberId = member.getUserId();
+        if (updatedAt!=null){
+            this.updatedAt =updatedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
         }
     }
 }

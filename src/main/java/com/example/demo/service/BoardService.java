@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -57,10 +58,13 @@ public class BoardService {
 //    }
 
     public BoardDto findBoardById(Long id) throws CustomException {
-        // 게시글이 부재할 경우 NOT_FOUND 반환
-        Board board = boardRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
-        BoardDto boardDto = new BoardDto(board);
-        return boardDto;
+        Optional<BoardDto> boardDto = boardRepository.findBoardDtoById(id);
+
+        if (boardDto.isPresent()) {
+            return boardDto.get();
+        } else {
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND);
+        }
     }
 
     public void deleteBoardById(Long id) throws CustomException {
@@ -72,11 +76,13 @@ public class BoardService {
         }
     }
 
-    public BoardDto updateBoard(Board board, BoardDto boardDto){
-        board.update(boardDto);
-        boardRepository.save(board);
-        boardDto.updateIdAndMemberId(board);
-        return boardDto;
+    public BoardDto updateBoard(Board board, BoardDto boardDto) throws CustomException {
+        try {
+            board.updateTitleAndContents(boardDto);
+            return boardRepository.save(board).of();
+        } catch (Exception e){
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.UNKNOWN_ERROR);
+        }
     }
 
     public ResponseEntity<BoardDto> createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
@@ -95,6 +101,8 @@ public class BoardService {
         Page<Board> boardList = boardRepository.findAllByOrderByIdDesc(pageable);
 
         List<BoardDto> boardDtoList =  boardList.stream().map(BoardDto::new).collect(Collectors.toList());
+
+
 
         Pagination pagination = new Pagination(
                 (int) boardList.getTotalElements()
