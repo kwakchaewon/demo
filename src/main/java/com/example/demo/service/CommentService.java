@@ -34,8 +34,7 @@ public class CommentService {
 
     public CommentDto createComment(CommentCreateForm commentCreateForm, Member member, Board board){
         Comment comment = commentCreateForm.toEntity(member, board);
-        commentRepository.save(comment);
-        return comment.of();
+        return commentRepository.save(comment).of();
     }
 
     public Comment getComment(Long id) throws CustomException {
