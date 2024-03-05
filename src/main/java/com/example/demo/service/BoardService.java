@@ -81,7 +81,7 @@ public class BoardService {
             board.updateTitleAndContents(boardDto);
             return boardRepository.save(board).of();
         } catch (Exception e){
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.UNKNOWN_ERROR);
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
         }
     }
 

@@ -1,11 +1,14 @@
 package com.example.demo.dto.response;
 
+import com.example.demo.entity.Board;
 import com.example.demo.entity.Comment;
+import com.example.demo.entity.Member;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 //@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -29,6 +32,17 @@ public class CommentDto {
 
         if (comment.getUpdatedAt()!=null){
             this.updatedAt = comment.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
+        }
+    }
+
+    public CommentDto(Long id, String contents, LocalDateTime createdAt, LocalDateTime updatedAt, Board board, Member member) {
+        this.id = id;
+        this.contents = contents;
+        this.createdAt = createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
+        this.memberId = member.getUserId();
+        this.boardId = board.getId();
+        if (updatedAt!=null){
+            this.updatedAt =updatedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
         }
     }
 }

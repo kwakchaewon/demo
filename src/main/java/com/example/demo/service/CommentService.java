@@ -29,9 +29,7 @@ public class CommentService {
     public List<CommentDto> getCommentList(Long id) throws CustomException {
         Board board = boardRepository.findById(id).orElseThrow(() ->
                 new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
-        List<Comment> commentList = commentRepository.findByBoard(board);
-
-        return commentList.stream().map(CommentDto::new).collect(Collectors.toList());
+        return commentRepository.findCommentDtoByBoard(board);
     }
 
     public Long commentSave(String userId, Long id, CommentReqDto dto){

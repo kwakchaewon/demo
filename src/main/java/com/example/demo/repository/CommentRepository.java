@@ -1,5 +1,6 @@
 package com.example.demo.repository;
 
+import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Comment;
 import org.apache.tomcat.util.http.parser.Cookie;
@@ -12,4 +13,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 //    List<Comment> findCommentsByBoard(Board board);
 
     List<Comment> findByBoard(Board board);
+    List<CommentDto> findCommentDtoByBoard(Board board);
 }
