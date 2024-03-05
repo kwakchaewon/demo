@@ -32,18 +32,6 @@ public class CommentService {
         return commentRepository.findCommentDtoByBoard(board);
     }
 
-    public Long commentSave(String userId, Long id, CommentReqDto dto){
-        Member member = memberRepository.findByUserId(userId).get();
-        Board board = boardRepository.findById(id).orElseThrow(() ->
-                new IllegalArgumentException("댓글 쓰기 실패: 해당 게시글이 존재하지 않습니다." + id));
-
-        dto.setMember(member);
-        dto.setBoard(board);
-
-        return dto.getId();
-    }
-
-
     public CommentDto createComment(CommentCreateForm commentCreateForm, Member member, Board board){
         Comment comment = commentCreateForm.toEntity(member, board);
         commentRepository.save(comment);
