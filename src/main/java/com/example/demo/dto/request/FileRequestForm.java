@@ -1,7 +1,6 @@
 package com.example.demo.dto.request;
 
 import com.example.demo.entity.Board;
-import com.example.demo.entity.FileTable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,17 +21,5 @@ public class FileRequestForm {
         this.originalName = originalName;
         this.savedName = savedName;
         this.size = size;
-    }
-
-    public FileTable toEntity(Board board){
-        FileTable file = FileTable.builder()
-                .id(this.id)
-                .board(board)
-                .originalName(this.originalName)
-                .savedName(this.savedName)
-                .createdAt(LocalDateTime.now())
-                .size(this.size)
-                .build();
-        return file;
     }
 }
