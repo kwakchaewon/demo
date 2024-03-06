@@ -8,7 +8,6 @@ import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
-import com.example.demo.service.FileService;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.FileUtils;
 import com.example.demo.util.JWTUtil;
@@ -50,9 +49,6 @@ public class BoardController {
     JWTUtil jwtUtil;
 
     @Autowired
-    private FileService fileService;
-
-    @Autowired
     private FileUtils fileUtils;
 
     public BoardController(BoardService boardService) {
@@ -62,9 +58,18 @@ public class BoardController {
     /**
      * 게시글 작성
      */
-    @PostMapping("")
-    public ResponseEntity<BoardDto> createBoardDone(@RequestBody BoardCreateForm boardCreateForm,
+    @PostMapping(value = "")
+    public ResponseEntity<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
                                                     @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException, IOException {
+
+//        if(boardCreateForm.getFile() != null && !boardCreateForm.getFile().isEmpty()){
+//            String fileName = boardCreateForm.getFile().getOriginalFilename();
+//            File destFile = new File("경로/저장할/디렉토리/" + fileName);
+//            try (OutputStream os = new FileOutputStream(destFile)) {
+//                os.write(boardCreateForm.getFile().getBytes());
+//            }
+//            System.out.println("파일이 성공적으로 업로드되었습니다. 경로: " + destFile.getAbsolutePath());
+//        }
 
         // 1. 빈 제목, 내용 유효성 검사 (실패시, 400 반환)
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {

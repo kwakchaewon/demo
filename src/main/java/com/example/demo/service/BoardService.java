@@ -1,11 +1,11 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.UploadFileDto;
 import com.example.demo.dto.request.BoardCreateForm;
-import com.example.demo.dto.request.FileRequestForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
-import com.example.demo.util.FileUtils;
+import com.example.demo.util.FileStore;
 import com.example.demo.util.Pagination;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.JWTUtil;
@@ -15,15 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class BoardService {
@@ -32,9 +29,7 @@ public class BoardService {
     JWTUtil jwtUtil;
 
     @Autowired
-    private FileService fileService;
-
-    private FileUtils fileUtils;
+    private FileStore fileStore;
 
     public BoardService(BoardRepository boardRepository) {
         this.boardRepository = boardRepository;
@@ -85,9 +80,17 @@ public class BoardService {
         }
     }
 
-    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) {
-        Board board = boardCreateForm.toEntity(member);
-        return boardRepository.save(board).of();
+    @Transactional
+    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
+        if (boardCreateForm.getFile().isPresent()){
+            // 파일 저장 및 저장 파일 이름 반환
+            String savedFilename = fileStore.savedFile(boardCreateForm.getFile().get());
+            Board board = boardCreateForm.toEntityWithFile(member, savedFilename);
+            return boardRepository.save(board).of();
+        } else{
+            Board board = boardCreateForm.toEntity(member);
+            return boardRepository.save(board).of();
+        }
     }
 
     public Map<String, Object> getBoardList(Pageable pageable) {

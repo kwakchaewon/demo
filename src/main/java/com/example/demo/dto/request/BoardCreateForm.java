@@ -2,36 +2,53 @@ package com.example.demo.dto.request;
 
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
+import net.bytebuddy.implementation.bind.annotation.Default;
+import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BoardCreateForm {
-    @NotEmpty(message = "제목은 필수 항목입니다.")
-    @Size(max = 200)
     private String title;
-
-    @NotEmpty(message="내용은 필수항목입니다.")
     private String contents;
+    //    private List<MultipartFile> files = new ArrayList<>();
+    private Optional<MultipartFile> file = Optional.empty();;
 
-    private List<MultipartFile> files = new ArrayList<>();
+    public Board toEntityWithFile(Member _member, String savedFileName) {
 
-    public Board toEntity(Member _member){
+            Board board = Board.builder()
+                    .title(this.getTitle())
+                    .contents(this.getContents())
+                    .createdAt(LocalDateTime.now())
+                    .member(_member)
+                    .originalFile(this.getFile().get().getOriginalFilename())
+                    .savedFile(savedFileName)
+                    .build();
+
+            return board;
+    }
+
+    public Board toEntity(Member _member) {
+
         Board board = Board.builder()
                 .title(this.getTitle())
                 .contents(this.getContents())
                 .createdAt(LocalDateTime.now())
                 .member(_member)
                 .build();
-
         return board;
     }
 }

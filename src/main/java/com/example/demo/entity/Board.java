@@ -38,6 +38,12 @@ public class Board {
 //    @OrderBy("createdAt desc")
     private List<Comment> comments;
 
+    @Column
+    private String originalFile;
+
+    @Column
+    private String savedFile;
+
     public void updateTitleAndContents(BoardDto boardDto){
         this.title = boardDto.getTitle();
         this.contents = boardDto.getContents();
@@ -73,6 +79,8 @@ public class Board {
                 .title(this.getTitle())
                 .contents(this.getContents())
                 .createdAt(this.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
+                .originalFile(this.getOriginalFile())
+                .savedFile(this.getSavedFile())
                 .build();
 
         if (updatedAt!=null){
