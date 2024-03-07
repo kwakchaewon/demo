@@ -57,11 +57,13 @@ public class BoardService {
 
         if (boardDto.isPresent()) {
             BoardDto _dto = boardDto.get();
-            String filePath = fileStore.getFullPath(_dto.getSavedFile());
 
-            // 1. 이미지 파일이면 imgpath 세팅
-            if(fileStore.isImage(filePath)){
-                _dto.setImgPath(filePath);
+            if(_dto.getSavedFile()!=null){
+                String filePath = _dto.getSavedFile();
+                // 1. 이미지 파일이면 imgpath 세팅
+                if(fileStore.isImage(filePath)){
+                    _dto.setImgPath(filePath);
+                }
             }
 
             return _dto;

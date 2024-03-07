@@ -80,7 +80,7 @@ public class Board {
                 .contents(this.getContents())
                 .createdAt(this.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
                 .originalFile(this.getOriginalFile())
-                .savedFile(this.getSavedFile())
+//                .savedFile(this.getSavedFile())
                 .build();
 
         if (updatedAt!=null){

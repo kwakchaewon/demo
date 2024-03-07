@@ -46,7 +46,7 @@ public class FileStore {
             }
         }
 
-        multipartFile.transferTo(new File(this.getFullPath(originalFilename)));
+        multipartFile.transferTo(new File(this.getFullPath(savedFilename)));
 
         return savedFilename;
     }
