@@ -56,7 +56,15 @@ public class BoardService {
         Optional<BoardDto> boardDto = boardRepository.findBoardDtoById(id);
 
         if (boardDto.isPresent()) {
-            return boardDto.get();
+            BoardDto _dto = boardDto.get();
+            String filePath = fileStore.getFullPath(_dto.getSavedFile());
+
+            // 1. 이미지 파일이면 imgpath 세팅
+            if(fileStore.isImage(filePath)){
+                _dto.setImgPath(filePath);
+            }
+
+            return _dto;
         } else {
             throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND);
         }
