@@ -1,7 +1,10 @@
 package com.example.demo.util;
 
 import com.example.demo.dto.UploadFileDto;
+import com.example.demo.util.exception.Constants;
+import com.example.demo.util.exception.CustomException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,8 +16,7 @@ import java.util.UUID;
 
 @Component
 public class FileStore {
-    @Value("${FILE_SAVED_DIR}")
-    private String fileDir;
+    private final String fileDir = System.getProperty("user.dir") + "/files";
 
     public String getFullPath(String filename) {
         return fileDir + "/" + filename;
@@ -64,6 +66,15 @@ public class FileStore {
         return ext.equals("jpg") || ext.equals("jpeg") ||
                 ext.equals("png") || ext.equals("gif") ||
                 ext.equals("bmp") || ext.equals("tiff");
+    }
+
+    public void deleteFile(String savedFileName) throws CustomException {
+        File file = new File(this.getFullPath(savedFileName));
+        try {
+            file.delete();
+        }catch (Exception e){
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.FILE_NOTFOUND);
+        }
     }
 
 }
