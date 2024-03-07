@@ -9,21 +9,28 @@ import com.example.demo.entity.Member;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.MemberService;
-import com.example.demo.util.FileUtils;
+import com.example.demo.util.FileStore;
 import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +56,7 @@ public class BoardController {
     JWTUtil jwtUtil;
 
     @Autowired
-    private FileUtils fileUtils;
+    private FileStore fileStore;
 
     public BoardController(BoardService boardService) {
         this.boardService = boardService;
@@ -62,15 +69,6 @@ public class BoardController {
     public ResponseEntity<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
                                                     @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException, IOException {
 
-//        if(boardCreateForm.getFile() != null && !boardCreateForm.getFile().isEmpty()){
-//            String fileName = boardCreateForm.getFile().getOriginalFilename();
-//            File destFile = new File("경로/저장할/디렉토리/" + fileName);
-//            try (OutputStream os = new FileOutputStream(destFile)) {
-//                os.write(boardCreateForm.getFile().getBytes());
-//            }
-//            System.out.println("파일이 성공적으로 업로드되었습니다. 경로: " + destFile.getAbsolutePath());
-//        }
-
         // 1. 빈 제목, 내용 유효성 검사 (실패시, 400 반환)
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
@@ -78,7 +76,7 @@ public class BoardController {
             String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
             Member _member = this.memberService.getMemberByUserId(_userId);
             BoardDto boardDto = this.boardService.createBoard(boardCreateForm, _member);
-            return new ResponseEntity<>(boardDto,HttpStatus.OK);
+            return new ResponseEntity<>(boardDto, HttpStatus.OK);
         }
     }
 
@@ -176,7 +174,7 @@ public class BoardController {
     public ResponseEntity<List<CommentDto>> commentList(@PathVariable("id") Long id) throws CustomException {
         // 1. boardId 로 해당 게시글 댓글 조회 (실패시 404 반환)
         List<CommentDto> commentDtoList = commentService.getCommentList(id);
-        
+
         // 2. 댓글 조회 성공시 200 반환
         return new ResponseEntity<>(commentDtoList, HttpStatus.OK);
     }
@@ -186,8 +184,8 @@ public class BoardController {
      */
     @PostMapping("/{id}/comment")
     public ResponseEntity<CommentDto> createComment(@PathVariable("id") Long id,
-                                                 @RequestBody CommentCreateForm commentCreateForm,
-                                                 @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+                                                    @RequestBody CommentCreateForm commentCreateForm,
+                                                    @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
         // 1. userId 추출
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
 
@@ -199,11 +197,43 @@ public class BoardController {
 
         // 4. 빈 내용 유효성 검사 (실패시 400 반환)
         if (commentCreateForm.getContents().trim().isEmpty()) {
-            throw  new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
             // 5. 댓글 작성 성공시 200 반환
             CommentDto commentDto = commentService.createComment(commentCreateForm, member, board);
             return new ResponseEntity<>(commentDto, HttpStatus.OK);
         }
+    }
+
+    @GetMapping("/{id}/file")
+    @CrossOrigin(value = {"*"}, exposedHeaders = {"Content-Disposition"})
+    public ResponseEntity<Resource> downloadFile(HttpServletRequest request, @PathVariable Long id) throws CustomException, IOException {
+        // 1. board 조회
+        BoardDto boardDto = boardService.findBoardById(id);
+        String savedFileName = boardDto.getSavedFile();
+        String originalFileName = boardDto.getOriginalFile();
+
+        // 2. 파일 전체 경로 추출
+        Path filePath = Paths.get(fileStore.getFullPath(savedFileName));
+
+        // 3. 해당 파일로 응답 설정
+        Resource resource = new InputStreamResource(Files.newInputStream(filePath));
+
+        // 브라우저별 encoding 방식을 다르게 해야함
+//        String header = request.getHeader("User-Agent");
+//        if(header.contains("Chrome")){
+            String contentDisposition = "attachment; filename=\"" + originalFileName + "\"";
+
+
+        // 4. 파일명한글 깨짐 방지: 프론트단에서 읽어오지 못하는 문제
+//        String encodedOriginalFileName = UriUtils.encode(originalFileName, StandardCharsets.UTF_8);
+//        String encodedOriginalFileName = new String(originalFileName.getBytes("UTF-8"), "ISO-8859-1");
+//        String contentDisposition = "attachment; filename=\"" + originalFileName + "\"";
+//        String contentDisposition = "attachment; filename=\"" + encodedOriginalFileName + "\"";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition) // Content-Disposition: 브라우저에게 응답으로 리소스가 다운로드 되어야 함을 명시
+                .body(resource);
     }
 }
