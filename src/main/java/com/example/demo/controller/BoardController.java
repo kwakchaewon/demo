@@ -26,8 +26,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -219,20 +223,17 @@ public class BoardController {
         // 3. 해당 파일로 응답 설정
         Resource resource = new InputStreamResource(Files.newInputStream(filePath));
 
-        // 브라우저별 encoding 방식을 다르게 해야함
+        // 브라우저별 encoding 방식을 다르게 해야함 (추후 수정)
 //        String header = request.getHeader("User-Agent");
 //        if(header.contains("Chrome")){
-            String contentDisposition = "attachment; filename=\"" + originalFileName + "\"";
+        
+        // 4. 파일명에서 한글 깨짐을 막기 위해 UTF-8로 인코딩
+        String encodedOriginalFileName = URLEncoder.encode(originalFileName,"UTF-8");
+        String contentDisposition = "attachment; filename=\"" + encodedOriginalFileName + "\"";
 
-
-        // 4. 파일명한글 깨짐 방지: 프론트단에서 읽어오지 못하는 문제
-//        String encodedOriginalFileName = UriUtils.encode(originalFileName, StandardCharsets.UTF_8);
-//        String encodedOriginalFileName = new String(originalFileName.getBytes("UTF-8"), "ISO-8859-1");
-//        String contentDisposition = "attachment; filename=\"" + originalFileName + "\"";
-//        String contentDisposition = "attachment; filename=\"" + encodedOriginalFileName + "\"";
 
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition) // Content-Disposition: 브라우저에게 응답으로 리소스가 다운로드 되어야 함을 명시
                 .body(resource);
     }
