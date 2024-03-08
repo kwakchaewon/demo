@@ -11,15 +11,23 @@ import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
+import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Service
@@ -35,33 +43,16 @@ public class BoardService {
         this.boardRepository = boardRepository;
     }
 
-//    public List<BoardDto> findAllBoard(){
-//        List<Board> boards =  this.boardRepository.findAll();
-//        List<BoardDto> boardDtos = new ArrayList<>();
-//
-//        for (Board entity : boards) {
-//            BoardDto dto = BoardDto.builder()
-//                    .id(entity.getId())
-//                    .title(entity.getTitle())
-//                    .contents(entity.getContents())
-//                    .createdAt(entity.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
-//                    .build();
-//
-//            boardDtos.add(dto);
-//        }
-//        return boardDtos;
-//    }
-
     public BoardDto findBoardById(Long id) throws CustomException {
         Optional<BoardDto> boardDto = boardRepository.findBoardDtoById(id);
 
         if (boardDto.isPresent()) {
             BoardDto _dto = boardDto.get();
 
-            if(_dto.getSavedFile()!=null){
-                String filePath = _dto.getSavedFile();
+            if (_dto.getSavedFile() != null) {
+                String filePath = fileStore.getFullPath(_dto.getSavedFile());
                 // 1. 이미지 파일이면 imgpath 세팅
-                if(fileStore.isImage(filePath)){
+                if (fileStore.isImage(filePath)) {
                     _dto.setImgPath(filePath);
                 }
             }
@@ -73,31 +64,33 @@ public class BoardService {
     }
 
     public void deleteBoardById(Long id) throws CustomException {
-        try {
-            this.boardRepository.deleteById(id);
+        Board board = boardRepository.findById(id).
+                orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
+
+        if (board.getSavedFile() != null) {
+            fileStore.deleteFile(board.getSavedFile());
         }
-        catch (Exception e){
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.UNKNOWN_ERROR);
-        }
+
+        this.boardRepository.delete(board);
     }
 
     public BoardDto updateBoard(Board board, BoardDto boardDto) throws CustomException {
         try {
             board.updateTitleAndContents(boardDto);
             return boardRepository.save(board).of();
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
         }
     }
 
     @Transactional
     public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
-        if (boardCreateForm.getFile().isPresent()){
+        if (boardCreateForm.getFile().isPresent()) {
             // 파일 저장 및 저장 파일 이름 반환
             String savedFilename = fileStore.savedFile(boardCreateForm.getFile().get());
             Board board = boardCreateForm.toEntityWithFile(member, savedFilename);
             return boardRepository.save(board).of();
-        } else{
+        } else {
             Board board = boardCreateForm.toEntity(member);
             return boardRepository.save(board).of();
         }
@@ -131,4 +124,39 @@ public class BoardService {
             throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND);
         }
     }
+
+    public Resource getImage(BoardDto boardDto) throws CustomException {
+        String strPath = fileStore.getFullPath(boardDto.getSavedFile());
+
+        if (fileStore.isImage(strPath)) {
+            Path filePath = Paths.get(strPath);
+
+            // 2.1 이미지 파일일 경우, 이미지 파일 추출시도 (실패시, 500 반환)
+            try {
+                Resource resource = new InputStreamResource(Files.newInputStream(filePath));
+                return resource;
+            } catch (IOException e) {
+                System.out.println("error = " + e);
+                throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
+            }
+
+            // 2.1 이미지 파일이 아닐 경우 404 반환
+        } else {
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.IMAGE_NOTFOUND);
+        }
+    }
+
+    public Resource getDownloadResource(BoardDto boardDto) throws CustomException {
+        String savedFileName = boardDto.getSavedFile();
+        Path filePath = Paths.get(fileStore.getFullPath(savedFileName));
+
+        try {
+            Resource resource = new InputStreamResource(Files.newInputStream(filePath));
+            return resource;
+        }catch (IOException e){
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
+        }
+    }
+
+
 }

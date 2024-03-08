@@ -23,8 +23,10 @@ public class Constants {
         // 자원 관련
         BOARD_NOTFOUND("게시글을 찾을 수 없습니다."), //404
         COMMENT_NOTFOUND("댓글을 찾을 수 없습니다."), // 404
+        FILE_NOTFOUND("파일을 찾을 수 없습니다"), // 404
+        FILE_IOFAILED("파일 입출력에 실패했습니다."), // 500
+        IMAGE_NOTFOUND("이미지를 찾을 수 없습니다"), //404
         UNKNOWN_ERROR("알 수 없는 오류가 발생했습니다."), // 400
-
         MULTIFILE_EXCEPTION("MULTIFILE_EXCEPTION"); // 400
 
         private String exceptionClass;

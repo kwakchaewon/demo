@@ -1,14 +1,7 @@
 package com.example.demo.dto.response;
 
 import com.example.demo.entity.Board;
-import com.example.demo.entity.Member;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.Column;
-import java.time.LocalDateTime;
+import lombok.*;
 import java.time.format.DateTimeFormatter;
 
 @Data
