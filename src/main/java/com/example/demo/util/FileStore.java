@@ -24,32 +24,25 @@ public class FileStore {
 
     public String savedFile(MultipartFile multipartFile) throws IOException {
 
+        // 1. 파일이 없다면 null 반환
         if (multipartFile.isEmpty()) {
             return null;
         }
 
-        // 작성자가 업로드한 파일명 -> 서버 내부에서 관리하는 파일명
+        // 2.1 originalFilename: 원본 파일명
         String originalFilename = multipartFile.getOriginalFilename();
 
-        // 파일명을 중복되지 않게끔 UUID로 정하고 ".확장자"는 그대로
+        // 2.2 savedFilename: UUID 기반 파일명
         String savedFilename = this.getSavedFileName(originalFilename);
 
-        // 파일을 저장하는 부분 -> 파일경로 + storeFilename 에 저장
-//        multipartFile.transferTo(new File(getFullPath(savedFilename)));
-
-        // 저장하려는 경로에 폴더가 없으면 생성
-        if (!Files.exists(Paths.get(fileDir))){
-            try {
-                // 폴더 생성
-                Files.createDirectories(Paths.get(fileDir));
-                System.out.println("폴더가 생성되었습니다.");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        // 3. 저장 경로 폴더 생성 메서드
+        if (!Files.exists(Paths.get(fileDir))) {
+            Files.createDirectories(Paths.get(fileDir));
+            System.out.println("폴더가 생성되었습니다.");
         }
 
+        // 4. 로컬 파일 저장
         multipartFile.transferTo(new File(this.getFullPath(savedFilename)));
-
         return savedFilename;
     }
 
@@ -72,7 +65,7 @@ public class FileStore {
         File file = new File(this.getFullPath(savedFileName));
         try {
             file.delete();
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.FILE_NOTFOUND);
         }
     }

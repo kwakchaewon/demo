@@ -84,13 +84,21 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
+    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws CustomException {
         if (boardCreateForm.getFile().isPresent()) {
-            // 파일 저장 및 저장 파일 이름 반환
-            String savedFilename = fileStore.savedFile(boardCreateForm.getFile().get());
-            Board board = boardCreateForm.toEntityWithFile(member, savedFilename);
-            return boardRepository.save(board).of();
+            // 1. 파일 존재시 경로에 파일 저장
+            try {
+                String savedFilename = fileStore.savedFile(boardCreateForm.getFile().get()); // UUID 파일명
+                Board board = boardCreateForm.toEntityWithFile(member, savedFilename);  // UUID 파일명, Member 정보로 게시글 Entity 생성
+                return boardRepository.save(board).of();  // 게시글 저장
+            }
+            // 파일 저장시 발생하는 IOException 처리
+            catch (IOException e){
+                throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
+            }
+
         } else {
+            // 2. 파일 부재 시 게시글 저장
             Board board = boardCreateForm.toEntity(member);
             return boardRepository.save(board).of();
         }
