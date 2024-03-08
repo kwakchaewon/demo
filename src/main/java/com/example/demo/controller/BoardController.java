@@ -16,25 +16,16 @@ import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriUtils;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -88,9 +79,67 @@ public class BoardController {
      * 게시글 상세
      */
     @GetMapping("/{id}")
-    public ResponseEntity<BoardDto> detailBoard(@PathVariable("id") Long id) throws CustomException {
+    public ResponseEntity<BoardDto> detailBoard(@PathVariable("id") Long id) throws CustomException, IOException {
+        // 1. 게시글 상세
         BoardDto boardDto = boardService.findBoardById(id);
+
+//        // 2. 사진 미리보기 resource
+
+        //2_1. 첨부파일이 존재하고 확장자가 사진일 경우
+//        if(boardDto.getSavedFile()!= null){
+//            String strPath = fileStore.getFullPath(boardDto.getSavedFile());
+//
+//            if (fileStore.isImage(strPath)) {
+//                Path filePath = Paths.get(strPath);
+//                Resource resource = new InputStreamResource(Files.newInputStream(filePath));
+//                boardDto.setImgFile(resource);
+//                return ResponseEntity.ok().body(boardDto);
+//            }
+//            return ResponseEntity.ok().body(boardDto);
+//        }
+//        else {
+//            return ResponseEntity.ok().body(boardDto);
+//        }
+//        //2_2. 리소스에 담아서 보내줌.
+
+
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
+//            return ResponseEntity.ok().body();
+    }
+
+    /**
+     * 게시판 상세 이미지 출력
+     */
+    @GetMapping("/{id}/image")
+    public ResponseEntity detailBoardImage(@PathVariable("id") Long id) throws CustomException, IOException {
+        // 1. Board 추출 (실패시, 404 반환)
+        BoardDto boardDto = boardService.findBoardById(id);
+
+        // 2. 파일이 존재한다면 이미지 추출 (실패시 404, 500 반환)
+        if(boardDto.getSavedFile()!= null){
+            Resource resource = boardService.getImage(boardDto);
+            return new ResponseEntity(resource, HttpStatus.OK);
+        }
+
+        // 3. 그외 400 반환
+        else {
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.FILE_NOTFOUND);
+        }
+
+//            String strPath = fileStore.getFullPath(boardDto.getSavedFile());
+//
+//            if (fileStore.isImage(strPath)) {
+//                Path filePath = Paths.get(strPath);
+//                try {
+//                    Resource resource = new InputStreamResource(Files.newInputStream(filePath));
+//                    return ResponseEntity.ok().body(resource);
+//                }catch (Exception e){
+//                    System.out.println("error = " + e);
+//                    throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
+//                }
+//            }
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
     }
 
     /**
@@ -209,32 +258,39 @@ public class BoardController {
         }
     }
 
+    /**
+     * 게시판 파일 다운로드
+     */
     @GetMapping("/{id}/file")
     @CrossOrigin(value = {"*"}, exposedHeaders = {"Content-Disposition"})
-    public ResponseEntity<Resource> downloadFile(HttpServletRequest request, @PathVariable Long id) throws CustomException, IOException {
-        // 1. board 조회
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long id) throws CustomException, IOException {
+
+        // 1. boardDto 추출 (실패시, 404 반환)
         BoardDto boardDto = boardService.findBoardById(id);
-        String savedFileName = boardDto.getSavedFile();
-        String originalFileName = boardDto.getOriginalFile();
 
-        // 2. 파일 전체 경로 추출
-        Path filePath = Paths.get(fileStore.getFullPath(savedFileName));
+        // 2. Resouce 추출
+        Resource resource = boardService.getDownloadResource(boardDto);
 
-        // 3. 해당 파일로 응답 설정
-        Resource resource = new InputStreamResource(Files.newInputStream(filePath));
+//        String savedFileName = boardDto.getSavedFile();
+//        String originalFileName = boardDto.getOriginalFile();
+//
+//        // 2. 파일 전체 경로 추출
+//        Path filePath = Paths.get(fileStore.getFullPath(savedFileName));
+//
+//        // 3. 해당 파일로 응답 설정
+//        Resource resource = new InputStreamResource(Files.newInputStream(filePath));
 
+        // 3. 파일명 UTF-8로 인코딩 설정 (한글 깨짐 방지)
         // 브라우저별 encoding 방식을 다르게 해야함 (추후 수정)
-//        String header = request.getHeader("User-Agent");
-//        if(header.contains("Chrome")){
-        
-        // 4. 파일명에서 한글 깨짐을 막기 위해 UTF-8로 인코딩
+        String originalFileName = boardDto.getOriginalFile();
         String encodedOriginalFileName = URLEncoder.encode(originalFileName,"UTF-8");
+//        String encodedOriginalFileName = URLEncoder.encode(originalFileName,"UTF-8").replaceAll("\\+", "%20");
         String contentDisposition = "attachment; filename=\"" + encodedOriginalFileName + "\"";
-
 
         return ResponseEntity.ok()
 //                .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition) // Content-Disposition: 브라우저에게 응답으로 리소스가 다운로드 되어야 함을 명시
                 .body(resource);
+
     }
 }
