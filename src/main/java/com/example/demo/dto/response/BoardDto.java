@@ -33,25 +33,4 @@ public class BoardDto {
             this.updatedAt = board.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
         }
     }
-
-//    public BoardDto(Long id, String title, String contents, LocalDateTime createdAt) {
-//        this.id = id;
-//        this.title = title;
-//        this.contents = contents;
-//        this.createdAt = createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
-//    }
-//
-//    /**
-//     * Projection
-//     */
-//    public BoardDto(Long id, String title, String contents, LocalDateTime createdAt, LocalDateTime updatedAt, Member member){
-//        this.id = id;
-//        this.title = title;
-//        this.contents = contents;
-//        this.createdAt = createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
-//        this.memberId = member.getUserId();
-//        if (updatedAt!=null){
-//            this.updatedAt =updatedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
-//        }
-//    }
 }

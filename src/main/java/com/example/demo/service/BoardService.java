@@ -39,14 +39,17 @@ public class BoardService {
     }
 
     public BoardDto findBoardById(Long id) throws CustomException {
+
         Optional<BoardDto> boardDto = boardRepository.findBoardDtoById(id);
 
+        // 1. 게시글 존재시 BoardDto 반환
         if (boardDto.isPresent()) {
             BoardDto _dto = boardDto.get();
-
+            
             if (_dto.getSavedFile() != null) {
                 String filePath = fileStore.getFullPath(_dto.getSavedFile());
-                // 1. 이미지 파일이면 imgpath 세팅
+
+                // 2. 존재하는 첨부파일이 이미지 파일시 imgPath 반환
                 if (fileStore.isImage(filePath)) {
                     _dto.setImgPath(filePath);
                 }
@@ -54,6 +57,7 @@ public class BoardService {
 
             return _dto;
         } else {
+            // 3. 게시글 부재시 BOARD_NOTFOUND
             throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND);
         }
     }

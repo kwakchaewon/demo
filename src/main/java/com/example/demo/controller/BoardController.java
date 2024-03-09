@@ -85,31 +85,9 @@ public class BoardController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<BoardDto> detailBoard(@PathVariable("id") Long id) throws CustomException {
-        // 1. 게시글 상세
+        // 1. 상세 게시글 추출
         BoardDto boardDto = boardService.findBoardById(id);
-
-//        // 2. 사진 미리보기 resource
-
-        //2_1. 첨부파일이 존재하고 확장자가 사진일 경우
-//        if(boardDto.getSavedFile()!= null){
-//            String strPath = fileStore.getFullPath(boardDto.getSavedFile());
-//
-//            if (fileStore.isImage(strPath)) {
-//                Path filePath = Paths.get(strPath);
-//                Resource resource = new InputStreamResource(Files.newInputStream(filePath));
-//                boardDto.setImgFile(resource);
-//                return ResponseEntity.ok().body(boardDto);
-//            }
-//            return ResponseEntity.ok().body(boardDto);
-//        }
-//        else {
-//            return ResponseEntity.ok().body(boardDto);
-//        }
-//        //2_2. 리소스에 담아서 보내줌.
-
-
         return new ResponseEntity<>(boardDto, HttpStatus.OK);
-//            return ResponseEntity.ok().body();
     }
 
     /**
