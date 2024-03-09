@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.UploadFileDto;
 import com.example.demo.dto.request.BoardCreateForm;
+import com.example.demo.dto.request.BoardUpdateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
@@ -11,20 +11,16 @@ import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
-import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.net.ConnectException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,12 +70,37 @@ public class BoardService {
         this.boardRepository.delete(board);
     }
 
-    public BoardDto updateBoard(Board board, BoardDto boardDto) throws CustomException {
-        try {
-            board.updateTitleAndContents(boardDto);
+    @Transactional
+    public BoardDto updateBoard(Board board, BoardUpdateForm boardUpdateForm) throws CustomException, IOException {
+
+        // 1. 원본 파일이 변경되지않았다면 (isUpdate == false)
+        // 제목 & 내용의 변경만을 저장
+        if (!boardUpdateForm.isIsupdate()){
+            board.updateTitleAndContents(boardUpdateForm);
             return boardRepository.save(board).of();
-        } catch (Exception e) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
+        }
+        
+        // 2. 원본 파일이 변경 됐다면 (isUpdate == true)
+        else {
+            fileStore.deleteFile(board.getSavedFile()); // board 객체에 해당하는 파일 제거
+            String savedFilename = fileStore.savedFile(boardUpdateForm.getFile()); // UUID 파일명
+            board.updateTitleAndContents(boardUpdateForm);
+
+            // 2.1 원본 파일이 삭제됐다면 :
+            // 원본 파일 삭제 및 DB 필드 null로 변경,  제목 & 내용 변경만을 저장
+            if (!boardUpdateForm.getFile().isPresent()){
+                board.setSavedFile(null);
+                board.setOriginalFile(null);
+            }
+
+            // 2.2 원본 파일이 변경됐을 경우: 원본 파일 삭제 후 새로운 파일 저장
+            // 제목 & 내용 변경 저장
+            // 원본 파일 삭제 후 파일 저장
+            else {
+                board.setOriginalFile(boardUpdateForm.getFile().get().getOriginalFilename());
+                board.setSavedFile(savedFilename);
+            }
+            return boardRepository.save(board).of();
         }
     }
 
@@ -88,7 +109,7 @@ public class BoardService {
         if (boardCreateForm.getFile().isPresent()) {
             // 1. 파일 존재시 경로에 파일 저장
             try {
-                String savedFilename = fileStore.savedFile(boardCreateForm.getFile().get()); // UUID 파일명
+                String savedFilename = fileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명
                 Board board = boardCreateForm.toEntityWithFile(member, savedFilename);  // UUID 파일명, Member 정보로 게시글 Entity 생성
                 return boardRepository.save(board).of();  // 게시글 저장
             }

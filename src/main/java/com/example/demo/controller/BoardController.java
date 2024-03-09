@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.BoardCreateForm;
+import com.example.demo.dto.request.BoardUpdateForm;
 import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
@@ -65,6 +66,7 @@ public class BoardController {
                                                     @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException, IOException {
 
         // 1. 빈 제목, 내용 유효성 검사 (실패시, 400 반환)
+
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
@@ -170,9 +172,10 @@ public class BoardController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
-                                                @RequestBody BoardDto boardDto,
-                                                @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+                                                @ModelAttribute BoardUpdateForm boardUpdateForm,
+                                                @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException, IOException {
         // 1. userId 추출
+
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
 
         // 2. Board 추출 (실패시 404 반환)
@@ -183,7 +186,7 @@ public class BoardController {
             throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             // 4. 게시글 수정 및 200 반환
-            BoardDto updatedBoard = boardService.updateBoard(board, boardDto);
+            BoardDto updatedBoard = boardService.updateBoard(board, boardUpdateForm);
             return new ResponseEntity<>(updatedBoard, HttpStatus.OK);
         }
     }

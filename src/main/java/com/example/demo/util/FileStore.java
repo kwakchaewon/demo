@@ -1,9 +1,6 @@
 package com.example.demo.util;
-
-import com.example.demo.dto.UploadFileDto;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -22,15 +20,22 @@ public class FileStore {
         return fileDir + "/" + filename;
     }
 
-    public String savedFile(MultipartFile multipartFile) throws IOException {
+    /**
+     * 파일 저장
+     * @param multipartFile
+     * @return savedFilename: UUID 기반 파일명
+     * @throws IOException
+     */
+    public String savedFile(Optional<MultipartFile> multipartFile) throws IOException {
 
         // 1. 파일이 없다면 null 반환
-        if (multipartFile.isEmpty()) {
+        if (!multipartFile.isPresent()) {
             return null;
         }
 
         // 2.1 originalFilename: 원본 파일명
-        String originalFilename = multipartFile.getOriginalFilename();
+
+        String originalFilename = multipartFile.get().getOriginalFilename();
 
         // 2.2 savedFilename: UUID 기반 파일명
         String savedFilename = this.getSavedFileName(originalFilename);
@@ -42,7 +47,7 @@ public class FileStore {
         }
 
         // 4. 로컬 파일 저장
-        multipartFile.transferTo(new File(this.getFullPath(savedFilename)));
+        multipartFile.get().transferTo(new File(this.getFullPath(savedFilename)));
         return savedFilename;
     }
 

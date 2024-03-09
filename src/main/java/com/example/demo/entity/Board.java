@@ -1,7 +1,10 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.request.BoardUpdateForm;
 import com.example.demo.dto.response.BoardDto;
+import com.example.demo.util.FileStore;
 import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -44,9 +47,9 @@ public class Board {
     @Column
     private String savedFile;
 
-    public void updateTitleAndContents(BoardDto boardDto){
-        this.title = boardDto.getTitle();
-        this.contents = boardDto.getContents();
+    public void updateTitleAndContents(BoardUpdateForm boardUpdateForm){
+        this.title = boardUpdateForm.getTitle();
+        this.contents = boardUpdateForm.getContents();
         this.updatedAt = LocalDateTime.now();
     }
 
