@@ -63,7 +63,7 @@ public class BoardController {
      */
     @PostMapping(value = "")
     public ResponseEntity<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
-                                                    @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException, IOException {
+                                                    @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
 
         // 1. 빈 제목, 내용 유효성 검사 (실패시, 400 반환)
 
@@ -81,7 +81,7 @@ public class BoardController {
      * 게시글 상세
      */
     @GetMapping("/{id}")
-    public ResponseEntity<BoardDto> detailBoard(@PathVariable("id") Long id) throws CustomException, IOException {
+    public ResponseEntity<BoardDto> detailBoard(@PathVariable("id") Long id) throws CustomException {
         // 1. 게시글 상세
         BoardDto boardDto = boardService.findBoardById(id);
 
@@ -113,7 +113,7 @@ public class BoardController {
      * 게시판 상세 이미지 출력
      */
     @GetMapping("/{id}/image")
-    public ResponseEntity detailBoardImage(@PathVariable("id") Long id) throws CustomException, IOException {
+    public ResponseEntity detailBoardImage(@PathVariable("id") Long id) throws CustomException {
         // 1. Board 추출 (실패시, 404 반환)
         BoardDto boardDto = boardService.findBoardById(id);
 

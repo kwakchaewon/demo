@@ -73,14 +73,14 @@ public class BoardService {
     @Transactional
     public BoardDto updateBoard(Board board, BoardUpdateForm boardUpdateForm) throws CustomException, IOException {
 
-        // 1. 원본 파일이 변경되지않았다면 (isUpdate == false)
+        // 1. 원본 파일이 변경되지않았다면
         // 제목 & 내용의 변경만을 저장
-        if (!boardUpdateForm.isIsupdate()){
+        if (!boardUpdateForm.isIsupdate()) {
             board.updateTitleAndContents(boardUpdateForm);
             return boardRepository.save(board).of();
         }
-        
-        // 2. 원본 파일이 변경 됐다면 (isUpdate == true)
+
+        // 2. 원본 파일 변경시
         else {
             fileStore.deleteFile(board.getSavedFile()); // board 객체에 해당하는 파일 제거
             String savedFilename = fileStore.savedFile(boardUpdateForm.getFile()); // UUID 파일명
@@ -88,12 +88,12 @@ public class BoardService {
 
             // 2.1 원본 파일이 삭제됐다면 :
             // 원본 파일 삭제 및 DB 필드 null로 변경,  제목 & 내용 변경만을 저장
-            if (!boardUpdateForm.getFile().isPresent()){
+            if (!boardUpdateForm.getFile().isPresent()) {
                 board.setSavedFile(null);
                 board.setOriginalFile(null);
             }
 
-            // 2.2 원본 파일이 변경됐을 경우: 원본 파일 삭제 후 새로운 파일 저장
+            // 2.2 원본 파일이 변경됐을 경우:
             // 제목 & 내용 변경 저장
             // 원본 파일 삭제 후 파일 저장
             else {
@@ -108,15 +108,9 @@ public class BoardService {
     public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws CustomException {
         if (boardCreateForm.getFile().isPresent()) {
             // 1. 파일 존재시 경로에 파일 저장
-            try {
-                String savedFilename = fileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명
-                Board board = boardCreateForm.toEntityWithFile(member, savedFilename);  // UUID 파일명, Member 정보로 게시글 Entity 생성
-                return boardRepository.save(board).of();  // 게시글 저장
-            }
-            // 파일 저장시 발생하는 IOException 처리
-            catch (IOException e){
-                throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
-            }
+            String savedFilename = fileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명
+            Board board = boardCreateForm.toEntityWithFile(member, savedFilename);  // UUID 파일명, Member 정보로 게시글 Entity 생성
+            return boardRepository.save(board).of();  // 게시글 저장
 
         } else {
             // 2. 파일 부재 시 게시글 저장
@@ -182,7 +176,7 @@ public class BoardService {
         try {
             Resource resource = new InputStreamResource(Files.newInputStream(filePath));
             return resource;
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
         }
     }
