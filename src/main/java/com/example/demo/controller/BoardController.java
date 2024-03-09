@@ -59,14 +59,13 @@ public class BoardController {
     }
 
     /**
-     * 게시글 작성
+     * 게시글 작성/등록
      */
     @PostMapping(value = "")
     public ResponseEntity<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
                                                     @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
 
         // 1. 빈 제목, 내용 유효성 검사 (실패시, 400 반환)
-
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
@@ -274,20 +273,12 @@ public class BoardController {
         // 2. Resouce 추출
         Resource resource = boardService.getDownloadResource(boardDto);
 
-//        String savedFileName = boardDto.getSavedFile();
-//        String originalFileName = boardDto.getOriginalFile();
-//
-//        // 2. 파일 전체 경로 추출
-//        Path filePath = Paths.get(fileStore.getFullPath(savedFileName));
-//
-//        // 3. 해당 파일로 응답 설정
-//        Resource resource = new InputStreamResource(Files.newInputStream(filePath));
-
         // 3. 파일명 UTF-8로 인코딩 설정 (한글 깨짐 방지)
         // 브라우저별 encoding 방식을 다르게 해야함 (추후 수정)
         String originalFileName = boardDto.getOriginalFile();
         String encodedOriginalFileName = URLEncoder.encode(originalFileName,"UTF-8");
 //        String encodedOriginalFileName = URLEncoder.encode(originalFileName,"UTF-8").replaceAll("\\+", "%20");
+
         String contentDisposition = "attachment; filename=\"" + encodedOriginalFileName + "\"";
 
         return ResponseEntity.ok()

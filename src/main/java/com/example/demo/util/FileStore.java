@@ -22,9 +22,7 @@ public class FileStore {
 
     /**
      * 파일 저장
-     * @param multipartFile
      * @return savedFilename: UUID 기반 파일명
-     * @throws IOException
      */
     public String savedFile(Optional<MultipartFile> multipartFile) throws CustomException {
 
@@ -33,14 +31,12 @@ public class FileStore {
             return null;
         }
 
-        // 2.1 originalFilename: 원본 파일명
-
+        // originalFilename: 원본 파일명
+        // savedFilename: UUID 기반 파일명
         String originalFilename = multipartFile.get().getOriginalFilename();
-
-        // 2.2 savedFilename: UUID 기반 파일명
         String savedFilename = this.getSavedFileName(originalFilename);
 
-        // 3. 저장 경로 폴더 생성 메서드
+        // 2. 저장 경로 폴더 생성
         if (!Files.exists(Paths.get(fileDir))) {
             try {
                 Files.createDirectories(Paths.get(fileDir));
@@ -51,7 +47,7 @@ public class FileStore {
             System.out.println("폴더가 생성되었습니다.");
         }
 
-        // 4. 로컬 파일 저장
+        // 3. 로컬 파일 저장
         try {
             multipartFile.get().transferTo(new File(this.getFullPath(savedFilename)));
         }catch (IOException e){

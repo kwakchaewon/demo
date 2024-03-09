@@ -18,8 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -109,7 +108,7 @@ public class BoardService {
         if (boardCreateForm.getFile().isPresent()) {
             // 1. 파일 존재시 경로에 파일 저장
             String savedFilename = fileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명
-            Board board = boardCreateForm.toEntityWithFile(member, savedFilename);  // UUID 파일명, Member 정보로 게시글 Entity 생성
+            Board board = boardCreateForm.toEntityWithFile(member, savedFilename);
             return boardRepository.save(board).of();  // 게시글 저장
 
         } else {
