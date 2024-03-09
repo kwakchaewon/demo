@@ -65,12 +65,16 @@ public class BoardController {
     public ResponseEntity<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
                                                     @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
 
-        // 1. 빈 제목, 내용 유효성 검사 (실패시, 400 반환)
+        // 1. 빈 제목, 내용 유효성 검사
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
+            
+            // 2. Member 추출
             String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
             Member _member = this.memberService.getMemberByUserId(_userId);
+
+            // 3. 게시글 저장 및 BoardDto 추출
             BoardDto boardDto = this.boardService.createBoard(boardCreateForm, _member);
             return new ResponseEntity<>(boardDto, HttpStatus.OK);
         }
@@ -174,7 +178,6 @@ public class BoardController {
                                                 @ModelAttribute BoardUpdateForm boardUpdateForm,
                                                 @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException, IOException {
         // 1. userId 추출
-
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
 
         // 2. Board 추출 (실패시 404 반환)
