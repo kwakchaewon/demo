@@ -25,7 +25,7 @@ public class BoardCreateForm {
     private String title;
     private String contents;
     //    private List<MultipartFile> files = new ArrayList<>();
-    private Optional<MultipartFile> file = Optional.empty();;
+    private Optional<MultipartFile> file = Optional.empty();
 
     public Board toEntityWithFile(Member _member, String savedFileName) {
 
