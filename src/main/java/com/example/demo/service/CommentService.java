@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.request.CommentCreateForm;
-import com.example.demo.dto.request.CommentReqDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Comment;

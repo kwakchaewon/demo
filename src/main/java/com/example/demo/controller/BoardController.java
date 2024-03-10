@@ -32,25 +32,17 @@ import java.util.Map;
 
 @RequestMapping("/board")
 @RestController
-@Validated
 @RequiredArgsConstructor
 public class BoardController {
 
     @Value("${jwt.secret_access}")
     private String secret_access;
-
-    @Autowired
     private BoardService boardService;
-
     @Autowired
     private MemberService memberService;
-
     @Autowired
     private CommentService commentService;
-
-    @Autowired
     JWTUtil jwtUtil;
-
     @Autowired
     private FileStore fileStore;
 
@@ -59,7 +51,10 @@ public class BoardController {
     }
 
     /**
-     * 게시글 작성/등록
+     * 게시글 작성등록
+     * 빈 제목, 내용 유효성 검사. 실패시 ONLY_BLANk 반환
+     * 파일 존재시 파일 + 게시글 저장. IOException 발생 시, FILE_IOFAILED 반환
+     * 파일 부재시, 게시글 만 저장
      */
     @PostMapping(value = "")
     public ResponseEntity<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
@@ -82,6 +77,7 @@ public class BoardController {
 
     /**
      * 게시글 상세
+     * 게시글 부재시, BOARD_NOTFOUND 반환
      */
     @GetMapping("/{id}")
     public ResponseEntity<BoardDto> detailBoard(@PathVariable("id") Long id) throws CustomException {
@@ -91,7 +87,9 @@ public class BoardController {
     }
 
     /**
-     * 게시판 상세 이미지 출력
+     * 게시판 상세 이미지
+     * 게시글 부재시, BOARD_NOTFOUND 반환
+     * 게시글 조회 후, 첨부파일 존재시 이미지 Resource 반환. IOException 발생 시, FILE_IOFAILED 반환
      */
     @GetMapping("/{id}/image")
     public ResponseEntity detailBoardImage(@PathVariable("id") Long id) throws CustomException {
@@ -108,25 +106,12 @@ public class BoardController {
         else {
             throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.FILE_NOTFOUND);
         }
-
-//            String strPath = fileStore.getFullPath(boardDto.getSavedFile());
-//
-//            if (fileStore.isImage(strPath)) {
-//                Path filePath = Paths.get(strPath);
-//                try {
-//                    Resource resource = new InputStreamResource(Files.newInputStream(filePath));
-//                    return ResponseEntity.ok().body(resource);
-//                }catch (Exception e){
-//                    System.out.println("error = " + e);
-//                    throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
-//                }
-//            }
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
     }
 
     /**
      * 게시글 삭제
+     * 게시글 부재시 BOARD_NOTFOUND
+     * 삭제 권한 검증 실패시 NO_AUTHORIZATION
      */
     @DeleteMapping("/{id}")
     public ResponseEntity deleteBoard(@PathVariable("id") Long id,
@@ -150,6 +135,8 @@ public class BoardController {
 
     /**
      * 게시글 수정
+     * 게시글 부재시 BOARD_NOTFOUND
+     * 삭제 권한 검증 실패시 NO_AUTHORIZATION
      */
     @PutMapping("/{id}")
     public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
@@ -184,6 +171,8 @@ public class BoardController {
 
     /**
      * 게시글 수정 권한 검증
+     * 게시글 부재시 BOARD_NOTFOUND 반환
+     * 수정 권한 검증 실패시 NO_AUTHORIZATION
      */
     @GetMapping("/{id}/check")
     public ResponseEntity checkUpdateAuth(@PathVariable("id") Long id,
@@ -205,6 +194,7 @@ public class BoardController {
 
     /**
      * 상세 게시판 댓글 조회
+     * 게시글 부재시 BOARD_NOTFOUND 반환
      */
     @GetMapping("/{id}/comment")
     public ResponseEntity<List<CommentDto>> commentList(@PathVariable("id") Long id) throws CustomException {
@@ -217,6 +207,8 @@ public class BoardController {
 
     /**
      * 댓글 작성
+     * 게시글 부재시 BOARD_NOTFOUND 반환
+     * 빈칸 입력시 ONLY_BLANk 반환
      */
     @PostMapping("/{id}/comment")
     public ResponseEntity<CommentDto> createComment(@PathVariable("id") Long id,
@@ -243,6 +235,9 @@ public class BoardController {
 
     /**
      * 게시판 파일 다운로드
+     * 파일 부재시 BOARD_NOTFOUND
+     * 파일 추출 실패시 FILE_IOFAILED
+     * 리소스 추출 후 파일명을 UTF8로 변환 후 CONTENT_DISPOSITION에 담아 반환
      */
     @GetMapping("/{id}/file")
     @CrossOrigin(value = {"*"}, exposedHeaders = {"Content-Disposition"})

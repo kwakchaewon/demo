@@ -17,30 +17,9 @@ public class SignupForm {
             message = "이메일: 이메일 주소 양식을 입력해주세요.")
     private String email;
 
-//    @JsonCreator
-//    public MemberReqDto (@JsonProperty("userId") String userId,
-//                         @JsonProperty("userPw") String userPw,
-//                         @JsonProperty("email") String email,
-//                         @JsonProperty("userPw") String userPwCk
-//    ){
-//        this.userId= userId;
-//        this.userId= userPw;
-//        this.userId= email;
-//        this.userId= userPwCk;
-//    }
-
     @AssertTrue(message = "비밀번호와 비밀번호 확인이 일치하지 않습니다.")
     public boolean isPasswordConfirmed() {
         return userPw != null && userPw.equals(userPwCk);
     }
 
-//    public Member toEntity(){
-//        Member member = Member.builder()
-//                .userId(this.getUserId())
-//                .userPw(passwordEncoder.encode(this.getUserPw()))
-//                .email(this.getEmail())
-//                .createdAt(LocalDateTime.now())
-//                .build();
-//        return member;
-//    }
 }

@@ -9,7 +9,6 @@ import javax.validation.constraints.NotBlank;
 public class LoginReqDto {
     @NotBlank
     private String userId;
-
     @NotBlank
     private String userPw;
 }

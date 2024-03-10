@@ -11,6 +11,7 @@ import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -28,10 +29,7 @@ import java.util.*;
 @Service
 public class BoardService {
     private final BoardRepository boardRepository;
-    @Autowired
     JWTUtil jwtUtil;
-
-    @Autowired
     private FileStore fileStore;
 
     public BoardService(BoardRepository boardRepository) {
@@ -45,15 +43,16 @@ public class BoardService {
         // 1. 게시글 존재시 BoardDto 반환
         if (boardDto.isPresent()) {
             BoardDto _dto = boardDto.get();
-            
-            if (_dto.getSavedFile() != null) {
-                String filePath = fileStore.getFullPath(_dto.getSavedFile());
 
-                // 2. 존재하는 첨부파일이 이미지 파일시 imgPath 반환
-                if (fileStore.isImage(filePath)) {
-                    _dto.setImgPath(filePath);
-                }
-            }
+            // 이미지 부분을 따로 컴포넌트화해서 주석처리
+//            if (_dto.getSavedFile() != null) {
+//                String filePath = fileStore.getFullPath(_dto.getSavedFile());
+//
+//                // 2. 존재하는 첨부파일이 이미지 파일시 imgPath 반환
+//                if (fileStore.isImage(filePath)) {
+//                    _dto.setImgPath(filePath);
+//                }
+//            }
 
             return _dto;
         } else {
@@ -113,7 +112,7 @@ public class BoardService {
             // 1. 파일 존재시 경로에 파일 저장
             String savedFilename = fileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명
             Board board = boardCreateForm.toEntityWithFile(member, savedFilename);
-            return boardRepository.save(board).of();  // 게시글 저장
+            return boardRepository.save(board).of();
 
         } else {
             // 2. 파일 부재 시 게시글 저장
