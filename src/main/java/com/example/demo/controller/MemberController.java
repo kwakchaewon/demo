@@ -15,6 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,6 +60,15 @@ public class MemberController {
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * 액세스 토큰 재발급
+     */
+    @GetMapping("/refresh")
+    public String refresh(String refreshToken, HttpServletResponse response){
+        String token = response.getHeader("ACCESS_TOKEN");
+        return token;
+    }
+
     @PostMapping("/signup")
     public ResponseEntity signUp(@RequestBody SignupForm signupForm) throws CustomException {
         // 아이디 중복 검사
@@ -74,28 +86,3 @@ public class MemberController {
         }
     }
 }
-
-
-        // 검증이 포함된 access 로그인
-        //    @PostMapping("/login")
-//    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> paramMap) {
-//        String userId = paramMap.get("user_id");
-//        String userPw = paramMap.get("user_pw");
-//
-//        UserDetails loginUser = memberService.loadUserByUsername(userId); //1. userId로 패스워드 가져오기
-//
-//        Authentication authentication = authenticationManager.authenticate(     //2. 가져온 패스워드와 입력한 비밀번호로 검증
-//                new UsernamePasswordAuthenticationToken(loginUser, userPw)
-//        );
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);   // 3. 검증 통과 후 authentication 세팅
-//
-//        String accessToken = jwtUtil.createToken(loginUser.getUsername(), loginUser.getUsername());     // 4. accessToken 생성
-//
-//        Map<String, Object> result = new HashMap<>();
-//        result.put("user_id", loginUser.getUsername());
-//        result.put("user_token", accessToken);
-//        result.put("user_role", loginUser.getAuthorities().stream().findFirst().get().getAuthority());
-//
-//        return ResponseEntity.ok(result);
-//    }
