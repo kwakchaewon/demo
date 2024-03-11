@@ -6,6 +6,7 @@ import com.example.demo.service.MemberService;
 import com.example.demo.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +24,7 @@ import java.io.IOException;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TokenRequestFilter extends OncePerRequestFilter {
     @Value("${jwt.secret_access}")
     private String secret_access;
@@ -32,14 +34,9 @@ public class TokenRequestFilter extends OncePerRequestFilter {
     private final UserDetailsServiceImpl userDetailsService;
     private final JWTUtil jwtUtil;
 
-    public TokenRequestFilter(UserDetailsServiceImpl userDetailsService, JWTUtil jwtUtil) {
-        this.userDetailsService = userDetailsService;
-        this.jwtUtil = jwtUtil;
-    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        try {
+//        try {
             if ("/member/login".equals(request.getRequestURI()) || "/member/signup".equals(request.getRequestURI())) {
                 doFilter(request, response, filterChain);
             } else {
@@ -87,37 +84,10 @@ public class TokenRequestFilter extends OncePerRequestFilter {
                         // 리프레시 토큰이 만료 || 리프레시 토큰이 DB와 비교했을때 똑같지 않다면
                         else {
                             log.error("### TokenInfo is Null");
-
                         }
                     }
-
-                    // 기존 액세스 코드 관련 주석
-//                String token = parseJwt(request);
-//                if (token == null) {
-//                    response.sendError(403);    //accessDenied
-//                } else {
-//                    DecodedJWT tokenInfo = jwtUtil.decodeToken(token);
-//                    if (tokenInfo != null) {
-//                        String userId = tokenInfo.getClaim("userId").asString();
-//                        UserDetails loginUser = memberService.loadUserByUsername(userId);
-//                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-//                                loginUser, null, loginUser.getAuthorities()
-//                        );
-//
-//                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//                        SecurityContextHolder.getContext().setAuthentication(authentication);
-//                        doFilter(request, response, filterChain);
-//
-//                    } else {
-//                        log.error("### TokenInfo is Null");
-//                    }
-//                }
                 }
             }
-
-        } catch (Exception e) {
-            log.error("### Filter Exception {}", e.getMessage());
-        }
     }
 
     private String parseJwt(HttpServletRequest request, String headerName) {

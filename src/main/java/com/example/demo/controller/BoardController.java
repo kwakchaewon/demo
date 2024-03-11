@@ -37,14 +37,14 @@ public class BoardController {
 
     @Value("${jwt.secret_access}")
     private String secret_access;
+    @Autowired
     private BoardService boardService;
     @Autowired
     private MemberService memberService;
     @Autowired
     private CommentService commentService;
-    JWTUtil jwtUtil;
     @Autowired
-    private FileStore fileStore;
+    private  JWTUtil jwtUtil;
 
     public BoardController(BoardService boardService) {
         this.boardService = boardService;

@@ -130,13 +130,6 @@ public class JWTUtil {
         return this.decodeToken(token, secret).getClaim("userId").asString();
     }
 
-    // 인증 객체 생성
-//    public Authentication createAuthentication(String email) {
-//        UserDetails userDetails = memberService.loadUserByUsername(email);
-//        // spring security 내에서 가지고 있는 객체입니다. (UsernamePasswordAuthenticationToken)
-//        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-//    }
-
     // 어세스 토큰 헤더 설정
     public void setHeaderAccessToken(HttpServletResponse response, String accessToken) {
         response.setHeader(ACCESS_TOKEN, accessToken);

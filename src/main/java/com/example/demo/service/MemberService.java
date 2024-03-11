@@ -29,6 +29,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Service
 public class MemberService {
+    @Autowired
     private JWTUtil jwtUtil;
     private final MemberRepository memberRepository;
     private final UserDetailsServiceImpl userDetailsService;
@@ -65,14 +66,6 @@ public class MemberService {
     }
 
     public TokenDto issueToken(LoginReqDto loginReqDto){
-//        // 아이디 검사
-//        Member member = memberRepository.findByUserId(loginReqDto.getUserId()).orElseThrow(() -> new RuntimeException("Not found Account"));
-//
-//        // 비밀번호 검사
-//        if (!passwordEncoder.matches(loginReqDto.getUserPw(), member.getUserPw())){
-//            throw new RuntimeException("Not matches Password");
-//        }
-        
         // 토큰 생성
         TokenDto tokenDto = jwtUtil.createAllToken(loginReqDto.getUserId());
         
