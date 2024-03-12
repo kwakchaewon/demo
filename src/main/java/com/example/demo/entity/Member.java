@@ -3,6 +3,7 @@ package com.example.demo.entity;
 import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.MemberDto;
 import lombok.*;
+import net.bytebuddy.implementation.bind.annotation.Default;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -36,6 +37,9 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
 //    @OrderBy("createdAt desc")
     private List<Comment> comments;
+
+    @Column(nullable = false) @Builder.Default()
+    private String grantedAuth = "ROLE_USER";
 
     public String refreshTokenUpdate(String token){
         this.refreshToken = token;

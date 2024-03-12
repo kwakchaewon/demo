@@ -2,6 +2,8 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.LoginReqDto;
 import com.example.demo.dto.request.SignupForm;
+import com.example.demo.dto.response.AdminMemberDto;
+import com.example.demo.dto.response.MemberDto;
 import com.example.demo.dto.response.TokenDto;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.MemberRepository;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -37,6 +40,10 @@ public class MemberService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    public List<AdminMemberDto> getMemberList(){
+        return memberRepository.findAllAdminMemberDtoByGrantedAuth("ROLE_USER");
+    }
 
     public Member getMember(Long id) {
         Optional<Member> _member = this.memberRepository.findById(id);
@@ -99,6 +106,12 @@ public class MemberService {
     /* 이메일 중복 확인 */
     public boolean checkEmailDuplication(SignupForm signupForm){
         return memberRepository.existsByEmail(signupForm.getEmail());
+    }
+
+    @Transactional
+    public void deleteMemberById(Long id){
+        Member _member = this.getMember(id);
+        this.memberRepository.delete(_member);
     }
 }
 

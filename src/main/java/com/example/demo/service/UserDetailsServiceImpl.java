@@ -26,8 +26,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Member memberEntity = memberJpqlRepository.findMemberById(username) //JPQL
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-        if (memberEntity.getUserId().equals(username)) {
+        // 유저일 경우 ROLE_USER 권한 부여
+        if (memberEntity.getUserId().equals(username) && memberEntity.getGrantedAuth().equals("ROLE_USER")) {
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        else if (memberEntity.getUserId().equals(username) && memberEntity.getGrantedAuth().equals("ROLE_ADMIN")) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
 
         return new User(memberEntity.getUserId(), memberEntity.getUserPw(), authorities);

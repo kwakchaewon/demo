@@ -21,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -49,13 +50,32 @@ class DemoApplicationTests {
 	@Autowired
 	JWTUtil jwtUtil;
 
-	BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
+	/**
+	 * admin 계정 생성
+	 */
+	@Test
+	@Order(1)
+	void createAdmin(){
+		String encPw = passwordEncoder.encode("admin");
+
+		Member admin = Member.builder()
+				.userId("admin")
+				.userPw(encPw)
+				.email("admin@naver.com")
+				.createdAt(LocalDateTime.now())
+				.grantedAuth("ROLE_ADMIN")
+				.build();
+		memberRepository.save(admin);
+	}
 
 	/**
 	 *  test user 10명 생성
 	 */
 	@Test
-	@Order(1)
+	@Order(2)
 	void createTestUser(){
 		for (int i = 1; i<= 10; i++){
 			String encPw = passwordEncoder.encode("@a12345678");
@@ -73,7 +93,7 @@ class DemoApplicationTests {
 	 *  Board 테스트 데이터 50개 생성
 	 */
 	@Test
-	@Order(2)
+	@Order(3)
 	void createBoard() {
 		for(int i = 1; i<=50; i++) {
             Random random = new Random();
@@ -91,7 +111,7 @@ class DemoApplicationTests {
 	 * Comment 테스트 데이터 50개 생성
 	 */
 	@Test
-	@Order(3)
+	@Order(4)
 	void createComment() throws CustomException {
 		for(int i = 1; i<=50; i++) {
 			// 작성자 랜덤
