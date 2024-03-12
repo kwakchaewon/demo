@@ -85,4 +85,10 @@ public class MemberController {
             return new ResponseEntity<>(HttpStatus.OK);
         }
     }
+
+    @GetMapping("/userid")
+    public ResponseEntity<String> setUserId(@RequestHeader("ACCESS_TOKEN") String authorizationHeader) {
+        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+        return new ResponseEntity<>(_userId,HttpStatus.OK);
+    }
 }
