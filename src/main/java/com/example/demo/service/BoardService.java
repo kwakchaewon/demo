@@ -45,17 +45,6 @@ public class BoardService {
         // 1. 게시글 존재시 BoardDto 반환
         if (boardDto.isPresent()) {
             BoardDto _dto = boardDto.get();
-
-            // 이미지 부분을 따로 컴포넌트화해서 주석처리
-//            if (_dto.getSavedFile() != null) {
-//                String filePath = fileStore.getFullPath(_dto.getSavedFile());
-//
-//                // 2. 존재하는 첨부파일이 이미지 파일시 imgPath 반환
-//                if (fileStore.isImage(filePath)) {
-//                    _dto.setImgPath(filePath);
-//                }
-//            }
-
             return _dto;
         } else {
             // 3. 게시글 부재시 BOARD_NOTFOUND

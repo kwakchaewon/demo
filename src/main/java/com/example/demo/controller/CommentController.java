@@ -89,7 +89,6 @@ public class CommentController {
         if (!comment.getMember().getUserId().equals(_userId)) {
             throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
-            
             // 4. 권한 검증 성공시 200 반환
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -100,10 +99,8 @@ public class CommentController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<CommentDto> detailBoard(@PathVariable("id") Long id) throws CustomException {
-
         // 1. id기반 댓글 찾기 (실패시, 404 반환)
         CommentDto commentDto = commentService.findCommentById(id);
-        
         // 2. 성공시 200 반환
         return new ResponseEntity<>(commentDto, HttpStatus.OK);
     }
