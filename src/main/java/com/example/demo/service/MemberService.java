@@ -69,7 +69,7 @@ public class MemberService {
     public void saveMember(SignupForm signupForm) {
         // Native Query 기반 회원가입
         LocalDateTime createdAt = LocalDateTime.now();
-        memberRepository.insertMember(signupForm.getUserId(), passwordEncoder.encode(signupForm.getUserPw()), signupForm.getEmail(),createdAt);
+        memberRepository.insertMember(signupForm.getUserId(), passwordEncoder.encode(signupForm.getUserPw()), signupForm.getEmail(),createdAt, "ROLE_USER");
     }
 
     public TokenDto issueToken(LoginReqDto loginReqDto){

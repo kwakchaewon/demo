@@ -1,9 +1,11 @@
 package com.example.demo.entity;
 
 import com.example.demo.dto.request.SignupForm;
+import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.MemberDto;
 import lombok.*;
 import net.bytebuddy.implementation.bind.annotation.Default;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -38,8 +40,13 @@ public class Member {
 //    @OrderBy("createdAt desc")
     private List<Comment> comments;
 
-    @Column(nullable = false) @Builder.Default()
-    private String grantedAuth = "ROLE_USER";
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
+//    @OrderBy("createdAt desc")
+    private List<Board> boards;
+
+//    @Column(nullable = false, columnDefinition = "DEFAULT 'ROLE_USER'")
+    @Column(nullable = false)
+    private String grantedAuth;
 
     public String refreshTokenUpdate(String token){
         this.refreshToken = token;
