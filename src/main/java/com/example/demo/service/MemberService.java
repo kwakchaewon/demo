@@ -3,7 +3,6 @@ package com.example.demo.service;
 import com.example.demo.dto.request.LoginReqDto;
 import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.AdminMemberDto;
-import com.example.demo.dto.response.MemberDto;
 import com.example.demo.dto.response.TokenDto;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.MemberRepository;
@@ -11,20 +10,16 @@ import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-
 import org.springframework.security.core.context.SecurityContextHolder;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
@@ -66,20 +61,29 @@ public class MemberService {
     }
 
     @Transactional
-    public void saveMember(SignupForm signupForm) {
+    public void saveMember(SignupForm signupForm) throws CustomException {
         // Native Query 기반 회원가입
         LocalDateTime createdAt = LocalDateTime.now();
-        memberRepository.insertMember(signupForm.getUserId(), passwordEncoder.encode(signupForm.getUserPw()), signupForm.getEmail(),createdAt, "ROLE_USER");
+        try {
+            memberRepository.insertMember(signupForm.getUserId(), passwordEncoder.encode(signupForm.getUserPw()), signupForm.getEmail(),createdAt, "ROLE_USER");
+        }catch (Exception e){
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
+        }
     }
 
-    public TokenDto issueToken(LoginReqDto loginReqDto){
-        // 토큰 생성
-        TokenDto tokenDto = jwtUtil.createAllToken(loginReqDto.getUserId());
-        
-        // 로그인 시 REFRESH 토큰 재발급 및 DB 업데이트
-        Optional<Member> _member = memberRepository.findByUserId(loginReqDto.getUserId());
-        _member.get().refreshTokenUpdate(tokenDto.getRefreshToken());
-        memberRepository.save(_member.get());
+    public TokenDto issueToken(LoginReqDto loginReqDto, UserDetails loginUser) throws CustomException {
+        // 1. 멤버 조회
+        Member _member = this.getMemberByUserId(loginReqDto.getUserId());
+
+        // 2. 권한 추출
+        String authority = loginUser.getAuthorities().stream().findFirst().get().getAuthority();
+
+        // 3. 토큰 생성
+        TokenDto tokenDto = jwtUtil.createTokenDto(loginReqDto.getUserId(), authority);
+
+        // 3. 새로운 REFRESH 토큰 DB 업데이트
+        _member.setRefreshToken(tokenDto.getRefreshToken());
+        memberRepository.save(_member);
 
         return tokenDto;
     }
@@ -109,9 +113,14 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMemberById(Long id){
+    public void deleteMemberById(Long id) throws CustomException {
         Member _member = this.getMember(id);
-        this.memberRepository.delete(_member);
+        try {
+            this.memberRepository.delete(_member);
+        }catch (Exception e){
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
+        }
+
     }
 }
 

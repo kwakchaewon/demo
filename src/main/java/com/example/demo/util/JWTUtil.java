@@ -12,9 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.Optional;
 
@@ -30,34 +27,11 @@ public class JWTUtil {
     private String secret_refresh;
 
 
-
-    private static final Date ACCESS_TIME =  new Date(System.currentTimeMillis()+(60 * 60 * 1000L)); // 1시간
-    private static final Date REFRESH_TIME =  new Date(System.currentTimeMillis()+(7 * 24 * 60 * 60 * 1000L)); // 1주일
+    private static final Date ACCESS_TIME = new Date(System.currentTimeMillis() + (3 * 60 * 60 * 1000L)); // 3시간
+    private static final Date REFRESH_TIME = new Date(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000L)); // 7일
     public static final String ACCESS_TOKEN = "ACCESS_TOKEN";
     public static final String REFRESH_TOKEN = "REFRESH_TOKEN";
 
-    /**
-     * ACESS 또는 REFRESH 토큰 생성
-     */
-    public String createToken(String userId, String secret) {
-        Date exTime = new Date();
-
-        if (secret.equals(secret_access)){
-            exTime = ACCESS_TIME;
-        }else{
-            exTime = REFRESH_TIME;
-        }
-
-        Algorithm algorithm = Algorithm.HMAC256(secret);
-        return JWT.create()
-                .withIssuer("vue-board")
-                .withClaim("userId", userId)
-//                .withClaim("userName", userName)
-//                .withExpiresAt(exTime)
-//                .withExpiresAt(new Date(System.currentTimeMillis()+30000)) // 만료시간: 30 sec
-                .withExpiresAt(exTime)
-                .sign(algorithm);
-    }
 
     /**
      * 토큰 Decode
@@ -81,40 +55,48 @@ public class JWTUtil {
 
 
     // userId 기반 토큰 생성
-    public String createToken2(String userId, String type, String secret){
-        Algorithm algorithm = Algorithm.HMAC256(secret);
-        Date expTime = type.equals("ACCESS_TOKEN") ? ACCESS_TIME : REFRESH_TIME;
+    public String createToken(String userId, String authority, String type) {
 
+        // 1. 토큰 타입에 따른 만료시간, 알고리즘 설정
+        Date expTime = type.equals(ACCESS_TOKEN) ? ACCESS_TIME : REFRESH_TIME;
+        Algorithm algorithm = type.equals(ACCESS_TOKEN) ? Algorithm.HMAC256(secret_access) : Algorithm.HMAC256(secret_refresh);
+
+        // 2. userId, grantedAuth 정보 기반 토큰 생성
         return JWT.create()
-                .withIssuer("vue-board")
-                .withClaim("userId", userId) // 토큰 주체
-                .withIssuedAt(new Date())
-                .withExpiresAt(expTime)
+                .withIssuer("vue-board")  // 발급자
+                .withClaim("userId", userId) // 토큰 주체(userId)
+                .withClaim("authority", authority)
+                .withIssuedAt(new Date())  // 발급일자
+                .withExpiresAt(expTime)  // 만료일자
                 .sign(algorithm);
     }
 
     // 토큰 생성
-    public TokenDto createAllToken(String userId) {
-        return new TokenDto(createToken2(userId, "ACCESS_TOKEN", secret_access), createToken2(userId, "REFRESH_TOKEN", secret_refresh));
+    public TokenDto createTokenDto(String userId, String authority) {
+        String access = createToken(userId, authority, ACCESS_TOKEN);
+        String refresh = createToken(userId, authority, REFRESH_TOKEN);
+        Date accessExpired = this.decodeToken(access, secret_access).getExpiresAt();
+        Date refreshExpired = this.decodeToken(refresh, secret_refresh).getExpiresAt();
+
+        return new TokenDto(access, refresh, accessExpired, refreshExpired, authority);
     }
 
     //토큰 검증
-    public Boolean validateToken(String token, String secret){
+    public Boolean validateToken(String token, String secret) {
         try {
             this.decodeToken(token, secret);
             return true;
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage());
             return false;
         }
     }
 
-    // refreshToken 토큰 검증
-    // db에 저장되어 있는 token과 비교
-    public Boolean validateRefreshToken(String token,  String secret){
+    // refreshToken 토큰 검증. db token과 비교
+    public Boolean validateRefreshToken(String token) {
 
         // 1차 토큰 검증
-        if(!validateToken(token, secret)) return false;
+        if (!validateToken(token, secret_refresh)) return false;
 
         // 2차 DB 토큰 검증
         Optional<Member> _member = memberRepository.findByUserId(getUserIdFromToken(token, secret_refresh));
@@ -126,23 +108,8 @@ public class JWTUtil {
     /**
      * 토큰 decode 후 userId 리턴
      */
-    public String getUserIdFromToken(String token,String secret) {
+    public String getUserIdFromToken(String token, String secret) {
         return this.decodeToken(token, secret).getClaim("userId").asString();
-    }
-
-    // 어세스 토큰 헤더 설정
-    public void setHeaderAccessToken(HttpServletResponse response, String accessToken) {
-        response.setHeader(ACCESS_TOKEN, accessToken);
-    }
-
-    // 리프레시 토큰 헤더 설정
-    public void setHeaderRefreshToken(HttpServletResponse response, String refreshToken) {
-        response.setHeader(REFRESH_TOKEN, refreshToken);
-    }
-
-    // header 토큰을 가져오는 기능
-    public String getHeaderToken(HttpServletRequest request, String type) {
-        return type.equals("ACCESS_TOKEN") ? request.getHeader(ACCESS_TOKEN) :request.getHeader(REFRESH_TOKEN);
     }
 
     public String getUserIdByToken(String authorizationHeader, String secret) {

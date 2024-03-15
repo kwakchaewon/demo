@@ -15,11 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,37 +35,31 @@ public class MemberController {
     private String secret_refresh;
 
     /**
-     * REFRESH TOKEN 활용 로그인
+     * 로그인 및 액세스, 리프레쉬 토큰 부여
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginReqDto loginReqDto) {
+    public ResponseEntity<TokenDto> login(@RequestBody LoginReqDto loginReqDto) throws CustomException {
 
         UserDetails loginUser = memberService.setAuth(loginReqDto);   // 1. 로그인 검증 및 auth 세팅
-        TokenDto tokenDto = memberService.issueToken(loginReqDto);    // 2. 토큰 발급 및 관련 로직
-//        long ACCESS_EXP = jwtUtil.decodeToken(tokenDto.getAccessToken(), secret_access).getExpiresAt().getTime();
-        int ACCESS_EXP = 5 / (24 * 60);
-        int REFRESH_EXP = 7;
-
-        Map<String, Object> result = new HashMap<>();
-
-        result.put("user_role", loginUser.getAuthorities().stream().findFirst().get().getAuthority());
-        result.put("ACCESS_TOKEN", tokenDto.getAccessToken());
-        result.put("REFRESH_TOKEN", tokenDto.getRefreshToken());
-        result.put("ACCESS_EXP", ACCESS_EXP);
-        result.put("REFRESH_EXP", REFRESH_EXP);
-
-        return ResponseEntity.ok(result);
+        TokenDto tokenDto = memberService.issueToken(loginReqDto, loginUser);    // 2. 토큰 발급 및 관련 로직
+        return ResponseEntity.ok(tokenDto);
     }
 
     /**
      * 액세스 토큰 재발급
      */
     @GetMapping("/refresh")
-    public String refresh(String refreshToken, HttpServletResponse response){
-        String token = response.getHeader("ACCESS_TOKEN");
-        return token;
+    public TokenDto refresh(HttpServletResponse response){
+        String accessToken = response.getHeader("ACCESS_TOKEN");
+        Date accessExpired = jwtUtil.decodeToken(accessToken, secret_access).getExpiresAt();
+        String authority = jwtUtil.decodeToken(accessToken, secret_access).getClaim("authority").toString();
+        TokenDto tokenDto = new TokenDto(accessToken, accessExpired, authority);
+        return tokenDto;
     }
 
+    /**
+     * 회원가입
+     */
     @PostMapping("/signup")
     public ResponseEntity signUp(@RequestBody SignupForm signupForm) throws CustomException {
         // 아이디 중복 검사
@@ -86,6 +77,9 @@ public class MemberController {
         }
     }
 
+    /**
+     * 유저 id 조회
+     */
     @GetMapping("/userid")
     public ResponseEntity<String> setUserId(@RequestHeader("ACCESS_TOKEN") String authorizationHeader) {
         String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
