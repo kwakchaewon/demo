@@ -11,7 +11,6 @@ import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -52,6 +51,7 @@ public class BoardService {
         }
     }
 
+    @Transactional
     public void deleteBoardById(Long id) throws CustomException {
         Board board = boardRepository.findById(id).
                 orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
@@ -60,11 +60,16 @@ public class BoardService {
             fileStore.deleteFile(board.getSavedFile());
         }
 
-        this.boardRepository.delete(board);
+        try {
+            this.boardRepository.delete(board);
+        } catch (Exception e) {
+            System.out.println("e = " + e);
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
+        }
     }
 
     @Transactional
-    public BoardDto updateBoard(Board board, BoardUpdateForm boardUpdateForm) throws CustomException, IOException {
+    public BoardDto updateBoard(Board board, BoardUpdateForm boardUpdateForm) throws CustomException {
 
         // 1. 원본 파일이 변경되지않았다면
         // 제목 & 내용의 변경만을 저장
@@ -173,6 +178,4 @@ public class BoardService {
             throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
         }
     }
-
-
 }
