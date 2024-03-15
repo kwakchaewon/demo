@@ -85,6 +85,7 @@ class DemoApplicationTests {
 					.userPw(encPw)
 					.email("test" + i + "@naver.com")
 					.createdAt(LocalDateTime.now())
+					.grantedAuth("ROLE_USER")
 					.build();
 			memberRepository.save(testMember);}
 	}

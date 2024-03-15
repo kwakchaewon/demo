@@ -16,8 +16,8 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByUserId(String userId);
     @Modifying
-    @Query(value = "INSERT INTO member (user_id, user_pw, email, created_at) VALUES (:userId, :userPw, :email, :createdAt)",nativeQuery = true)
-    void insertMember(@Param("userId") String userId, @Param("userPw") String userPw, @Param("email") String email, @Param("createdAt") LocalDateTime createdAt);
+    @Query(value = "INSERT INTO member (user_id, user_pw, email, created_at, granted_auth) VALUES (:userId, :userPw, :email, :createdAt, :grantedAuth)",nativeQuery = true)
+    void insertMember(@Param("userId") String userId, @Param("userPw") String userPw, @Param("email") String email, @Param("createdAt") LocalDateTime createdAt, @Param("grantedAuth")String grantedAuth);
 
     Boolean existsByUserId(String userId);
     Boolean existsByEmail(String email);
