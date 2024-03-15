@@ -78,7 +78,7 @@ public class JWTUtil {
         Date accessExpired = this.decodeToken(access, secret_access).getExpiresAt();
         Date refreshExpired = this.decodeToken(refresh, secret_refresh).getExpiresAt();
 
-        return new TokenDto(access, refresh, accessExpired, refreshExpired, authority);
+        return new TokenDto(access, refresh, accessExpired, refreshExpired, userId, authority);
     }
 
     //토큰 검증

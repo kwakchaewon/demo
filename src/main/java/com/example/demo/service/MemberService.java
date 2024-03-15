@@ -71,17 +71,19 @@ public class MemberService {
         }
     }
 
-    public TokenDto issueToken(LoginReqDto loginReqDto, UserDetails loginUser) throws CustomException {
-        // 1. 멤버 조회
-        Member _member = this.getMemberByUserId(loginReqDto.getUserId());
+    public TokenDto issueToken(UserDetails loginUser) throws CustomException {
+
+        // 1. userId 추출
+        String userId = loginUser.getUsername();
 
         // 2. 권한 추출
         String authority = loginUser.getAuthorities().stream().findFirst().get().getAuthority();
 
         // 3. 토큰 생성
-        TokenDto tokenDto = jwtUtil.createTokenDto(loginReqDto.getUserId(), authority);
+        TokenDto tokenDto = jwtUtil.createTokenDto(userId, authority);
 
-        // 3. 새로운 REFRESH 토큰 DB 업데이트
+        // 4. 새로운 REFRESH 토큰 DB 업데이트
+        Member _member = this.getMemberByUserId(userId);
         _member.setRefreshToken(tokenDto.getRefreshToken());
         memberRepository.save(_member);
 

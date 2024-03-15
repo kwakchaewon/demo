@@ -39,9 +39,8 @@ public class MemberController {
      */
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody LoginReqDto loginReqDto) throws CustomException {
-
         UserDetails loginUser = memberService.setAuth(loginReqDto);   // 1. 로그인 검증 및 auth 세팅
-        TokenDto tokenDto = memberService.issueToken(loginReqDto, loginUser);    // 2. 토큰 발급 및 관련 로직
+        TokenDto tokenDto = memberService.issueToken(loginUser);    // 2. 토큰 발급 및 관련 로직
         return ResponseEntity.ok(tokenDto);
     }
 
@@ -52,8 +51,9 @@ public class MemberController {
     public TokenDto refresh(HttpServletResponse response){
         String accessToken = response.getHeader("ACCESS_TOKEN");
         Date accessExpired = jwtUtil.decodeToken(accessToken, secret_access).getExpiresAt();
+        String userId = jwtUtil.decodeToken(accessToken, secret_access).getClaim("userId").toString();
         String authority = jwtUtil.decodeToken(accessToken, secret_access).getClaim("authority").toString();
-        TokenDto tokenDto = new TokenDto(accessToken, accessExpired, authority);
+        TokenDto tokenDto = new TokenDto(accessToken, accessExpired, userId, authority);
         return tokenDto;
     }
 
