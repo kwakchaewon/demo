@@ -27,8 +27,8 @@ public class JWTUtil {
     private String secret_refresh;
 
 
-    private static final Date ACCESS_TIME = new Date(System.currentTimeMillis() + (3 * 60 * 60 * 1000L)); // 3시간
-    private static final Date REFRESH_TIME = new Date(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000L)); // 7일
+    private static Date ACCESS_TIME = new Date(System.currentTimeMillis() + (3 * 60 * 60 * 1000L)); // 3시간
+    private static Date REFRESH_TIME = new Date(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000L)); // 7일
     public static final String ACCESS_TOKEN = "ACCESS_TOKEN";
     public static final String REFRESH_TOKEN = "REFRESH_TOKEN";
 
