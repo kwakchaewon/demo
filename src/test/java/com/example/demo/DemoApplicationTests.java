@@ -33,70 +33,101 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DemoApplicationTests {
-	@Autowired
-	private BoardRepository boardRepository;
-	@Autowired
-	private MemberRepository memberRepository;
-	@Autowired
-	private CommentRepository commentRepository;
-	@Autowired
-	private MemberService memberService;
-	@Autowired
-	private BoardService boardService;
+    @Autowired
+    private BoardRepository boardRepository;
+    @Autowired
+    private MemberRepository memberRepository;
+    @Autowired
+    private CommentRepository commentRepository;
+    @Autowired
+    private MemberService memberService;
+    @Autowired
+    private BoardService boardService;
 
-	@Autowired
-	private AuthenticationManager authenticationManager;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-	@Autowired
-	JWTUtil jwtUtil;
+    @Autowired
+    JWTUtil jwtUtil;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-	/**
-	 * admin 계정 생성
-	 */
-	@Test
-	@Order(1)
-	void createAdmin(){
-		String encPw = passwordEncoder.encode("admin");
+    /**
+     * supervisor 계정 생성
+     */
+    @Test
+    @Order(1)
+    void createSupervisor() {
+        String encPw = passwordEncoder.encode("super");
 
-		Member admin = Member.builder()
-				.userId("admin")
-				.userPw(encPw)
-				.email("admin@naver.com")
-				.createdAt(LocalDateTime.now())
-				.grantedAuth("ROLE_ADMIN")
-				.build();
-		memberRepository.save(admin);
-	}
+        Member supervisor = Member.builder()
+                .userId("super")
+                .userPw(encPw)
+                .email("super@naver.com")
+                .createdAt(LocalDateTime.now())
+                .grantedAuth("ROLE_SUPERVISOR")
+                .build();
+        memberRepository.save(supervisor);
+    }
 
-	/**
-	 *  test user 10명 생성
-	 */
-	@Test
-	@Order(2)
-	void createTestUser(){
-		for (int i = 1; i<= 120; i++){
-			String encPw = passwordEncoder.encode("@a12345678");
+    /**
+     * admin 계정 10개 생성
+     */
+    @Test
+    @Order(2)
+    void createAdmin() {
+        for (int i = 1; i <= 10; i++) {
+            String encPw = passwordEncoder.encode("admin" + i);
 
-			Member testMember = Member.builder()
-					.userId("test"+i)
-					.userPw(encPw)
-					.email("test" + i + "@naver.com")
-					.createdAt(LocalDateTime.now())
-					.grantedAuth("ROLE_USER")
-					.build();
-			memberRepository.save(testMember);}
-	}
+            Member admin = Member.builder()
+                    .userId("admin" + i)
+                    .userPw(encPw)
+                    .email("admin" + i + "@naver.com")
+                    .createdAt(LocalDateTime.now())
+                    .grantedAuth("ROLE_USER")
+                    .build();
+            memberRepository.save(admin);
+        }
+//        String encPw = passwordEncoder.encode("admin");
+//
+//        Member admin = Member.builder()
+//                .userId("admin")
+//                .userPw(encPw)
+//                .email("admin@naver.com")
+//                .createdAt(LocalDateTime.now())
+//                .grantedAuth("ROLE_ADMIN")
+//                .build();
+//        memberRepository.save(admin);
+    }
 
-	/**
-	 *  Board 테스트 데이터 50개 생성
-	 */
-	@Test
-	@Order(3)
-	void createBoard() {
-		for(int i = 1; i<=200; i++) {
+    /**
+     * test user 120명 생성
+     */
+    @Test
+    @Order(3)
+    void createTestUser() {
+        for (int i = 1; i <= 120; i++) {
+            String encPw = passwordEncoder.encode("@a12345678");
+
+            Member testMember = Member.builder()
+                    .userId("test" + i)
+                    .userPw(encPw)
+                    .email("test" + i + "@naver.com")
+                    .createdAt(LocalDateTime.now())
+                    .grantedAuth("ROLE_USER")
+                    .build();
+            memberRepository.save(testMember);
+        }
+    }
+
+    /**
+     * Board 테스트 데이터 50개 생성
+     */
+    @Test
+    @Order(4)
+    void createBoard() {
+        for (int i = 1; i <= 200; i++) {
             Random random = new Random();
             long randomId = random.nextInt(9) + 1L;
 
@@ -106,35 +137,35 @@ class DemoApplicationTests {
             Board board = new Board(title, content, testMember);
             this.boardRepository.save(board);
         }
-	}
+    }
 
-	/**
-	 * Comment 테스트 데이터 50개 생성
-	 */
-	@Test
-	@Order(4)
-	void createComment() throws CustomException {
-		for(int i = 1; i<=50; i++) {
-			// 작성자 랜덤
-			Random memberRd = new Random();
-			long memberId = memberRd.nextInt(9) + 1L;
+    /**
+     * Comment 테스트 데이터 50개 생성
+     */
+    @Test
+    @Order(5)
+    void createComment() throws CustomException {
+        for (int i = 1; i <= 50; i++) {
+            // 작성자 랜덤
+            Random memberRd = new Random();
+            long memberId = memberRd.nextInt(9) + 1L;
 
-			Random boardRd = new Random();
-			long boardId = memberRd.nextInt(49) + 1L;
+            Random boardRd = new Random();
+            long boardId = memberRd.nextInt(49) + 1L;
 
-			Member _member = memberService.getMember(memberId);
-			Board _board = boardService.getBoard(boardId);
+            Member _member = memberService.getMember(memberId);
+            Board _board = boardService.getBoard(boardId);
 
-			String contents = String.format("테스트 [%03d] 댓글", i);
-			Comment comment = new Comment(contents, _member, _board);
+            String contents = String.format("테스트 [%03d] 댓글", i);
+            Comment comment = new Comment(contents, _member, _board);
 
-			this.commentRepository.save(comment);
-		}
-	}
+            this.commentRepository.save(comment);
+        }
+    }
 
-	/**
-	 * 유저 정보 검색 후 비밀번호 비교
-	 */
+    /**
+     * 유저 정보 검색 후 비밀번호 비교
+     */
 //	@Test
 //	void checkPw(){
 //		/*
@@ -159,9 +190,9 @@ class DemoApplicationTests {
 //		System.out.println("userPw: " + userPw);
 //	}
 
-	/**
-	 * jwt 토큰 생성 및 디코딩 데이터 비교
-	 */
+    /**
+     * jwt 토큰 생성 및 디코딩 데이터 비교
+     */
 //	@Test
 //	void createToken(){
 //		String userId = "admin";
