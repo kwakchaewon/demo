@@ -17,7 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AdminController {
     private final MemberService memberService;
-    
+
     @GetMapping(value = "/members")
     public ResponseEntity<Map<String, Object>> pagingMemberList(
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
