@@ -3,14 +3,18 @@ package com.example.demo.service;
 import com.example.demo.dto.request.LoginReqDto;
 import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.AdminMemberDto;
+import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.TokenDto;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.MemberRepository;
 import com.example.demo.util.JWTUtil;
+import com.example.demo.util.Pagination;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,9 +40,28 @@ public class MemberService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public List<AdminMemberDto> getMemberList(){
-        return memberRepository.findAllAdminMemberDtoByGrantedAuth("ROLE_USER");
+//    public List<AdminMemberDto> getMemberList(){
+//        return memberRepository.findAllAdminMemberDtoByGrantedAuth("ROLE_USER");
+//    }
+
+    public Map<String, Object> getMemberList2(Pageable pageable){
+        Map<String, Object> data = new HashMap();
+
+        Page<AdminMemberDto> memberList = memberRepository.findAllAdminMemberDtoByGrantedAuthOrderByIdDesc("ROLE_USER" ,pageable);
+
+        Pagination pagination = new Pagination(
+                (int) memberList.getTotalElements()
+                , pageable.getPageNumber() + 1
+                , pageable.getPageSize()
+                , 10
+        );
+
+        data.put("boards", memberList);
+        data.put("pagination", pagination);
+
+        return data;
     }
+
 
     public Member getMember(Long id) {
         Optional<Member> _member = this.memberRepository.findById(id);

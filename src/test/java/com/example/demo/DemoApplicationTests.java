@@ -77,7 +77,7 @@ class DemoApplicationTests {
 	@Test
 	@Order(2)
 	void createTestUser(){
-		for (int i = 1; i<= 10; i++){
+		for (int i = 1; i<= 120; i++){
 			String encPw = passwordEncoder.encode("@a12345678");
 
 			Member testMember = Member.builder()
@@ -96,7 +96,7 @@ class DemoApplicationTests {
 	@Test
 	@Order(3)
 	void createBoard() {
-		for(int i = 1; i<=50; i++) {
+		for(int i = 1; i<=200; i++) {
             Random random = new Random();
             long randomId = random.nextInt(9) + 1L;
 

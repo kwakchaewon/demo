@@ -4,20 +4,26 @@ import com.example.demo.dto.response.AdminMemberDto;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/admin")
 @RestController
 @RequiredArgsConstructor
 public class AdminController {
     private final MemberService memberService;
-
-    @GetMapping(value = "")
-    public List<AdminMemberDto> memberList(){
-        return memberService.getMemberList();
+    
+    @GetMapping(value = "/members")
+    public ResponseEntity<Map<String, Object>> pagingMemberList(
+            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
+    ){
+        Map<String, Object> data = memberService.getMemberList2(pageable);
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/member/{id}")
