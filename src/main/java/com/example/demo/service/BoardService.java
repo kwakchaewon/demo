@@ -4,6 +4,7 @@ import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.request.BoardUpdateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.entity.Board;
+import com.example.demo.entity.Comment;
 import com.example.demo.entity.Member;
 import com.example.demo.util.FileStore;
 import com.example.demo.util.Pagination;
@@ -15,10 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.criteria.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -117,10 +123,10 @@ public class BoardService {
         }
     }
 
-    public Map<String, Object> getBoardList(Pageable pageable) {
+    public Map<String, Object> getBoardList(Pageable pageable, String keyword) {
 
         Map<String, Object> data = new HashMap();
-        Page<BoardDto> boardList = boardRepository.findAllBoardDtoByOrderByIdDesc(pageable);
+        Page<BoardDto> boardList = boardRepository.findBoardDtoByTitleContainingOrderByIdDesc(keyword, pageable);
 
         Pagination pagination = new Pagination(
                 (int) boardList.getTotalElements()
@@ -131,6 +137,7 @@ public class BoardService {
 
         data.put("boards", boardList);
         data.put("pagination", pagination);
+//        data.put("keyword", keyword);
 
         return data;
     }
@@ -178,4 +185,30 @@ public class BoardService {
             throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
         }
     }
+
+//    public Specification<Board> search(String keyword) {
+//        return new Specification<Board>() {
+//            private static final long serialVersionUID = 1L;
+//            @Override
+//            public Predicate toPredicate(Root<Board> b, CriteriaQuery<?> query, CriteriaBuilder cb) {
+//                query.distinct(true);  // 중복 제거
+//                Join<Board, Member> u1 = b.join("member", JoinType.LEFT);
+//                Join<Board, Comment> a = b.join("comments", JoinType.LEFT);
+//                Join<Comment, Member> u2 = a.join("member", JoinType.LEFT);
+//                return cb.or(cb.like(b.get("title"), "%" + keyword + "%"), // 제목
+//                        cb.like(b.get("contents"), "%" + keyword + "%"),      // 내용
+//                        cb.like(u1.get("userId"), "%" + keyword + "%"),    // 게시글 작성자
+//                        cb.like(a.get("contents"), "%" + keyword + "%"),      // 답변 내용
+//                        cb.like(u2.get("userId"), "%" + keyword + "%"));   // 답변 작성자
+//            }
+//        };
+//    }
+
+//    public Page<BoardDto> getList(int page, String kwargs){
+//        List<Sort.Order> sorts = new ArrayList<>();
+//        sorts.add(Sort.Order.desc("createdAt"));
+//        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
+//        Specification<Board> spec = search(kwargs);
+//        return this.boardRepository.findAllBoardDtoBy(spec, pageable);
+//    }
 }
