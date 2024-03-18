@@ -116,4 +116,9 @@ public class JWTUtil {
         String token = authorizationHeader.substring(7);
         return this.decodeToken(token, secret).getClaim("userId").asString();
     }
+
+    public String getRoleByAccessToken(String authorizationHeader) {
+        String token = authorizationHeader.substring(7);
+        return this.decodeToken(token, secret_access).getClaim("authority").asString();
+    }
 }

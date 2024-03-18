@@ -18,15 +18,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +49,7 @@ public class BoardController {
     @Autowired
     private CommentService commentService;
     @Autowired
-    private  JWTUtil jwtUtil;
+    private JWTUtil jwtUtil;
 
     public BoardController(BoardService boardService) {
         this.boardService = boardService;
@@ -64,7 +69,7 @@ public class BoardController {
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
-            
+
             // 2. Member 추출
             String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
             Member _member = this.memberService.getMemberByUserId(_userId);
@@ -97,7 +102,7 @@ public class BoardController {
         BoardDto boardDto = boardService.findBoardById(id);
 
         // 2. 파일이 존재한다면 이미지 추출 (실패시 404, 500 반환)
-        if(boardDto.getSavedFile()!= null){
+        if (boardDto.getSavedFile() != null) {
             Resource resource = boardService.getImage(boardDto);
             return new ResponseEntity(resource, HttpStatus.OK);
         }
@@ -124,7 +129,7 @@ public class BoardController {
         Board board = this.boardService.getBoard(id);
 
         // 3. 삭제 권한 검증 (실패시 403 반환)
-        if (!board.getMember().getUserId().equals(_userId)) {
+        if (!board.getMember().getUserId().equals(_userId) && !jwtUtil.getRoleByAccessToken(authorizationHeader).matches("ROLE_ADMIN|ROLE_SUPERVISOR")) {
             throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
         } else {
             // 4. 게시글 삭제 및 200 반환
@@ -158,16 +163,47 @@ public class BoardController {
         }
     }
 
+//    /**
+//     * 페이징 기반 게시판 목록
+//     */
+//    @GetMapping("")
+//    public ResponseEntity<Map<String, Object>> pagingBoardList(
+//            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
+//            String keyword
+//    ) {
+//        Map<String, Object> data = boardService.getBoardList(pageable, keyword);
+//        return new ResponseEntity<>(data, HttpStatus.OK);
+//    }
+
     /**
      * 페이징 기반 게시판 목록
      */
     @GetMapping("")
     public ResponseEntity<Map<String, Object>> pagingBoardList(
-            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
+            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
+            String keyword
     ) {
-        Map<String, Object> data = boardService.getBoardList(pageable);
+        Map<String, Object> data = boardService.getBoardList(pageable, keyword);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
+
+//    /**
+//     * 페이징, 검색 기반 게시판 목록
+//     */
+//    @GetMapping("/list")
+//    public ResponseEntity<Map<String, Object>> boardList(@RequestParam(value = "page", defaultValue = "0") int page,
+//                            @RequestParam(value = "kwargs", defaultValue = "") String kwargs){
+//
+//        List<Sort.Order> sorts = new ArrayList<>();
+//        sorts.add(Sort.Order.desc("createdAt"));
+//
+//        Page<BoardDto> paging = this.boardService.getList(page, kwargs);
+//
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("paging", paging);
+//        data.put("kwargs", kwargs);
+//        return new ResponseEntity<>(data, HttpStatus.OK);
+//    }
 
     /**
      * 게시글 수정 권한 검증
@@ -252,7 +288,7 @@ public class BoardController {
         // 3. 파일명 UTF-8로 인코딩 설정 (한글 깨짐 방지)
         // 브라우저별 encoding 방식을 다르게 해야함 (추후 수정)
         String originalFileName = boardDto.getOriginalFile();
-        String encodedOriginalFileName = URLEncoder.encode(originalFileName,"UTF-8");
+        String encodedOriginalFileName = URLEncoder.encode(originalFileName, "UTF-8");
 //        String encodedOriginalFileName = URLEncoder.encode(originalFileName,"UTF-8").replaceAll("\\+", "%20");
 
         String contentDisposition = "attachment; filename=\"" + encodedOriginalFileName + "\"";
