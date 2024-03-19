@@ -15,10 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
@@ -52,7 +52,7 @@ public class MemberController {
      * 액세스 토큰 재발급
      */
     @GetMapping("/refresh")
-    public TokenDto refresh(HttpServletResponse response){
+    public TokenDto refresh(HttpServletResponse response) {
         String accessToken = response.getHeader("ACCESS_TOKEN");
         Date accessExpired = jwtUtil.decodeToken(accessToken, secret_access).getExpiresAt();
         String userId = jwtUtil.decodeToken(accessToken, secret_access).getClaim("userId").toString();
@@ -73,7 +73,7 @@ public class MemberController {
         // 이메일 중복 검사
         else if (memberService.checkEmailDuplication(signupForm)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.EMAIL_DUPLICATED);
-        } 
+        }
         // 회원가입 성공
         else {
             memberService.saveMember(signupForm);
@@ -85,9 +85,9 @@ public class MemberController {
      * 사용자 권한 수정
      */
     @PutMapping("/{id}/auth")
-    @PostAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')")
     public ResponseEntity updateMemberAuth(@PathVariable("id") Long id,
-                                           @RequestBody MemberAuthUpdateForm memberAuthUpdateForm){
+                                           @RequestBody MemberAuthUpdateForm memberAuthUpdateForm) {
         String auth = memberAuthUpdateForm.getAuth();
         Member member = this.memberService.updateAuth(id, auth);
         return new ResponseEntity<>(HttpStatus.OK);
