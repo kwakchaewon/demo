@@ -36,7 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     public void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests() // 토큰을 활용하는 경우 모든 요청에 대해 접근이 가능하도록 함
-                .antMatchers("/admin/**").hasAnyRole("ADMIN","SUPERVIOSR")
+                .antMatchers("/admin/**").hasAnyRole("ADMIN","SUPERVISOR")
                 .anyRequest().permitAll()
                 .and() // 토큰을 활용하면 세션이 필요 없으므로 STATELESS로 설정하여 Session을 사용하지 않는다.
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
