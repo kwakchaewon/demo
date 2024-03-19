@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,11 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    /**
+     * 사용자 + 관리자 권한 조회
+     */
     @GetMapping(value = "/auth")
+    @PreAuthorize("hasRole('ROLE_SUPERVISOR')")
     public ResponseEntity<Map<String, Object>> pagingAdminList(
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
     ){

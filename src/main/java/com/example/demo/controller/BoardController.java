@@ -25,6 +25,11 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -119,22 +124,21 @@ public class BoardController {
      * 삭제 권한 검증 실패시 NO_AUTHORIZATION
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteBoard(@PathVariable("id") Long id,
-                                      @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
+    public ResponseEntity deleteBoard(@PathVariable("id") Long id) throws CustomException {
 
-        // 1. userId 추출
-        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
-
-        // 2. Board 추출 (실패시 404 반환)
+        // 1. Board 추출 (실패시 404 반환)
         Board board = this.boardService.getBoard(id);
 
-        // 3. 삭제 권한 검증 (실패시 403 반환)
-        if (!board.getMember().getUserId().equals(_userId) && !jwtUtil.getRoleByAccessToken(authorizationHeader).matches("ROLE_ADMIN|ROLE_SUPERVISOR")) {
-            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
-        } else {
-            // 4. 게시글 삭제 및 200 반환
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String _userId = authentication.getName();
+        String auth = authentication.getAuthorities().stream().findFirst().get().getAuthority();
+
+        // 2. 삭제 권한 검증: 작성자 or ADMIN/SUPERVISOR
+        if (_userId.equals(board.getMember().getUserId()) || auth.matches("ROLE_ADMIN|ROLE_SUPERVISOR")) {
             boardService.deleteBoardById(id);
             return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            throw new AccessDeniedException("삭제 권한이 없습니다."); // 403
         }
     }
 
