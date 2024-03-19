@@ -1,5 +1,6 @@
 package com.example.demo.repository;
 
+import com.example.demo.dto.response.AdminManageDTO;
 import com.example.demo.dto.response.AdminMemberDto;
 import com.example.demo.dto.response.MemberDto;
 import com.example.demo.entity.Member;
@@ -26,4 +27,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 //    List<AdminMemberDto> findAllAdminMemberDtoByGrantedAuth(String GrantedAuth);
     Page<AdminMemberDto> findAllAdminMemberDtoByGrantedAuthOrderByIdDesc(String GrantedAuth, Pageable pageable);
 
+    @Query("SELECT m from Member m WHERE m.grantedAuth = 'ROLE_USER' OR m.grantedAuth = 'ROLE_ADMIN' ORDER BY m.id desc")
+    Page<AdminManageDTO> findUserOrAdminOrderedByIdDesc(Pageable pageable);
 }

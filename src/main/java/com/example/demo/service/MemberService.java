@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.LoginReqDto;
 import com.example.demo.dto.request.SignupForm;
+import com.example.demo.dto.response.AdminManageDTO;
 import com.example.demo.dto.response.AdminMemberDto;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.TokenDto;
@@ -57,6 +58,25 @@ public class MemberService {
         );
 
         data.put("boards", memberList);
+        data.put("pagination", pagination);
+
+        return data;
+    }
+
+    public Map<String, Object> getAdminList(Pageable pageable){
+        Map<String, Object> data = new HashMap();
+
+
+        Page<AdminManageDTO> adminList = memberRepository.findUserOrAdminOrderedByIdDesc(pageable);
+
+        Pagination pagination = new Pagination(
+                (int) adminList.getTotalElements()
+                , pageable.getPageNumber() + 1
+                , pageable.getPageSize()
+                , 10
+        );
+
+        data.put("members", adminList);
         data.put("pagination", pagination);
 
         return data;
@@ -146,6 +166,13 @@ public class MemberService {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
         }
 
+    }
+
+    // 사용자 권한 수정
+    public Member updateAuth(Long id, String auth){
+        Member member = this.getMember(id);
+        member.setGrantedAuth(auth);
+        return this.memberRepository.save(member);
     }
 }
 

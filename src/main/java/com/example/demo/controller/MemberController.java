@@ -1,8 +1,10 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.LoginReqDto;
+import com.example.demo.dto.request.MemberAuthUpdateForm;
 import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.TokenDto;
+import com.example.demo.entity.Member;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.CustomVal;
 import com.example.demo.util.JWTUtil;
@@ -13,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
@@ -75,5 +79,17 @@ public class MemberController {
             memberService.saveMember(signupForm);
             return new ResponseEntity<>(HttpStatus.OK);
         }
+    }
+
+    /**
+     * 사용자 권한 수정
+     */
+    @PutMapping("/{id}/auth")
+    @PostAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')")
+    public ResponseEntity updateMemberAuth(@PathVariable("id") Long id,
+                                           @RequestBody MemberAuthUpdateForm memberAuthUpdateForm){
+        String auth = memberAuthUpdateForm.getAuth();
+        Member member = this.memberService.updateAuth(id, auth);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

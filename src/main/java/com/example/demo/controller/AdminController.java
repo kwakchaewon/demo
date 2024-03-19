@@ -33,4 +33,11 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping(value = "/auth")
+    public ResponseEntity<Map<String, Object>> pagingAdminList(
+            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
+    ){
+        Map<String, Object> data = memberService.getAdminList(pageable);
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
 }
