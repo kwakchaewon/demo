@@ -33,6 +33,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         else if (memberEntity.getUserId().equals(username) && memberEntity.getGrantedAuth().equals("ROLE_ADMIN")) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
+        else if (memberEntity.getUserId().equals(username) && memberEntity.getGrantedAuth().equals("ROLE_SUPERVISOR")) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_SUPERVISOR"));
+        }
 
         return new User(memberEntity.getUserId(), memberEntity.getUserPw(), authorities);
     }
