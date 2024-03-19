@@ -75,7 +75,7 @@ class DemoApplicationTests {
      * admin 계정 10개 생성
      */
     @Test
-    @Order(2)
+    @Order(3)
     void createAdmin() {
         for (int i = 1; i <= 10; i++) {
             String encPw = passwordEncoder.encode("admin" + i);
@@ -85,7 +85,7 @@ class DemoApplicationTests {
                     .userPw(encPw)
                     .email("admin" + i + "@naver.com")
                     .createdAt(LocalDateTime.now())
-                    .grantedAuth("ROLE_USER")
+                    .grantedAuth("ROLE_ADMIN")
                     .build();
             memberRepository.save(admin);
         }
@@ -105,7 +105,7 @@ class DemoApplicationTests {
      * test user 120명 생성
      */
     @Test
-    @Order(3)
+    @Order(2)
     void createTestUser() {
         for (int i = 1; i <= 120; i++) {
             String encPw = passwordEncoder.encode("@a12345678");
