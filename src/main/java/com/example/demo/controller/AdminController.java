@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -22,29 +23,22 @@ public class AdminController {
     private final MemberService memberService;
 
     /**
-     * Admin 페이지 회원 관리
+     * Admin 전용
+     * USER 조회
      */
     @GetMapping(value = "/members")
-    @PreAuthorize("hasAnyRole('ROLE_SUPERVISOR', 'ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Map<String, Object>> pagingMemberList(
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
-    ){
-        // authentication 정보 추출 (어노테이션에서 사용자일 경우를 증명하지 못해서...)
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String auth = authentication.getAuthorities().stream().findFirst().get().getAuthority();
-
-        // SUPERVISOR 일 경우 USER + ADMIN 조회
-        if (auth.equals("ROLE_SUPERVISOR")){
-            Map<String, Object> data = memberService.getMemberList3(pageable);
-            return new ResponseEntity<>(data, HttpStatus.OK);
-        }
-        // ADMIN 일 경우 USER 만 조회
-        else {
-            Map<String, Object> data = memberService.getMemberList2(pageable);
-            return new ResponseEntity<>(data, HttpStatus.OK);
-        }
+    ) {
+        Map<String, Object> data = memberService.getMemberList(pageable);
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
+    /**
+     * Admin: USER 삭제
+     * Super: USER, ADMIN 삭제
+     */
     @DeleteMapping(value = "/member/{id}")
     @PreAuthorize("hasAnyRole('ROLE_SUPERVISOR', 'ROLE_ADMIN')")
     public ResponseEntity deleteMember(@PathVariable("id") Long id) throws CustomException {
@@ -52,14 +46,16 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+
     /**
-     * 사용자 + 관리자 권한 조회
+     *  Super 전용
+     * 사용자 + 관리자 조회
      */
     @GetMapping(value = "/auth")
     @PreAuthorize("hasRole('ROLE_SUPERVISOR')")
     public ResponseEntity<Map<String, Object>> pagingAdminList(
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable
-    ){
+    ) {
         Map<String, Object> data = memberService.getAdminList(pageable);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
