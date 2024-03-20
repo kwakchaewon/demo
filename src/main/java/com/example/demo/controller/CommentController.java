@@ -5,7 +5,6 @@ import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Comment;
 import com.example.demo.service.CommentService;
 import com.example.demo.util.JWTUtil;
-import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
