@@ -31,7 +31,7 @@ public class CommentService {
         return commentRepository.findCommentDtoByBoard(board);
     }
 
-    public CommentDto createComment(CommentCreateForm commentCreateForm, Member member, Board board){
+    public CommentDto createComment(CommentCreateForm commentCreateForm, Member member, Board board) {
         Comment comment = commentCreateForm.toEntity(member, board);
         return commentRepository.save(comment).of();
     }
@@ -50,13 +50,14 @@ public class CommentService {
     public void deleteCommentById(Long id) throws CustomException {
         try {
             this.commentRepository.deleteById(id);
-        }
-        catch (Exception e){
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.UNKNOWN_ERROR);
+        } catch (NullPointerException e) {
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND);
+        } catch (Exception e) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
         }
     }
 
-    public CommentDto updateComment(Comment comment, CommentCreateForm commentCreateForm){
+    public CommentDto updateComment(Comment comment, CommentCreateForm commentCreateForm) {
         comment.update(commentCreateForm);
         commentRepository.save(comment);
         return new CommentDto(comment);

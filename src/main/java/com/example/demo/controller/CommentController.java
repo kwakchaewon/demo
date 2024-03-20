@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -30,22 +33,21 @@ public class CommentController {
      * 댓글 삭제
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteComment(@PathVariable("id") Long id,
-                                        @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
+    public void deleteComment(@PathVariable("id") Long id) throws CustomException {
 
-        // 1. userId 추출
-        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
-
-        // 2. Comment 추출 (실패시, 404 반환)
+        // 1. Comment 추출 (실패시, 404 반환)
         Comment comment = this.commentService.getComment(id);
 
-        // 3. 삭제 권한 검증 (실패시 403 반환)
-        if (!comment.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
-        } else {
-            // 4. 댓글 삭제 성공시 200 반환 (실패시 400 반환)
+        // 2. 권한 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String _userId = authentication.getName();
+        String auth = authentication.getAuthorities().stream().findFirst().get().getAuthority();
+
+        // 3. 권한 검증: 작성자 or SUPERVISOR
+        if (_userId.equals(comment.getMember().getUserId()) || auth.equals("ROLE_SUPERVISOR")) {
             commentService.deleteCommentById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            throw new AccessDeniedException("삭제 권한이 없습니다.");
         }
     }
 
