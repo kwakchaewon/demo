@@ -78,33 +78,44 @@ public class CommentController {
 
     /**
      * 댓글 수정 권한 검증
+     * 권한 검증 실패시 403
      */
     @GetMapping("/{id}/check")
-    public ResponseEntity checkCommentUpdateAuth(@PathVariable("id") Long id,
-                                                 @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
-        // 1. userId 추출
-        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+    public ResponseEntity checkCommentUpdateAuth(@PathVariable("id") Long id) throws CustomException {
+        // 1. _userid 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String _userId = authentication.getName();
 
         // 2. Comment 추출 (실패시, 404 반환)
         Comment comment = this.commentService.getComment(id);
 
-        // 3. 수정 권한 검증 (실패시 403 반환)
-        if (!comment.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
-        } else {
-            // 4. 권한 검증 성공시 200 반환
+        // 3. 수정 권한 검증 (실패시, 403 반환)
+        if (_userId.equals(comment.getMember().getUserId())) {
             return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            throw new AccessDeniedException("수정 권한이 없습니다."); // 403
         }
     }
 
     /**
      * 상세 댓글 조회
+     * 권한 검증 실패시 403
+     * 댓글 부재시 COMMENT_NOTFOUND (404)
      */
     @GetMapping("/{id}")
     public ResponseEntity<CommentDto> detailBoard(@PathVariable("id") Long id) throws CustomException {
-        // 1. id기반 댓글 찾기 (실패시, 404 반환)
+
+        // 1. _userid 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String _userId = authentication.getName();
+
+        // 2. id기반 댓글 찾기 (실패시, 404 반환)
         CommentDto commentDto = commentService.findCommentById(id);
-        // 2. 성공시 200 반환
-        return new ResponseEntity<>(commentDto, HttpStatus.OK);
+
+        if (_userId.equals(commentDto.getMemberId())) {
+            return new ResponseEntity<>(commentDto, HttpStatus.OK);
+        } else {
+            throw new AccessDeniedException("수정 권한이 없습니다."); // 403
+        }
     }
 }
