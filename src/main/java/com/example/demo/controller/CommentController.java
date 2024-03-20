@@ -1,4 +1,5 @@
 package com.example.demo.controller;
+
 import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Comment;
@@ -53,25 +54,25 @@ public class CommentController {
 
     /**
      * 댓글 수정
+     * 댓글 부재시 COMMENT_NOTFOUND(404)
+     * 권한 검증 실패시 403
      */
     @PutMapping("/{id}")
     public ResponseEntity<CommentDto> updateComment(@PathVariable("id") Long id,
-                                                    @RequestBody CommentCreateForm commentCreateForm,
-                                                    @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
-
-        // 1. userId 추출
-        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+                                                    @RequestBody CommentCreateForm commentCreateForm) throws CustomException {
+        // 1. _userid 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String _userId = authentication.getName();
 
         // 2. Comment 추출 (실패시, 404 반환)
         Comment comment = this.commentService.getComment(id);
 
-        // 3. 수정 권한 검증 (실패시 403 반환)
-        if (!comment.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
-        } else {
-            // 4. 댓글 수정 성공시 200 반환
+        // 3. 수정 권한 검증 (실패시, 403 반환)
+        if (_userId.equals(comment.getMember().getUserId())) {
             CommentDto commentDto = commentService.updateComment(comment, commentCreateForm);
             return new ResponseEntity<>(commentDto, HttpStatus.OK);
+        } else {
+            throw new AccessDeniedException("수정 권한이 없습니다."); // 403
         }
     }
 
