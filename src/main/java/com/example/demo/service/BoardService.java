@@ -59,9 +59,12 @@ public class BoardService {
 
     @Transactional
     public void deleteBoardById(Long id) throws CustomException {
+
+        // 1. 게시글 조회 실패시 NOT_FOUND 반환
         Board board = boardRepository.findById(id).
                 orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
 
+        // 2. 파일 조회 실패시 NOT_FOUND 반환
         if (board.getSavedFile() != null) {
             fileStore.deleteFile(board.getSavedFile());
         }
