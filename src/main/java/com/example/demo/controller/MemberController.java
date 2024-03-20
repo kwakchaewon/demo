@@ -4,7 +4,6 @@ import com.example.demo.dto.request.LoginReqDto;
 import com.example.demo.dto.request.MemberAuthUpdateForm;
 import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.TokenDto;
-import com.example.demo.entity.Member;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.CustomVal;
 import com.example.demo.util.JWTUtil;
@@ -39,6 +38,26 @@ public class MemberController {
     private String secret_refresh;
 
     /**
+     * 회원가입
+     */
+    @PostMapping("/signup")
+    public ResponseEntity signUp(@RequestBody SignupForm signupForm) throws CustomException {
+        // 아이디 중복 검사
+        if (memberService.checkUseridDuplication(signupForm)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.USERID_DUPLICATED);
+        }
+        // 이메일 중복 검사
+        else if (memberService.checkEmailDuplication(signupForm)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.EMAIL_DUPLICATED);
+        }
+        // 회원가입 성공
+        else {
+            memberService.saveMember(signupForm);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+    }
+
+    /**
      * 로그인 및 액세스, 리프레쉬 토큰 부여
      */
     @PostMapping("/login")
@@ -62,34 +81,14 @@ public class MemberController {
     }
 
     /**
-     * 회원가입
-     */
-    @PostMapping("/signup")
-    public ResponseEntity signUp(@RequestBody SignupForm signupForm) throws CustomException {
-        // 아이디 중복 검사
-        if (memberService.checkUseridDuplication(signupForm)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.USERID_DUPLICATED);
-        }
-        // 이메일 중복 검사
-        else if (memberService.checkEmailDuplication(signupForm)) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.EMAIL_DUPLICATED);
-        }
-        // 회원가입 성공
-        else {
-            memberService.saveMember(signupForm);
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-    }
-
-    /**
      * 사용자 권한 수정
      */
     @PutMapping("/{id}/auth")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')")
+    @PreAuthorize("hasRole('ROLE_SUPERVISOR')")
     public ResponseEntity updateMemberAuth(@PathVariable("id") Long id,
                                            @RequestBody MemberAuthUpdateForm memberAuthUpdateForm) {
         String auth = memberAuthUpdateForm.getAuth();
-        Member member = this.memberService.updateAuth(id, auth);
+        this.memberService.updateAuth(id, auth);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
