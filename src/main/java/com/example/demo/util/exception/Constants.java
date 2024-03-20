@@ -12,6 +12,7 @@ public class Constants {
         // 회원가입 관련
         USERID_DUPLICATED("이미 존재하는 아이디입니다."), // 400
         EMAIL_DUPLICATED("이미 존재하는 이메일입니다."), // 400
+        MEMBER_NOTFOUND("존재하지 않는 회원입니다."), // 404
 
         // 권한 관련
         NO_AUTHORIZATION("권한이 없습니다."), // 403

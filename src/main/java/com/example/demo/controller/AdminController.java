@@ -28,8 +28,8 @@ public class AdminController {
     }
 
     @DeleteMapping(value = "/member/{id}")
-    public ResponseEntity deleteMember(@PathVariable("id") Long id, @RequestHeader("Access_TOKEN") String authorizationHeader) throws CustomException {
-        // 권한 검증 필요
+    @PreAuthorize("hasAnyRole('ROLE_SUPERVISOR', 'ROLE_ADMIN')")
+    public ResponseEntity deleteMember(@PathVariable("id") Long id) throws CustomException {
         memberService.deleteMemberById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

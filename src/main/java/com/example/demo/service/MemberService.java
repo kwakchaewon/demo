@@ -159,13 +159,15 @@ public class MemberService {
 
     @Transactional
     public void deleteMemberById(Long id) throws CustomException {
-        Member _member = this.getMember(id);
         try {
-            this.memberRepository.delete(_member);
-        }catch (Exception e){
+            this.memberRepository.deleteById(id);
+        }
+        catch (NullPointerException e){
+            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.MEMBER_NOTFOUND);
+        }
+        catch (Exception e){
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
         }
-
     }
 
     // 사용자 권한 수정
