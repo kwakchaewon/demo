@@ -25,7 +25,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Boolean existsByUserId(String userId);
     Boolean existsByEmail(String email);
 //    List<AdminMemberDto> findAllAdminMemberDtoByGrantedAuth(String GrantedAuth);
+
     Page<AdminMemberDto> findAllAdminMemberDtoByGrantedAuthOrderByIdDesc(String GrantedAuth, Pageable pageable);
+
+    @Query("SELECT m from Member m WHERE m.grantedAuth = 'ROLE_USER' OR m.grantedAuth = 'ROLE_ADMIN' ORDER BY m.id desc")
+    Page<AdminMemberDto> findUserOrAdmin(Pageable pageable);
 
     @Query("SELECT m from Member m WHERE m.grantedAuth = 'ROLE_USER' OR m.grantedAuth = 'ROLE_ADMIN' ORDER BY m.id desc")
     Page<AdminManageDTO> findUserOrAdminOrderedByIdDesc(Pageable pageable);

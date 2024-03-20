@@ -63,6 +63,24 @@ public class MemberService {
         return data;
     }
 
+    public Map<String, Object> getMemberList3(Pageable pageable){
+        Map<String, Object> data = new HashMap();
+
+        Page<AdminMemberDto> memberList = memberRepository.findUserOrAdmin(pageable);
+
+        Pagination pagination = new Pagination(
+                (int) memberList.getTotalElements()
+                , pageable.getPageNumber() + 1
+                , pageable.getPageSize()
+                , 10
+        );
+
+        data.put("boards", memberList);
+        data.put("pagination", pagination);
+
+        return data;
+    }
+
     public Map<String, Object> getAdminList(Pageable pageable){
         Map<String, Object> data = new HashMap();
 
