@@ -129,6 +129,7 @@ public class BoardController {
         // 1. Board 추출 (실패시 404 반환)
         Board board = this.boardService.getBoard(id);
 
+        // authentication 정보 추출 (어노테이션에서 사용자일 경우를 증명하지 못해서...)
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String _userId = authentication.getName();
         String auth = authentication.getAuthorities().stream().findFirst().get().getAuthority();

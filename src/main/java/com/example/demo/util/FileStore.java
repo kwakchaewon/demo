@@ -77,7 +77,7 @@ public class FileStore {
         try {
             file.delete();
         } catch (Exception e) {
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.FILE_NOTFOUND);
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_NOTFOUND);
         }
     }
 
