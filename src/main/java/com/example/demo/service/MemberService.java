@@ -147,17 +147,13 @@ public class MemberService {
         return tokenDto;
     }
 
-    public UserDetails setAuth(LoginReqDto loginReqDto){
-        String userId = loginReqDto.getUserId();
-        String userPw = loginReqDto.getUserPw();
-
+    public UserDetails setAuth(String userId, String userPw){
         UserDetails loginUser = userDetailsService.loadUserByUsername(userId); //1. userId로 패스워드 가져오기
         Authentication authentication = authenticationManager.authenticate(     //2. 가져온 패스워드와 입력한 비밀번호로 검증
                 new UsernamePasswordAuthenticationToken(loginUser, userPw)
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);   // 3. 검증 통과 후 authentication 세팅
-
         return loginUser;
     }
 

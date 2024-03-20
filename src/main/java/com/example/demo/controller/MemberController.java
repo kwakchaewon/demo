@@ -39,6 +39,7 @@ public class MemberController {
 
     /**
      * 회원가입
+     * 아이디, 이메일 중복 검사 (실패시, 400 반환)
      */
     @PostMapping("/signup")
     public ResponseEntity signUp(@RequestBody SignupForm signupForm) throws CustomException {
@@ -62,7 +63,7 @@ public class MemberController {
      */
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody LoginReqDto loginReqDto) throws CustomException {
-        UserDetails loginUser = memberService.setAuth(loginReqDto);   // 1. 로그인 검증 및 auth 세팅
+        UserDetails loginUser = memberService.setAuth(loginReqDto.getUserId(), loginReqDto.getUserPw());   // 1. 로그인 검증 및 인증 객체 설정
         TokenDto tokenDto = memberService.issueToken(loginUser);    // 2. 토큰 발급 및 관련 로직
         return ResponseEntity.ok(tokenDto);
     }
