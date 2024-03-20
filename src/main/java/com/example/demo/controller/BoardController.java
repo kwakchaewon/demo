@@ -121,10 +121,10 @@ public class BoardController {
     /**
      * 게시글 삭제
      * 게시글 부재시 BOARD_NOTFOUND
-     * 삭제 권한 검증 실패시 NO_AUTHORIZATION
+     * 삭제 권한 검증 실패시 403
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteBoard(@PathVariable("id") Long id) throws CustomException {
+    public void deleteBoard(@PathVariable("id") Long id) throws CustomException {
 
         // 1. Board 추출 (실패시 404 반환)
         Board board = this.boardService.getBoard(id);
@@ -136,7 +136,7 @@ public class BoardController {
         // 2. 삭제 권한 검증: 작성자 or ADMIN/SUPERVISOR
         if (_userId.equals(board.getMember().getUserId()) || auth.matches("ROLE_ADMIN|ROLE_SUPERVISOR")) {
             boardService.deleteBoardById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
+
         } else {
             throw new AccessDeniedException("삭제 권한이 없습니다."); // 403
         }
