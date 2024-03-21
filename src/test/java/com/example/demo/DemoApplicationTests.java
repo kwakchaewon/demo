@@ -57,7 +57,7 @@ class DemoApplicationTests {
      * supervisor 계정 생성
      */
     @Test
-    @Order(1)
+    @Order(3)
     void createSupervisor() {
         String encPw = passwordEncoder.encode("super");
 
@@ -75,7 +75,7 @@ class DemoApplicationTests {
      * admin 계정 10개 생성
      */
     @Test
-    @Order(3)
+    @Order(2)
     void createAdmin() {
         for (int i = 1; i <= 10; i++) {
             String encPw = passwordEncoder.encode("admin" + i);
@@ -105,7 +105,7 @@ class DemoApplicationTests {
      * test user 120명 생성
      */
     @Test
-    @Order(2)
+    @Order(1)
     void createTestUser() {
         for (int i = 1; i <= 120; i++) {
             String encPw = passwordEncoder.encode("@a12345678");
