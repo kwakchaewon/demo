@@ -56,27 +56,34 @@ public class BoardController {
     @Autowired
     private JWTUtil jwtUtil;
 
-    public BoardController(BoardService boardService) {
-        this.boardService = boardService;
+    /**
+     * 페이징 기반 게시판 목록
+     */
+    @GetMapping("")
+    public ResponseEntity<Map<String, Object>> pagingBoardList(
+            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
+            String keyword
+    ) {
+        Map<String, Object> data = boardService.getBoardList(pageable, keyword);
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     /**
-     * 게시글 작성등록
+     * 게시글 등록
      * 빈 제목, 내용 유효성 검사. 실패시 ONLY_BLANk 반환
      * 파일 존재시 파일 + 게시글 저장. IOException 발생 시, FILE_IOFAILED 반환
      * 파일 부재시, 게시글 만 저장
      */
     @PostMapping(value = "")
-    public ResponseEntity<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
-                                                    @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+    public ResponseEntity<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm) throws CustomException {
 
         // 1. 빈 제목, 내용 유효성 검사
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
         } else {
-
             // 2. Member 추출
-            String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String _userId = authentication.getName();
             Member _member = this.memberService.getMemberByUserId(_userId);
 
             // 3. 게시글 저장 및 BoardDto 추출
@@ -180,17 +187,6 @@ public class BoardController {
 //        return new ResponseEntity<>(data, HttpStatus.OK);
 //    }
 
-    /**
-     * 페이징 기반 게시판 목록
-     */
-    @GetMapping("")
-    public ResponseEntity<Map<String, Object>> pagingBoardList(
-            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
-            String keyword
-    ) {
-        Map<String, Object> data = boardService.getBoardList(pageable, keyword);
-        return new ResponseEntity<>(data, HttpStatus.OK);
-    }
 
 //    /**
 //     * 페이징, 검색 기반 게시판 목록
