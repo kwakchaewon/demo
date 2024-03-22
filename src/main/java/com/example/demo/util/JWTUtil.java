@@ -17,7 +17,7 @@ import java.util.Optional;
 
 /**
  * jwt 토큰 관련 유틸리티 클래스
- * 토큰 디코딩, 토큰 생성, 토큰 검증, REFRESH 토큰 검증 메서드 정의
+ * 디코딩, 생성, 검증, REFRESH 메서드 정의
  */
 @Slf4j
 @Component

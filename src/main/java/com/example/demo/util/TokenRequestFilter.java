@@ -36,7 +36,6 @@ public class TokenRequestFilter extends OncePerRequestFilter {
 
     /**
      * Spring security 관련 보안 작업 수행
-     * 모든 HTTP 요청에 대해 실행
      * /login, /signup 은 보안 작업 x
      * 나머지 작업에 대해서는 토큰 검증 및 보안 정보 설정, 토큰 발급
      */
