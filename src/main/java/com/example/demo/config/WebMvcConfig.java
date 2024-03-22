@@ -12,8 +12,8 @@ import java.util.List;
 
 /**
  * 페이지네이션과 정렬을 처리 설정 클래스
+ * 기본 페이지, 기본 페이지 사이즈 ,최대 페이지 크기 설정
  */
-
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
     @Override
@@ -24,8 +24,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
         PageableHandlerMethodArgumentResolver pageableArgumentResolver = new PageableHandlerMethodArgumentResolver(sortArgumentResolver);
         pageableArgumentResolver.setOneIndexedParameters(true);
-        pageableArgumentResolver.setMaxPageSize(500);
+        pageableArgumentResolver.setMaxPageSize(500);  // 최대 페이지 크기
         pageableArgumentResolver.setFallbackPageable(PageRequest.of(0, 10)); // 기본 페이지와 페이지 사이즈 설정
-        argumentResolvers.add(pageableArgumentResolver);
+        argumentResolvers.add(pageableArgumentResolver); // 페이지네이션과 관련된 정보를 사용할 수 있도록 사용
     }
 }

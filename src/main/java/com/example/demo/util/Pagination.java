@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 페이지네이션 관련 정보 정의
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

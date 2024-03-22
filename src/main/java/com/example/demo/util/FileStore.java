@@ -12,6 +12,10 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * 파일 저장과 관련된 util 메서드를 저장하는 클래스
+ * 파일저장, 이미지 파일여부 확인, 파일 삭제, 파일 디렉토리 반환 기능
+ */
 @Component
 public class FileStore {
     private final String fileDir = System.getProperty("user.dir") + "/files";

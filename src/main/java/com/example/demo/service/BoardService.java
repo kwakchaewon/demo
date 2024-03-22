@@ -35,8 +35,6 @@ import java.util.*;
 public class BoardService {
     private final BoardRepository boardRepository;
     @Autowired
-    private JWTUtil jwtUtil;
-    @Autowired
     private FileStore fileStore;
 
     public BoardService(BoardRepository boardRepository) {

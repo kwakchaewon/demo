@@ -18,11 +18,6 @@ public class CustomVal {
     /**
      * @Valid 를 통해 Form 내부 데이터의 유효성 검사
      */
-//    public ResponseEntity validateForm(BindingResult bindingResult, Object service){
-//        Map<String, String> validatorResult = memberService.validateHandling(bindingResult);
-//
-//        return new ResponseEntity<>();
-//    }
 
     @Transactional(readOnly = true)
     public  ResponseEntity validateHandling(BindingResult bindingResult, HashMap<String,Object> response) {

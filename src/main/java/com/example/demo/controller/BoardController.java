@@ -40,6 +40,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 게시글 관련 컨트롤러
+ * 게시판 CRUD 담당
+ * 사용자 조회, 사용자 삭제, 사용자 권한 변경
+ * security context를 통한 권한 정보 접근
+ */
 @RequestMapping("/board")
 @RestController
 @RequiredArgsConstructor
@@ -174,37 +180,6 @@ public class BoardController {
             return new ResponseEntity<>(updatedBoard, HttpStatus.OK);
         }
     }
-
-//    /**
-//     * 페이징 기반 게시판 목록
-//     */
-//    @GetMapping("")
-//    public ResponseEntity<Map<String, Object>> pagingBoardList(
-//            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
-//            String keyword
-//    ) {
-//        Map<String, Object> data = boardService.getBoardList(pageable, keyword);
-//        return new ResponseEntity<>(data, HttpStatus.OK);
-//    }
-
-
-//    /**
-//     * 페이징, 검색 기반 게시판 목록
-//     */
-//    @GetMapping("/list")
-//    public ResponseEntity<Map<String, Object>> boardList(@RequestParam(value = "page", defaultValue = "0") int page,
-//                            @RequestParam(value = "kwargs", defaultValue = "") String kwargs){
-//
-//        List<Sort.Order> sorts = new ArrayList<>();
-//        sorts.add(Sort.Order.desc("createdAt"));
-//
-//        Page<BoardDto> paging = this.boardService.getList(page, kwargs);
-//
-//        Map<String, Object> data = new HashMap<>();
-//        data.put("paging", paging);
-//        data.put("kwargs", kwargs);
-//        return new ResponseEntity<>(data, HttpStatus.OK);
-//    }
 
     /**
      * 게시글 수정 권한 검증

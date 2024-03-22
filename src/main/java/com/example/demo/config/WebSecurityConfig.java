@@ -14,9 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * 스프링 시큐리티 설정 클래스
+ * 스프링 시큐리티 설정 정의
+ * 기본적인 URL 접근 권한, 세션 활용 여부, 비밀번호 암호화 @Bean 등록
  */
-
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor

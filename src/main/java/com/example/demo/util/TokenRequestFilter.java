@@ -34,6 +34,12 @@ public class TokenRequestFilter extends OncePerRequestFilter {
     public static final String ACCESS_TOKEN = "ACCESS_TOKEN";
     public static final String REFRESH_TOKEN = "REFRESH_TOKEN";
 
+    /**
+     * Spring security 관련 보안 작업 수행
+     * 모든 HTTP 요청에 대해 실행
+     * /login, /signup 은 보안 작업 x
+     * 나머지 작업에 대해서는 토큰 검증 및 보안 정보 설정, 토큰 발급
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if ("/member/login".equals(request.getRequestURI()) || "/member/signup".equals(request.getRequestURI())) {

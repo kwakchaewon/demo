@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.response.AdminMemberDto;
+
 import com.example.demo.service.MemberService;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -9,13 +9,14 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Map;
 
+/**
+ * 관리자 페이지 관련 컨트롤러
+ * @PreAuthorize 를 통해 Admin, Super 만 접근 가능
+ * 사용자 조회, 사용자 삭제, 사용자 권한 변경 
+ */
 @RequestMapping("/admin")
 @RestController
 @RequiredArgsConstructor
@@ -23,8 +24,7 @@ public class AdminController {
     private final MemberService memberService;
 
     /**
-     * Admin 전용
-     * USER 조회
+     * Admin 전용: USER 조회
      */
     @GetMapping(value = "/members")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -36,6 +36,7 @@ public class AdminController {
     }
 
     /**
+     * USER 삭제
      * Admin: USER 삭제
      * Super: USER, ADMIN 삭제
      */
@@ -46,10 +47,9 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
     /**
-     *  Super 전용
      * 사용자 + 관리자 조회
+     * Super 전용
      */
     @GetMapping(value = "/auth")
     @PreAuthorize("hasRole('ROLE_SUPERVISOR')")

@@ -79,10 +79,7 @@ public class MemberService {
 
     public Map<String, Object> getAdminList(Pageable pageable){
         Map<String, Object> data = new HashMap();
-
-
         Page<AdminManageDTO> adminList = memberRepository.findUserOrAdminOrderedByIdDesc(pageable);
-
         Pagination pagination = new Pagination(
                 (int) adminList.getTotalElements()
                 , pageable.getPageNumber() + 1

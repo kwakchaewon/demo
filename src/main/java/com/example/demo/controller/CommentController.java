@@ -16,18 +16,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-
+/**
+ * 댓글 관련 컨트롤러
+ * 댓글 UD 담당
+ * 상세 댓글 조회, 댓글 수정, 댓글 수정
+ */
 @RequestMapping("/comment")
 @RestController
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
-
-    @Value("${jwt.secret_access}")
-    private String secret_access;
-
-    @Autowired
-    private final JWTUtil jwtUtil;
 
     /**
      * 댓글 삭제

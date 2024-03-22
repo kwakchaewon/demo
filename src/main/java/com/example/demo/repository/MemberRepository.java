@@ -24,7 +24,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Boolean existsByUserId(String userId);
     Boolean existsByEmail(String email);
-//    List<AdminMemberDto> findAllAdminMemberDtoByGrantedAuth(String GrantedAuth);
 
     Page<AdminMemberDto> findAllAdminMemberDtoByGrantedAuthOrderByIdDesc(String GrantedAuth, Pageable pageable);
 

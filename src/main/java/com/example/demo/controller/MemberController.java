@@ -21,6 +21,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
+/**
+ * 로그인 & 회원가입 컨트롤러
+ * 로그인, 회원가입, 액세스 토큰 재발급
+ */
 @Slf4j
 @RequiredArgsConstructor
 @CrossOrigin
@@ -29,13 +33,8 @@ import java.util.Date;
 public class MemberController {
     private final MemberService memberService;
     private final JWTUtil jwtUtil;
-    private final CustomVal customVal;
-
     @Value("${jwt.secret_access}")
     private String secret_access;
-
-    @Value("${jwt.secret_refresh}")
-    private String secret_refresh;
 
     /**
      * 회원가입
