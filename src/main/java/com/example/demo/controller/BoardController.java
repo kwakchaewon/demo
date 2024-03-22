@@ -163,12 +163,13 @@ public class BoardController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
-                                                @ModelAttribute BoardUpdateForm boardUpdateForm,
-                                                @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException, IOException {
+                                                @ModelAttribute BoardUpdateForm boardUpdateForm) throws CustomException, IOException {
         // 1. userId 추출
-        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String _userId = authentication.getName();
 
-        // 2. Board 추출 (실패시 404 반환)
+
+        // 2. 게시글 추출 (실패시 404 반환)
         Board board = boardService.getBoard(id);
 
         // 3. 수정 권한 검증 (실패시 403 반환)
