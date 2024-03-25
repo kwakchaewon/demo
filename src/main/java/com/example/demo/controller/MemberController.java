@@ -120,4 +120,17 @@ public class MemberController {
             throw new AccessDeniedException("권한이 없습니다.");
         }
     }
+
+    /**
+     * USER 삭제
+     * Admin: USER 삭제
+     * Super: USER, ADMIN 삭제
+     */
+    @DeleteMapping(value = "/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_SUPERVISOR', 'ROLE_ADMIN')")
+    public ResponseEntity deleteMember(@PathVariable("id") Long id) throws CustomException {
+        memberService.deleteMemberById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

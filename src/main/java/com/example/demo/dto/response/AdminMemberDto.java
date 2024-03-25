@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Data
@@ -23,6 +21,6 @@ public class AdminMemberDto {
         this.id = member.getId();
         this.userId = member.getUserId();
         this.email = member.getEmail();
-        this.createdAt = member.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
+        this.createdAt = member.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 }
