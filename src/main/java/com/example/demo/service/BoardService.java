@@ -105,7 +105,7 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws CustomException, IOException {
+    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
         if (boardCreateForm.isFileExisted()) {
             // 1. 파일 존재시 경로에 파일 저장
             String savedFilename = fileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명

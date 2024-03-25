@@ -67,16 +67,17 @@ public class BoardController {
 
     /**
      * 게시글 등록
+
      * 빈 제목, 내용 유효성 검사. 실패시 ONLY_BLANk 반환
      * 파일 존재시 파일 + 게시글 저장. IOException 발생 시, FILE_IOFAILED 반환
      * 파일 부재시, 게시글 만 저장
      */
     @PostMapping(value = "")
     public BoardDto createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
-                                    Authentication authentication) throws CustomException, IOException {
+                                    Authentication authentication) throws IOException {
 
         // 1. 유효성 검사 (빈 제목, 빈 내용)
-        if (boardCreateForm.isValid()) {
+        if (!boardCreateForm.isValid()) {
             throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
         }
 
