@@ -76,9 +76,8 @@ public class MemberService {
     }
 
     public Member getMemberByUserId(String userId) {
-        Member _member = this.memberRepository.findByUserId(userId)
+        return this.memberRepository.findByUserId(userId)
                 .orElseThrow(()-> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-        return _member;
     }
 
     @Transactional

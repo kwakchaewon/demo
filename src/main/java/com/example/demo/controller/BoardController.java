@@ -87,8 +87,7 @@ public class BoardController {
             Member _member = this.memberService.getMemberByUserId(_userId);
 
             // 3. 게시글 저장 및 BoardDto 추출
-            BoardDto boardDto = this.boardService.createBoard(boardCreateForm, _member);
-            return boardDto;
+            return this.boardService.createBoard(boardCreateForm, _member);
         }
     }
 
