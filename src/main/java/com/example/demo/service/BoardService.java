@@ -19,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,18 +37,8 @@ public class BoardService {
         this.boardRepository = boardRepository;
     }
 
-    public BoardDto findBoardById(Long id) throws CustomException {
-
-        Optional<BoardDto> boardDto = boardRepository.findBoardDtoById(id);
-
-        // 1. 게시글 존재시 BoardDto 반환
-        if (boardDto.isPresent()) {
-            BoardDto _dto = boardDto.get();
-            return _dto;
-        } else {
-            // 3. 게시글 부재시 BOARD_NOTFOUND
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND);
-        }
+    public BoardDto findBoardById(Long id) {
+        return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
     }
 
     @Transactional
