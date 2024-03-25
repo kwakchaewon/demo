@@ -4,6 +4,7 @@ import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.request.BoardUpdateForm;
 import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.BoardDto;
+import com.example.demo.dto.response.BoardPageDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
@@ -66,11 +67,11 @@ public class BoardController {
      * 페이징 기반 게시판 목록
      */
     @GetMapping("")
-    public ResponseEntity<Map<String, Object>> pagingBoardList(
+    public ResponseEntity<BoardPageDto> pagingBoardList(
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
             String keyword
     ) {
-        Map<String, Object> data = boardService.getBoardList(pageable, keyword);
+        BoardPageDto data = boardService.getBoardList(pageable, keyword);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
