@@ -4,14 +4,13 @@ import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.request.BoardUpdateForm;
 import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.BoardDto;
-import com.example.demo.dto.response.BoardPageDto;
 import com.example.demo.dto.response.CommentDto;
+import com.example.demo.dto.response.PagingResponse;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.MemberService;
-import com.example.demo.util.FileStore;
 import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
@@ -19,19 +18,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -67,12 +61,13 @@ public class BoardController {
      * 페이징 기반 게시판 목록
      */
     @GetMapping("")
-    public ResponseEntity<BoardPageDto> pagingBoardList(
+    public PagingResponse<BoardDto> pagingBoardList(
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
             String keyword
     ) {
-        BoardPageDto data = boardService.getBoardList(pageable, keyword);
-        return new ResponseEntity<>(data, HttpStatus.OK);
+
+        return boardService.getBoardList(pageable, keyword);
+
     }
 
     /**
