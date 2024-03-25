@@ -3,18 +3,23 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.LoginReqDto;
 import com.example.demo.dto.request.MemberAuthUpdateForm;
 import com.example.demo.dto.request.SignupForm;
+import com.example.demo.dto.response.PagingResponse;
 import com.example.demo.dto.response.TokenDto;
 import com.example.demo.service.MemberService;
-import com.example.demo.util.CustomVal;
 import com.example.demo.util.JWTUtil;
+import com.example.demo.util.SecurityUtils;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,5 +95,29 @@ public class MemberController {
         String auth = memberAuthUpdateForm.getAuth();
         this.memberService.updateAuth(id, auth);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /**
+     * 관리자 페이지 사용자 (+관리자) 조회
+     */
+    @GetMapping(value = "/list")
+    @PreAuthorize("hasAnyRole('ROLE_SUPERVISOR', 'ROLE_ADMIN')")
+    public PagingResponse pagingMemberList(
+            @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
+            Authentication authentication){
+
+        // admin: 일반유저 조회 권한
+        if (SecurityUtils.isAdmin(authentication))
+        {
+            return memberService.getMembers(pageable);
+        }
+        // super: 관리자 + 일반 유저 조회 권한
+        else if (SecurityUtils.isSupervisor(authentication))
+        {
+            return memberService.getMembersIncludingAdmin(pageable);
+        }
+        else {
+            throw new AccessDeniedException("권한이 없습니다.");
+        }
     }
 }
