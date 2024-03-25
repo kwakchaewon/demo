@@ -1,11 +1,7 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.request.LoginReqDto;
 import com.example.demo.dto.request.SignupForm;
-import com.example.demo.dto.response.AdminManageDTO;
-import com.example.demo.dto.response.AdminMemberDto;
-import com.example.demo.dto.response.BoardDto;
-import com.example.demo.dto.response.TokenDto;
+import com.example.demo.dto.response.*;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.MemberRepository;
 import com.example.demo.util.JWTUtil;
@@ -27,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -41,58 +36,33 @@ public class MemberService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Map<String, Object> getMemberList(Pageable pageable){
-        Map<String, Object> data = new HashMap();
+    public PagingResponse<MemberAdminDto> getMembers(Pageable pageable){
 
-        Page<AdminMemberDto> memberList = memberRepository.findAllAdminMemberDtoByGrantedAuthOrderByIdDesc("ROLE_USER" ,pageable);
+        Page<MemberAdminDto> members = memberRepository.findAllByGrantedAuthOrderByIdDesc("ROLE_USER" ,pageable);
 
         Pagination pagination = new Pagination(
-                (int) memberList.getTotalElements()
+                (int) members.getTotalElements()
                 , pageable.getPageNumber() + 1
                 , pageable.getPageSize()
                 , 10
         );
 
-        data.put("boards", memberList);
-        data.put("pagination", pagination);
-
-        return data;
+        return new PagingResponse<>(members, pagination);
     }
 
-//    public Map<String, Object> getMemberList3(Pageable pageable){
-//        Map<String, Object> data = new HashMap();
-//
-//        Page<AdminMemberDto> memberList = memberRepository.findUserOrAdmin(pageable);
-//
-//        Pagination pagination = new Pagination(
-//                (int) memberList.getTotalElements()
-//                , pageable.getPageNumber() + 1
-//                , pageable.getPageSize()
-//                , 10
-//        );
-//
-//        data.put("boards", memberList);
-//        data.put("pagination", pagination);
-//
-//        return data;
-//    }
+    public PagingResponse<MemberSuperDto> getMembersIncludingAdmin(Pageable pageable){
+//        List<String> roles = Arrays.asList("ROLE_USER", "ROLE_ADMIN");
+        Page<MemberSuperDto> members = memberRepository.findUserIncludingAdmin(pageable);
 
-    public Map<String, Object> getAdminList(Pageable pageable){
-        Map<String, Object> data = new HashMap();
-        Page<AdminManageDTO> adminList = memberRepository.findUserOrAdminOrderedByIdDesc(pageable);
         Pagination pagination = new Pagination(
-                (int) adminList.getTotalElements()
+                (int) members.getTotalElements()
                 , pageable.getPageNumber() + 1
                 , pageable.getPageSize()
                 , 10
         );
 
-        data.put("members", adminList);
-        data.put("pagination", pagination);
-
-        return data;
+        return new PagingResponse<>(members, pagination);
     }
-
 
     public Member getMember(Long id) {
         Optional<Member> _member = this.memberRepository.findById(id);

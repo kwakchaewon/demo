@@ -3,28 +3,22 @@ package com.example.demo.service;
 import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.request.BoardUpdateForm;
 import com.example.demo.dto.response.BoardDto;
+import com.example.demo.dto.response.PagingResponse;
 import com.example.demo.entity.Board;
-import com.example.demo.entity.Comment;
 import com.example.demo.entity.Member;
 import com.example.demo.util.FileStore;
 import com.example.demo.util.Pagination;
 import com.example.demo.repository.BoardRepository;
-import com.example.demo.util.JWTUtil;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.criteria.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -87,9 +81,7 @@ public class BoardService {
 
         // 2. 원본 파일 변경시
         else {
-            fileStore.deleteFile(board.getSavedFile()); // board 객체에 해당하는 파일 제거
-            String savedFilename = fileStore.savedFile(boardUpdateForm.getFile()); // UUID 파일명
-            board.updateTitleAndContents(boardUpdateForm);
+            fileStore.deleteFile(board.getSavedFile()); // 1. 디렉토리 내 게시글 파일 제거
 
             // 2.1 원본 파일이 삭제됐다면 :
             // 원본 파일 삭제 및 DB 필드 null로 변경,  제목 & 내용 변경만을 저장
@@ -102,9 +94,12 @@ public class BoardService {
             // 제목 & 내용 변경 저장
             // 원본 파일 삭제 후 파일 저장
             else {
+                String savedFilename = fileStore.savedFile(boardUpdateForm.getFile()); // UUID 파일명
                 board.setOriginalFile(boardUpdateForm.getFile().get().getOriginalFilename());
                 board.setSavedFile(savedFilename);
             }
+
+            board.updateTitleAndContents(boardUpdateForm); // 게시글과 내용 변경
             return boardRepository.save(board).of();
         }
     }
@@ -124,23 +119,18 @@ public class BoardService {
         }
     }
 
-    public Map<String, Object> getBoardList(Pageable pageable, String keyword) {
+    public PagingResponse<BoardDto> getBoardList(Pageable pageable, String keyword) {
 
-        Map<String, Object> data = new HashMap();
-        Page<BoardDto> boardList = boardRepository.findBoardDtoByTitleContainingOrderByIdDesc(keyword, pageable);
+        Page<BoardDto> boards = boardRepository.findBoardDtoByTitleContainingOrderByIdDesc(keyword, pageable);
 
         Pagination pagination = new Pagination(
-                (int) boardList.getTotalElements()
+                (int) boards.getTotalElements()
                 , pageable.getPageNumber() + 1
                 , pageable.getPageSize()
                 , 10
         );
 
-        data.put("boards", boardList);
-        data.put("pagination", pagination);
-//        data.put("keyword", keyword);
-
-        return data;
+        return new PagingResponse<>(boards, pagination);
     }
 
     public Board getBoard(Long id) throws CustomException {

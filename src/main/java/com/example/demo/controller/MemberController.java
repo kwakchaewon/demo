@@ -104,18 +104,17 @@ public class MemberController {
     @PreAuthorize("hasAnyRole('ROLE_SUPERVISOR', 'ROLE_ADMIN')")
     public PagingResponse pagingMemberList(
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
-            Authentication authentication){
+            Authentication authentication) {
 
         // admin: 일반유저 조회 권한
-        if (SecurityUtils.isAdmin(authentication))
-        {
+        if (SecurityUtils.isAdmin(authentication)) {
             return memberService.getMembers(pageable);
         }
         // super: 관리자 + 일반 유저 조회 권한
-        else if (SecurityUtils.isSupervisor(authentication))
-        {
+        else if (SecurityUtils.isSupervisor(authentication)) {
             return memberService.getMembersIncludingAdmin(pageable);
         }
+        // 자격 없을 경우: AccessDeniedException
         else {
             throw new AccessDeniedException("권한이 없습니다.");
         }
