@@ -12,6 +12,7 @@ import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.MemberService;
 import com.example.demo.util.JWTUtil;
+import com.example.demo.util.SecurityUtils;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -65,9 +67,7 @@ public class BoardController {
             @PageableDefault(sort = {"id"}, page = 0) Pageable pageable,
             String keyword
     ) {
-
         return boardService.getBoardList(pageable, keyword);
-
     }
 
     /**
@@ -77,20 +77,21 @@ public class BoardController {
      * 파일 부재시, 게시글 만 저장
      */
     @PostMapping(value = "")
-    public ResponseEntity<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm) throws CustomException {
+    public BoardDto createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
+                                    Authentication authentication) throws CustomException {
 
         // 1. 빈 제목, 내용 유효성 검사
         if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
-        } else {
-            // 2. Member 추출
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
+        }
+
+        else {
             String _userId = authentication.getName();
             Member _member = this.memberService.getMemberByUserId(_userId);
 
             // 3. 게시글 저장 및 BoardDto 추출
             BoardDto boardDto = this.boardService.createBoard(boardCreateForm, _member);
-            return new ResponseEntity<>(boardDto, HttpStatus.OK);
+            return boardDto;
         }
     }
 
@@ -99,10 +100,9 @@ public class BoardController {
      * 게시글 부재시, BOARD_NOTFOUND 반환
      */
     @GetMapping("/{id}")
-    public ResponseEntity<BoardDto> detailBoard(@PathVariable("id") Long id) throws CustomException {
+    public BoardDto detailBoard(@PathVariable("id") Long id) throws CustomException {
         // 1. 상세 게시글 추출
-        BoardDto boardDto = boardService.findBoardById(id);
-        return new ResponseEntity<>(boardDto, HttpStatus.OK);
+        return boardService.findBoardById(id);
     }
 
     /**
@@ -111,19 +111,18 @@ public class BoardController {
      * 게시글 조회 후, 첨부파일 존재시 이미지 Resource 반환. IOException 발생 시, FILE_IOFAILED 반환
      */
     @GetMapping("/{id}/image")
-    public ResponseEntity detailBoardImage(@PathVariable("id") Long id) throws CustomException {
+    public Resource detailBoardImage(@PathVariable("id") Long id) throws CustomException, FileNotFoundException {
         // 1. Board 추출 (실패시, 404 반환)
         BoardDto boardDto = boardService.findBoardById(id);
 
         // 2. 파일이 존재한다면 이미지 추출 (실패시 404, 500 반환)
         if (boardDto.getSavedFile() != null) {
-            Resource resource = boardService.getImage(boardDto);
-            return new ResponseEntity(resource, HttpStatus.OK);
+            return boardService.getImage(boardDto);
         }
 
-        // 3. 그외 400 반환
+        // 3. 그외 반환
         else {
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.FILE_NOTFOUND);
+            throw new FileNotFoundException("이미지를 찾을 수 없습니다.");
         }
     }
 
@@ -133,21 +132,17 @@ public class BoardController {
      * 삭제 권한 검증 실패시 403
      */
     @DeleteMapping("/{id}")
-    public void deleteBoard(@PathVariable("id") Long id) throws CustomException {
+    public void deleteBoard(@PathVariable("id") Long id, Authentication authentication) throws CustomException {
 
         // 1. Board 추출 (실패시 404 반환)
         Board board = this.boardService.getBoard(id);
 
-        // authentication 정보 추출 (어노테이션에서 사용자일 경우를 증명하지 못해서...)
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String _userId = authentication.getName();
-        String auth = authentication.getAuthorities().stream().findFirst().get().getAuthority();
-
-        // 2. 삭제 권한 검증: 작성자 or ADMIN/SUPERVISOR
-        if (_userId.equals(board.getMember().getUserId()) || auth.matches("ROLE_ADMIN|ROLE_SUPERVISOR")) {
+        // 2. 삭제 권한 검증: 작성자 or ADMIN or SUPERVISOR
+        if (SecurityUtils.isWriter(authentication, board) || SecurityUtils.isAdmin(authentication) || SecurityUtils.isSupervisor(authentication)) {
             boardService.deleteBoardById(id);
-
-        } else {
+        }
+        // 권한 없을 경우
+        else {
             throw new AccessDeniedException("삭제 권한이 없습니다."); // 403
         }
     }
@@ -158,23 +153,21 @@ public class BoardController {
      * 삭제 권한 검증 실패시 NO_AUTHORIZATION
      */
     @PutMapping("/{id}")
-    public ResponseEntity<BoardDto> updateBoard(@PathVariable("id") Long id,
-                                                @ModelAttribute BoardUpdateForm boardUpdateForm) throws CustomException, IOException {
-        // 1. userId 추출
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String _userId = authentication.getName();
+    public BoardDto updateBoard(@PathVariable("id") Long id,
+                                @ModelAttribute BoardUpdateForm boardUpdateForm,
+                                Authentication authentication) throws CustomException, IOException {
 
-
-        // 2. 게시글 추출 (실패시 404 반환)
+        // 1. 게시글 추출 (실패시 404 반환)
         Board board = boardService.getBoard(id);
 
-        // 3. 수정 권한 검증 (실패시 403 반환)
-        if (!board.getMember().getUserId().equals(_userId)) {
-            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
-        } else {
-            // 4. 게시글 수정 및 200 반환
+        // 2. 수정 권한 검증 (실패시 403 반환)
+        if (!SecurityUtils.isWriter(authentication, board)) {
+            throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
+        // 3. 게시글 수정 및 200 반환
+        else {
             BoardDto updatedBoard = boardService.updateBoard(board, boardUpdateForm);
-            return new ResponseEntity<>(updatedBoard, HttpStatus.OK);
+            return updatedBoard;
         }
     }
 
@@ -184,20 +177,14 @@ public class BoardController {
      * 수정 권한 검증 실패시 NO_AUTHORIZATION
      */
     @GetMapping("/{id}/check")
-    public ResponseEntity checkUpdateAuth(@PathVariable("id") Long id,
-                                          @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
-        // 1. userId 추출
-        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
-
-        // 2. Board 추출 (실패시 404 반환)
+    public void checkUpdateAuth(@PathVariable("id") Long id,
+                                Authentication authentication) throws CustomException {
+        // 1. Board 추출 (실패시 404 반환)
         Board board = this.boardService.getBoard(id);
 
-        if (!board.getMember().getUserId().equals(_userId)) {
-            // 3. 수정 권한 검증 (실패시 403 반환)
-            throw new CustomException(HttpStatus.FORBIDDEN, Constants.ExceptionClass.NO_AUTHORIZATION);
-        } else {
-            // 4. 검증 성공시 200 반환
-            return new ResponseEntity<>(HttpStatus.OK);
+        if (SecurityUtils.isWriter(authentication, board)) {
+            // 2. 수정 권한 검증 (실패시 403 반환)
+            throw new AccessDeniedException("수정 권한이 없습니다."); // 403
         }
     }
 
@@ -206,12 +193,12 @@ public class BoardController {
      * 게시글 부재시 BOARD_NOTFOUND 반환
      */
     @GetMapping("/{id}/comment")
-    public ResponseEntity<List<CommentDto>> commentList(@PathVariable("id") Long id) throws CustomException {
+    public List<CommentDto> commentList(@PathVariable("id") Long id) throws CustomException {
         // 1. boardId 로 해당 게시글 댓글 조회 (실패시 404 반환)
         List<CommentDto> commentDtoList = commentService.getCommentList(id);
 
         // 2. 댓글 조회 성공시 200 반환
-        return new ResponseEntity<>(commentDtoList, HttpStatus.OK);
+        return commentDtoList;
     }
 
     /**
@@ -220,11 +207,11 @@ public class BoardController {
      * 빈칸 입력시 ONLY_BLANk 반환
      */
     @PostMapping("/{id}/comment")
-    public ResponseEntity<CommentDto> createComment(@PathVariable("id") Long id,
-                                                    @RequestBody CommentCreateForm commentCreateForm,
-                                                    @RequestHeader("ACCESS_TOKEN") String authorizationHeader) throws CustomException {
+    public CommentDto createComment(@PathVariable("id") Long id,
+                                    @RequestBody CommentCreateForm commentCreateForm,
+                                    Authentication authentication) throws CustomException {
         // 1. userId 추출
-        String _userId = jwtUtil.getUserIdByToken(authorizationHeader, secret_access);
+        String _userId = authentication.getName();
 
         // 2. Member 추출 (실패시 401 반환)
         Member member = memberService.getMemberByUserId(_userId);
@@ -238,7 +225,7 @@ public class BoardController {
         } else {
             // 5. 댓글 작성 성공시 200 반환
             CommentDto commentDto = commentService.createComment(commentCreateForm, member, board);
-            return new ResponseEntity<>(commentDto, HttpStatus.OK);
+            return commentDto;
         }
     }
 
@@ -262,7 +249,6 @@ public class BoardController {
         // 브라우저별 encoding 방식을 다르게 해야함 (추후 수정)
         String originalFileName = boardDto.getOriginalFile();
         String encodedOriginalFileName = URLEncoder.encode(originalFileName, "UTF-8");
-//        String encodedOriginalFileName = URLEncoder.encode(originalFileName,"UTF-8").replaceAll("\\+", "%20");
 
         String contentDisposition = "attachment; filename=\"" + encodedOriginalFileName + "\"";
 
@@ -270,6 +256,5 @@ public class BoardController {
 //                .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition) // Content-Disposition: 브라우저에게 응답으로 리소스가 다운로드 되어야 함을 명시
                 .body(resource);
-
     }
 }
