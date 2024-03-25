@@ -28,7 +28,7 @@ public class FileStore {
      * 파일 저장
      * @return savedFilename: UUID 기반 파일명
      */
-    public String savedFile(Optional<MultipartFile> multipartFile) throws CustomException {
+    public String savedFile(Optional<MultipartFile> multipartFile) throws IOException {
 
         // 1. 파일이 없다면 null 반환
         if (!multipartFile.isPresent()) {
@@ -46,9 +46,9 @@ public class FileStore {
                 Files.createDirectories(Paths.get(fileDir));
             }catch (IOException e){
                 System.out.println("e = " + e);
-                throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
+                throw new IOException("");
             }
-            System.out.println("폴더가 생성되었습니다.");
+            System.out.println("경로 파일 생성에 실패했습니다.");
         }
 
         // 3. 로컬 파일 저장
@@ -56,7 +56,7 @@ public class FileStore {
             multipartFile.get().transferTo(new File(this.getFullPath(savedFilename)));
         }catch (IOException e){
             System.out.println("e = " + e);
-            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
+            throw new IOException("디렉토리 저장에 실패했습니다.");
         }
         return savedFilename;
     }

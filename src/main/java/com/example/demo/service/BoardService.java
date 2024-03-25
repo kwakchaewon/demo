@@ -70,7 +70,7 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardDto updateBoard(Board board, BoardUpdateForm boardUpdateForm) throws CustomException {
+    public BoardDto updateBoard(Board board, BoardUpdateForm boardUpdateForm) throws CustomException, IOException {
 
         // 1. 원본 파일이 변경되지않았다면
         // 제목 & 내용의 변경만을 저장
@@ -105,8 +105,8 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws CustomException {
-        if (boardCreateForm.getFile().isPresent()) {
+    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws CustomException, IOException {
+        if (boardCreateForm.isFileExisted()) {
             // 1. 파일 존재시 경로에 파일 저장
             String savedFilename = fileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명
             Board board = boardCreateForm.toEntityWithFile(member, savedFilename);

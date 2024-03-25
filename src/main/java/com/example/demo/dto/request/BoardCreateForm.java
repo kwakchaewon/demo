@@ -51,4 +51,16 @@ public class BoardCreateForm {
                 .build();
         return board;
     }
+
+    public boolean isValid(){
+        if(this.getTitle().trim().isEmpty() || this.getContents().trim().isEmpty()){
+            return false;
+        }
+        else return true;
+    }
+
+    public boolean isFileExisted(){
+        return this.getFile().isPresent();
+    }
+
 }

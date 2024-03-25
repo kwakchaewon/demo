@@ -47,17 +47,12 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 public class BoardController {
-
-    @Value("${jwt.secret_access}")
-    private String secret_access;
     @Autowired
     private BoardService boardService;
     @Autowired
     private MemberService memberService;
     @Autowired
     private CommentService commentService;
-    @Autowired
-    private JWTUtil jwtUtil;
 
     /**
      * 페이징 기반 게시판 목록
@@ -78,13 +73,14 @@ public class BoardController {
      */
     @PostMapping(value = "")
     public BoardDto createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
-                                    Authentication authentication) throws CustomException {
+                                    Authentication authentication) throws CustomException, IOException {
 
-        // 1. 빈 제목, 내용 유효성 검사
-        if (boardCreateForm.getTitle().trim().isEmpty() || boardCreateForm.getContents().trim().isEmpty()) {
+        // 1. 유효성 검사 (빈 제목, 빈 내용)
+        if (boardCreateForm.isValid()) {
             throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
         }
 
+        // 2. 유효성 검사 통과시
         else {
             String _userId = authentication.getName();
             Member _member = this.memberService.getMemberByUserId(_userId);

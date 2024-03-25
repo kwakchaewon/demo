@@ -18,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,14 +75,10 @@ public class MemberService {
         }
     }
 
-    public Member getMemberByUserId(String userId) throws CustomException {
-        Optional<Member> _member = this.memberRepository.findByUserId(userId);
-
-        if (_member.isPresent()) {
-            return _member.get();
-        } else {
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.USER_INVALID);
-        }
+    public Member getMemberByUserId(String userId) {
+        Member _member = this.memberRepository.findByUserId(userId)
+                .orElseThrow(()-> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        return _member;
     }
 
     @Transactional
