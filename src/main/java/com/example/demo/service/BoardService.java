@@ -43,22 +43,18 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteBoardById(Long id) throws CustomException {
-
-        // 1. 게시글 조회 실패시 NOT_FOUND 반환
-        Board board = boardRepository.findById(id).
-                orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
-
-        // 2. 파일 조회 실패시 NOT_FOUND 반환
-        if (board.getSavedFile() != null) {
-            fileStore.deleteFile(board.getSavedFile());
+    public void deleteBoardById(BoardDto boardDto) {
+        // 2. 파일 삭제 로직 실패시 NOT_FOUND 반환
+        if (boardDto.getSavedFile() != null) {
+            fileStore.deleteFile(boardDto.getSavedFile());
         }
 
+        // 3. 게시글 삭제
         try {
-            this.boardRepository.delete(board);
+            this.boardRepository.deleteById(boardDto.getId());
         } catch (Exception e) {
             System.out.println("e = " + e);
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
+            throw new RuntimeException("에러가 발생 했습니다: " + e);
         }
     }
 

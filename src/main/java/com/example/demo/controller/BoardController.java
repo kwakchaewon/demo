@@ -132,20 +132,22 @@ public class BoardController {
 
     /**
      * 게시글 삭제
-     * 게시글 부재시 BOARD_NOTFOUND
-     * 삭제 권한 검증 실패시 403
+     * 
+     * @param id: 게시글 id
+     * @param authentication: 인증 정보
+     * @throws ResponseStatusException: 게시글 부재, AccessDeniedException: 삭제 권한 없음
      */
     @DeleteMapping("/{id}")
-    public void deleteBoard(@PathVariable("id") Long id, Authentication authentication) throws CustomException {
-
-        // 1. Board 추출 (실패시 404 반환)
-        Board board = this.boardService.getBoard(id);
+    public void deleteBoard(@PathVariable("id") Long id, Authentication authentication) {
+        // 1. Board 추출 (실패시, 404 반환)
+        BoardDto boardDto = boardService.findBoardById(id);
 
         // 2. 삭제 권한 검증: 작성자 or ADMIN or SUPERVISOR
-        if (SecurityUtils.isWriter(authentication, board) || SecurityUtils.isAdmin(authentication) || SecurityUtils.isSupervisor(authentication)) {
-            boardService.deleteBoardById(id);
+        if (SecurityUtils.isWriter2(authentication, boardDto) || SecurityUtils.isAdminOrSuper(authentication)) {
+            boardService.deleteBoardById(boardDto);
         }
-        // 권한 없을 경우
+
+        // 3. 권한 없을 경우 403
         else {
             throw new AccessDeniedException("삭제 권한이 없습니다."); // 403
         }

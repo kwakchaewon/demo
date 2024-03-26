@@ -76,13 +76,9 @@ public class FileStore {
                 ext.equals("bmp") || ext.equals("tiff");
     }
 
-    public void deleteFile(String savedFileName) throws CustomException {
+    public void deleteFile(String savedFileName) {
         File file = new File(this.getFullPath(savedFileName));
-        try {
-            file.delete();
-        } catch (Exception e) {
-            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_NOTFOUND);
-        }
+        boolean delete = file.delete();
     }
 
 }
