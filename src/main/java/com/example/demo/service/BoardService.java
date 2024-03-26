@@ -126,7 +126,6 @@ public class BoardService {
     public Board getBoard(Long id) {
 
         Board _board = this.boardRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
-
         return _board;
     }
 

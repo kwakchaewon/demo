@@ -70,4 +70,10 @@ public class Comment {
         this.contents =  commentCreateForm.getContents();
         this.updatedAt = LocalDateTime.now();
     }
+
+//    public Comment (String contents, Member member, Board board){
+//        this.contents = contents;
+//        this.member = member;
+//        this.board = board;
+//    }
 }
