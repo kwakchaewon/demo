@@ -1,4 +1,5 @@
 package com.example.demo.util;
+
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,17 +20,19 @@ import java.util.UUID;
  */
 @Component
 public class FileStore {
-    private final String fileDir = System.getProperty("user.dir") + "/files";
+    private static final String fileDir = System.getProperty("user.dir") + "/files";
 
-    public String getFullPath(String filename) {
+    // 파일 전체 디렉토리 리턴
+    public static String getFullPath(String filename) {
         return fileDir + "/" + filename;
     }
 
     /**
      * 파일 저장
+     *
      * @return savedFilename: UUID 기반 파일명
      */
-    public String savedFile(Optional<MultipartFile> multipartFile) throws IOException {
+    public static String savedFile(Optional<MultipartFile> multipartFile) throws IOException {
 
         // 1. 파일이 없다면 null 반환
         if (!multipartFile.isPresent()) {
@@ -38,13 +42,13 @@ public class FileStore {
         // originalFilename: 원본 파일명
         // savedFilename: UUID 기반 파일명
         String originalFilename = multipartFile.get().getOriginalFilename();
-        String savedFilename = this.getSavedFileName(originalFilename);
+        String savedFilename = getSavedFileName(Objects.requireNonNull(originalFilename));
 
         // 2. 저장 경로 폴더 생성
         if (!Files.exists(Paths.get(fileDir))) {
             try {
                 Files.createDirectories(Paths.get(fileDir));
-            }catch (IOException e){
+            } catch (IOException e) {
                 System.out.println("e = " + e);
                 throw new IOException("");
             }
@@ -53,22 +57,22 @@ public class FileStore {
 
         // 3. 로컬 파일 저장
         try {
-            multipartFile.get().transferTo(new File(this.getFullPath(savedFilename)));
-        }catch (IOException e){
+            multipartFile.get().transferTo(new File(getFullPath(savedFilename)));
+        } catch (IOException e) {
             System.out.println("e = " + e);
             throw new IOException("디렉토리 저장에 실패했습니다.");
         }
         return savedFilename;
     }
 
-    private String getSavedFileName(String originalFilename) {
+    private static String getSavedFileName(String originalFilename) {
         int pos = originalFilename.lastIndexOf(".");
         String ext = originalFilename.substring(pos + 1);
         return UUID.randomUUID() + "." + ext;
     }
 
     // 이미지 파일 여부 확인 메서드
-    public boolean isImage(String filePath) {
+    public static boolean isImage(String filePath) {
         String ext = filePath.substring(filePath.lastIndexOf(".") + 1).toLowerCase();
 
         return ext.equals("jpg") || ext.equals("jpeg") ||
@@ -76,8 +80,8 @@ public class FileStore {
                 ext.equals("bmp") || ext.equals("tiff");
     }
 
-    public void deleteFile(String savedFileName) {
-        File file = new File(this.getFullPath(savedFileName));
+    public static void deleteFile(String savedFileName) {
+        File file = new File(getFullPath(savedFileName));
         boolean delete = file.delete();
     }
 

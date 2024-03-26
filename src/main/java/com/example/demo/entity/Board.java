@@ -18,7 +18,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class Board {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 200, nullable = false)
@@ -47,7 +48,7 @@ public class Board {
     @Column
     private String savedFile;
 
-    public void updateTitleAndContents(BoardUpdateForm boardUpdateForm){
+    public void updateTitleAndContents(BoardUpdateForm boardUpdateForm) {
         this.title = boardUpdateForm.getTitle();
         this.contents = boardUpdateForm.getContents();
         this.updatedAt = LocalDateTime.now();
@@ -76,20 +77,31 @@ public class Board {
                 '}';
     }
 
-    public BoardDto of(){
+    public BoardDto of() {
         BoardDto boardDto = BoardDto.builder()
                 .id(this.getId())
                 .title(this.getTitle())
                 .contents(this.getContents())
                 .createdAt(this.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")))
                 .originalFile(this.getOriginalFile())
+                .memberId(this.getMember().getUserId())
 //                .savedFile(this.getSavedFile())
                 .build();
 
-        if (updatedAt!=null){
+        if (updatedAt != null) {
             boardDto.setUpdatedAt(this.updatedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm")));
         }
 
         return boardDto;
+    }
+
+    public void resetFile() {
+        this.setSavedFile(null);
+        this.setOriginalFile(null);
+    }
+
+    public void updateFile(String originalFile, String savedFile) {
+        this.originalFile = originalFile;
+        this.savedFile = savedFile;
     }
 }

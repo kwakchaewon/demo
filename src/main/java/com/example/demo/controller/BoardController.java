@@ -70,7 +70,7 @@ public class BoardController {
      * 게시글 등록
      *
      * @param boardCreateForm: 게시글 등록 폼
-     * @param authentication: 인증 정보
+     * @param authentication:  인증 정보
      * @return BoardDto: 등록 게시글 정보
      * @throws IOException:파일입출력 예외, IllegalArgumentException: 빈칸 유효성 검사, UsernameNotFoundException: 사용자 인증 실패
      */
@@ -112,7 +112,7 @@ public class BoardController {
      * @param id: 게시글 id
      * @return Resource: 이미지 바이너리 파일
      * @throws CustomException
-     * @throws IOException: 파일 입출력, ResponseStatusException: 게시글 부재, FileNotFoundException: 이미지 파일 부재, 파일 부재
+     * @throws IOException:    파일 입출력, ResponseStatusException: 게시글 부재, FileNotFoundException: 이미지 파일 부재, 파일 부재
      */
     @GetMapping("/{id}/image")
     public Resource detailBoardImage(@PathVariable("id") Long id) throws IOException {
@@ -132,18 +132,18 @@ public class BoardController {
 
     /**
      * 게시글 삭제
-     * 
-     * @param id: 게시글 id
+     *
+     * @param id:             게시글 id
      * @param authentication: 인증 정보
      * @throws ResponseStatusException: 게시글 부재, AccessDeniedException: 삭제 권한 없음
      */
     @DeleteMapping("/{id}")
     public void deleteBoard(@PathVariable("id") Long id, Authentication authentication) {
-        // 1. Board 추출 (실패시, 404 반환)
+        // 1. 게시글 추출 (실패시, 404 반환)
         BoardDto boardDto = boardService.findBoardById(id);
 
         // 2. 삭제 권한 검증: 작성자 or ADMIN or SUPERVISOR
-        if (SecurityUtils.isWriter2(authentication, boardDto) || SecurityUtils.isAdminOrSuper(authentication)) {
+        if (SecurityUtils.isWriter(authentication, boardDto) || SecurityUtils.isAdminOrSuper(authentication)) {
             boardService.deleteBoardById(boardDto);
         }
 
@@ -158,23 +158,20 @@ public class BoardController {
      * 게시글 부재시 BOARD_NOTFOUND
      * 삭제 권한 검증 실패시 NO_AUTHORIZATION
      */
+
+    /**
+     * @param id:              게시글 id
+     * @param boardUpdateForm: 수정 폼
+     * @param authentication:  인증 객체
+     * @return
+     * @throws IOException: 파일입출력, AccessDeniedException: 수정 권한 없음,
+     */
     @PutMapping("/{id}")
     public BoardDto updateBoard(@PathVariable("id") Long id,
                                 @ModelAttribute BoardUpdateForm boardUpdateForm,
-                                Authentication authentication) throws CustomException, IOException {
+                                Authentication authentication) throws IOException {
 
-        // 1. 게시글 추출 (실패시 404 반환)
-        Board board = boardService.getBoard(id);
-
-        // 2. 수정 권한 검증 (실패시 403 반환)
-        if (!SecurityUtils.isWriter(authentication, board)) {
-            throw new AccessDeniedException("수정 권한이 없습니다.");
-        }
-        // 3. 게시글 수정 및 200 반환
-        else {
-            BoardDto updatedBoard = boardService.updateBoard(board, boardUpdateForm);
-            return updatedBoard;
-        }
+        return boardService.updateBoard(id, boardUpdateForm, authentication);
     }
 
     /**
@@ -184,12 +181,12 @@ public class BoardController {
      */
     @GetMapping("/{id}/check")
     public void checkUpdateAuth(@PathVariable("id") Long id,
-                                Authentication authentication) throws CustomException {
+                                Authentication authentication) {
         // 1. Board 추출 (실패시 404 반환)
         Board board = this.boardService.getBoard(id);
 
-        if (SecurityUtils.isWriter(authentication, board)) {
-            // 2. 수정 권한 검증 (실패시 403 반환)
+        // 2. 수정 권한 검증 (실패시 403 반환)
+        if (!SecurityUtils.isWriter(authentication, board.of())) {
             throw new AccessDeniedException("수정 권한이 없습니다."); // 403
         }
     }

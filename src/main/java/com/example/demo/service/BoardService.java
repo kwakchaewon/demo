@@ -9,6 +9,7 @@ import com.example.demo.entity.Member;
 import com.example.demo.util.FileStore;
 import com.example.demo.util.Pagination;
 import com.example.demo.repository.BoardRepository;
+import com.example.demo.util.SecurityUtils;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -31,8 +34,6 @@ import java.util.*;
 @Service
 public class BoardService {
     private final BoardRepository boardRepository;
-    @Autowired
-    private FileStore fileStore;
 
     public BoardService(BoardRepository boardRepository) {
         this.boardRepository = boardRepository;
@@ -46,7 +47,7 @@ public class BoardService {
     public void deleteBoardById(BoardDto boardDto) {
         // 2. 파일 삭제 로직 실패시 NOT_FOUND 반환
         if (boardDto.getSavedFile() != null) {
-            fileStore.deleteFile(boardDto.getSavedFile());
+            FileStore.deleteFile(boardDto.getSavedFile());
         }
 
         // 3. 게시글 삭제
@@ -59,36 +60,36 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardDto updateBoard(Board board, BoardUpdateForm boardUpdateForm) throws CustomException, IOException {
+    public BoardDto updateBoard(Long id, BoardUpdateForm boardUpdateForm, Authentication authentication) throws IOException {
 
-        // 1. 원본 파일이 변경되지않았다면
-        // 제목 & 내용의 변경만을 저장
-        if (!boardUpdateForm.isIsupdate()) {
-            board.updateTitleAndContents(boardUpdateForm);
-            return boardRepository.save(board).of();
+        // 1. 게시글 추출
+        Board board = this.getBoard(id);
+
+        // 2. 수정 권한 검증
+        if (!SecurityUtils.isWriter(authentication, board.of())) {
+            throw new AccessDeniedException("수정 권한이 없습니다.");
         }
 
-        // 2. 원본 파일 변경시
+        // 3. 검증 성공시 파일단 수정
         else {
-            fileStore.deleteFile(board.getSavedFile()); // 1. 디렉토리 내 게시글 파일 제거
+            // 원본 파일이 변경됐다면 파일 변경 로직 실행
+            if (boardUpdateForm.isIsupdate()) {
+                FileStore.deleteFile(board.getSavedFile()); // 1. 디렉토리 내 게시글 파일 제거
 
-            // 2.1 원본 파일이 삭제됐다면 :
-            // 원본 파일 삭제 및 DB 필드 null로 변경,  제목 & 내용 변경만을 저장
-            if (!boardUpdateForm.getFile().isPresent()) {
-                board.setSavedFile(null);
-                board.setOriginalFile(null);
+                // 파일 존재시 원본 파일 삭제 후 파일 새로 저장
+                if (boardUpdateForm.existFile()) {
+                    String savedFilename = FileStore.savedFile(boardUpdateForm.getFile()); // UUID 파일명 디렉토리 저장
+                    board.updateFile(boardUpdateForm.getOriginalFile(), savedFilename); // 첨부파일명 DB 업데이트
+                }
+
+                // 파일이 삭제시 원본 파일 삭제 및 DB 필드 null로 변경
+                else {
+                    board.resetFile();
+                }
             }
 
-            // 2.2 원본 파일이 변경됐을 경우:
-            // 제목 & 내용 변경 저장
-            // 원본 파일 삭제 후 파일 저장
-            else {
-                String savedFilename = fileStore.savedFile(boardUpdateForm.getFile()); // UUID 파일명
-                board.setOriginalFile(boardUpdateForm.getFile().get().getOriginalFilename());
-                board.setSavedFile(savedFilename);
-            }
-
-            board.updateTitleAndContents(boardUpdateForm); // 게시글과 내용 변경
+            // 4. 제목 + 내용 update
+            board.updateTitleAndContents(boardUpdateForm);
             return boardRepository.save(board).of();
         }
     }
@@ -97,7 +98,7 @@ public class BoardService {
     public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
         if (boardCreateForm.isFileExisted()) {
             // 1. 파일 존재시 경로에 파일 저장
-            String savedFilename = fileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명
+            String savedFilename = FileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명
             Board board = boardCreateForm.toEntityWithFile(member, savedFilename);
             return boardRepository.save(board).of();
 
@@ -122,21 +123,17 @@ public class BoardService {
         return new PagingResponse<>(boards, pagination);
     }
 
-    public Board getBoard(Long id) throws CustomException {
+    public Board getBoard(Long id) {
 
-        Optional<Board> _board = this.boardRepository.findById(id);
+        Board _board = this.boardRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
 
-        if (_board.isPresent()) {
-            return _board.get();
-        } else {
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND);
-        }
+        return _board;
     }
 
     public Resource getImage(BoardDto boardDto) throws IOException {
-        String strPath = fileStore.getFullPath(boardDto.getSavedFile());
+        String strPath = FileStore.getFullPath(boardDto.getSavedFile());
 
-        if (fileStore.isImage(strPath)) {
+        if (FileStore.isImage(strPath)) {
             Path filePath = Paths.get(strPath);
 
             // 2.1 이미지 파일일 경우, 이미지 파일 추출시도 (실패시, 500 반환)
@@ -155,7 +152,7 @@ public class BoardService {
 
     public Resource getDownloadResource(BoardDto boardDto) throws CustomException {
         String savedFileName = boardDto.getSavedFile();
-        Path filePath = Paths.get(fileStore.getFullPath(savedFileName));
+        Path filePath = Paths.get(FileStore.getFullPath(savedFileName));
 
         try {
             Resource resource = new InputStreamResource(Files.newInputStream(filePath));
@@ -164,30 +161,4 @@ public class BoardService {
             throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
         }
     }
-
-//    public Specification<Board> search(String keyword) {
-//        return new Specification<Board>() {
-//            private static final long serialVersionUID = 1L;
-//            @Override
-//            public Predicate toPredicate(Root<Board> b, CriteriaQuery<?> query, CriteriaBuilder cb) {
-//                query.distinct(true);  // 중복 제거
-//                Join<Board, Member> u1 = b.join("member", JoinType.LEFT);
-//                Join<Board, Comment> a = b.join("comments", JoinType.LEFT);
-//                Join<Comment, Member> u2 = a.join("member", JoinType.LEFT);
-//                return cb.or(cb.like(b.get("title"), "%" + keyword + "%"), // 제목
-//                        cb.like(b.get("contents"), "%" + keyword + "%"),      // 내용
-//                        cb.like(u1.get("userId"), "%" + keyword + "%"),    // 게시글 작성자
-//                        cb.like(a.get("contents"), "%" + keyword + "%"),      // 답변 내용
-//                        cb.like(u2.get("userId"), "%" + keyword + "%"));   // 답변 작성자
-//            }
-//        };
-//    }
-
-//    public Page<BoardDto> getList(int page, String kwargs){
-//        List<Sort.Order> sorts = new ArrayList<>();
-//        sorts.add(Sort.Order.desc("createdAt"));
-//        Pageable pageable = PageRequest.of(page, 10, Sort.by(sorts));
-//        Specification<Board> spec = search(kwargs);
-//        return this.boardRepository.findAllBoardDtoBy(spec, pageable);
-//    }
 }

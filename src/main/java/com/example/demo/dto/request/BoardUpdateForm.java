@@ -15,4 +15,14 @@ public class BoardUpdateForm {
     private String contents;
     private Optional<MultipartFile> file = Optional.empty();
     private boolean isupdate;
+
+    public boolean existFile() {
+        if (this.getFile().isPresent()) {
+            return true;
+        } else return false;
+    }
+
+    public String getOriginalFile() {
+        return this.getFile().get().getOriginalFilename();
+    }
 }
