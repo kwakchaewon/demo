@@ -78,19 +78,20 @@ public class BoardController {
     public BoardDto createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
                                     Authentication authentication) throws IOException {
 
-        // 1. 유효성 검사 (빈 제목, 빈 내용)
-        if (!boardCreateForm.isValid()) {
-            throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
-        }
-
-        // 2. 유효성 검사 통과시
-        else {
+        // 1. 유효성 검사 통과시 게시글 저장 로직 실행
+        if (boardCreateForm.isValid()){
             String _userId = authentication.getName();
             Member _member = this.memberService.getMemberByUserId(_userId);
 
             // 3. 게시글 저장 및 BoardDto 추출
             return this.boardService.createBoard(boardCreateForm, _member);
         }
+
+        // 2. 이외 예외처리
+        else {
+            throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
+        }
+
     }
 
     /**
@@ -154,12 +155,6 @@ public class BoardController {
     }
 
     /**
-     * 게시글 수정
-     * 게시글 부재시 BOARD_NOTFOUND
-     * 삭제 권한 검증 실패시 NO_AUTHORIZATION
-     */
-
-    /**
      * @param id:              게시글 id
      * @param boardUpdateForm: 수정 폼
      * @param authentication:  인증 객체
@@ -182,10 +177,11 @@ public class BoardController {
     @GetMapping("/{id}/check")
     public void checkUpdateAuth(@PathVariable("id") Long id,
                                 Authentication authentication) {
+
         // 1. Board 추출 (실패시 404 반환)
         Board board = this.boardService.getBoard(id);
 
-        // 2. 수정 권한 검증 (실패시 403 반환)
+        // 2. 수정 권한 검증 실패시 403 반환
         if (!SecurityUtils.isWriter(authentication, board.of())) {
             throw new AccessDeniedException("수정 권한이 없습니다."); // 403
         }
@@ -197,11 +193,8 @@ public class BoardController {
      */
     @GetMapping("/{id}/comment")
     public List<CommentDto> commentList(@PathVariable("id") Long id) throws CustomException {
-        // 1. boardId 로 해당 게시글 댓글 조회 (실패시 404 반환)
-        List<CommentDto> commentDtoList = commentService.getCommentList(id);
-
-        // 2. 댓글 조회 성공시 200 반환
-        return commentDtoList;
+        // 댓글 조회 로직
+        return commentService.getCommentList(id);
     }
 
     /**
