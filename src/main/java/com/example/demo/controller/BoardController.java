@@ -67,7 +67,7 @@ public class BoardController {
 
     /**
      * 게시글 등록
-
+     * <p>
      * 빈 제목, 내용 유효성 검사. 실패시 ONLY_BLANk 반환
      * 파일 존재시 파일 + 게시글 저장. IOException 발생 시, FILE_IOFAILED 반환
      * 파일 부재시, 게시글 만 저장
@@ -107,7 +107,7 @@ public class BoardController {
      * 게시글 조회 후, 첨부파일 존재시 이미지 Resource 반환. IOException 발생 시, FILE_IOFAILED 반환
      */
     @GetMapping("/{id}/image")
-    public Resource detailBoardImage(@PathVariable("id") Long id) throws CustomException, FileNotFoundException {
+    public Resource detailBoardImage(@PathVariable("id") Long id) throws CustomException, IOException {
         // 1. Board 추출 (실패시, 404 반환)
         BoardDto boardDto = boardService.findBoardById(id);
 
@@ -118,7 +118,7 @@ public class BoardController {
 
         // 3. 그외 반환
         else {
-            throw new FileNotFoundException("이미지를 찾을 수 없습니다.");
+            throw new FileNotFoundException("파일이 존재하지 않습니다.");
         }
     }
 

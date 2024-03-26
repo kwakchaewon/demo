@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -136,7 +137,7 @@ public class BoardService {
         }
     }
 
-    public Resource getImage(BoardDto boardDto) throws CustomException {
+    public Resource getImage(BoardDto boardDto) throws CustomException, IOException {
         String strPath = fileStore.getFullPath(boardDto.getSavedFile());
 
         if (fileStore.isImage(strPath)) {
@@ -144,16 +145,15 @@ public class BoardService {
 
             // 2.1 이미지 파일일 경우, 이미지 파일 추출시도 (실패시, 500 반환)
             try {
-                Resource resource = new InputStreamResource(Files.newInputStream(filePath));
-                return resource;
+                return new InputStreamResource(Files.newInputStream(filePath));
             } catch (IOException e) {
                 System.out.println("error = " + e);
-                throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
+                throw new IOException("이미지 파일 추출에 실패했습니다.");
             }
 
             // 2.1 이미지 파일이 아닐 경우 404 반환
         } else {
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.IMAGE_NOTFOUND);
+            throw new FileNotFoundException("이미지 파일이 존재하지 않습니다.");
         }
     }
 
