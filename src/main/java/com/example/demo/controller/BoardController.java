@@ -27,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -79,7 +80,7 @@ public class BoardController {
                                     Authentication authentication) throws IOException {
 
         // 1. 유효성 검사 통과시 게시글 저장 로직 실행
-        if (boardCreateForm.isValid()){
+        if (boardCreateForm.isValid()) {
             String _userId = authentication.getName();
             Member _member = this.memberService.getMemberByUserId(_userId);
 
@@ -156,7 +157,7 @@ public class BoardController {
 
     /**
      * 게시글 수정
-     * 
+     *
      * @param id:              게시글 id
      * @param boardUpdateForm: 수정 폼
      * @param authentication:  인증 객체
@@ -170,13 +171,13 @@ public class BoardController {
 
         return boardService.updateBoard(id, boardUpdateForm, authentication);
     }
-    
+
     /**
      * 게시글 수정 권한 검증
      *
-     * @param id: 게시글 id
+     * @param id:             게시글 id
      * @param authentication: 인증객체
-     * ResponseStatusException: 게시글 부재, AccessDeniedException: 수정 권한 없음
+     *                        ResponseStatusException: 게시글 부재, AccessDeniedException: 수정 권한 없음
      */
     @GetMapping("/{id}/check")
     public void checkUpdateAuth(@PathVariable("id") Long id,
@@ -206,29 +207,25 @@ public class BoardController {
 
     /**
      * 댓글 작성
-     * 게시글 부재시 BOARD_NOTFOUND 반환
-     * 빈칸 입력시 ONLY_BLANk 반환
+     *
+     * @param id
+     * @param commentCreateForm
+     * @param authentication
+     * @return
+     * @throws UsernameNotFoundException: 회원 부재, ResponseStatusException: 게시글 부재
      */
     @PostMapping("/{id}/comment")
     public CommentDto createComment(@PathVariable("id") Long id,
                                     @RequestBody CommentCreateForm commentCreateForm,
-                                    Authentication authentication) throws CustomException {
-        // 1. userId 추출
-        String _userId = authentication.getName();
-
-        // 2. Member 추출 (실패시 401 반환)
-        Member member = memberService.getMemberByUserId(_userId);
-
-        // 3. Board 추출 (실패시 404 반환)
-        Board board = this.boardService.getBoard(id);
-
-        // 4. 빈 내용 유효성 검사 (실패시 400 반환)
-        if (commentCreateForm.getContents().trim().isEmpty()) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.ONLY_BLANk);
-        } else {
-            // 5. 댓글 작성 성공시 200 반환
-            CommentDto commentDto = commentService.createComment(commentCreateForm, member, board);
-            return commentDto;
+                                    Authentication authentication) {
+        // 1. 빈칸 유효성 검사
+        if (commentCreateForm.isValid()) {
+            // 댓글 작성 로직
+            return commentService.createComment(id, commentCreateForm, authentication);
+        } 
+        // 2. 유효성 검사 실패
+        else {
+            throw new IllegalArgumentException("빈 내용은 등록할 수 없습니다.");
         }
     }
 

@@ -22,4 +22,10 @@ public class CommentCreateForm {
                 .build();
         return comment;
     }
+
+    public boolean isValid(){
+        return !this.getContents().trim().isEmpty();
+    }
+
+
 }

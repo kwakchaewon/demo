@@ -11,7 +11,9 @@ import com.example.demo.repository.MemberRepository;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,6 +27,8 @@ public class CommentService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
+    private final BoardService boardService;
 
     public List<CommentDto> getCommentList(Long id) {
         Board board = boardRepository.findById(id).orElseThrow(() ->
@@ -32,8 +36,10 @@ public class CommentService {
         return commentRepository.findCommentDtoByBoard(board);
     }
 
-    public CommentDto createComment(CommentCreateForm commentCreateForm, Member member, Board board) {
-        Comment comment = commentCreateForm.toEntity(member, board);
+    public CommentDto createComment(Long id, CommentCreateForm commentCreateForm, Authentication authentication) {
+        Member member = memberService.getMemberByUserId(authentication.getName());
+        Board board = boardService.getBoard(id);
+        Comment comment = new Comment(commentCreateForm.getContents(), member, board);
         return commentRepository.save(comment).of();
     }
 
