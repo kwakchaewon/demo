@@ -87,7 +87,7 @@ public class BoardController {
             return this.boardService.createBoard(boardCreateForm, _member);
         }
 
-        // 2. 이외 예외처리
+        // 2. 유효성 검사 예외처리
         else {
             throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
         }
@@ -160,7 +160,7 @@ public class BoardController {
      * @param id:              게시글 id
      * @param boardUpdateForm: 수정 폼
      * @param authentication:  인증 객체
-     * @return
+     * @return BoardDto: 게시글 정보
      * @throws IOException: 파일입출력, AccessDeniedException: 수정 권한 없음,
      */
     @PutMapping("/{id}")
@@ -192,8 +192,11 @@ public class BoardController {
     }
 
     /**
-     * 상세 게시판 댓글 조회
-     * 게시글 부재시 BOARD_NOTFOUND 반환
+     * 게시글 댓글 조회
+     *
+     * @param id 게시글 id
+     * @return List<CommentDto> 댓글 리스트
+     * @throws ResponseStatusException: 게시글 부재
      */
     @GetMapping("/{id}/comment")
     public List<CommentDto> commentList(@PathVariable("id") Long id) throws CustomException {

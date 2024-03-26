@@ -13,6 +13,7 @@ import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,9 +26,9 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
 
-    public List<CommentDto> getCommentList(Long id) throws CustomException {
+    public List<CommentDto> getCommentList(Long id) {
         Board board = boardRepository.findById(id).orElseThrow(() ->
-                new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.BOARD_NOTFOUND));
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
         return commentRepository.findCommentDtoByBoard(board);
     }
 
