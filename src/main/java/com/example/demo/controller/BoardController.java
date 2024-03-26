@@ -28,6 +28,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -67,10 +68,11 @@ public class BoardController {
 
     /**
      * 게시글 등록
-     * <p>
-     * 빈 제목, 내용 유효성 검사. 실패시 ONLY_BLANk 반환
-     * 파일 존재시 파일 + 게시글 저장. IOException 발생 시, FILE_IOFAILED 반환
-     * 파일 부재시, 게시글 만 저장
+     *
+     * @param boardCreateForm: 게시글 등록 폼
+     * @param authentication: 인증 정보
+     * @return BoardDto: 등록 게시글 정보
+     * @throws IOException:파일입출력 예외, IllegalArgumentException: 빈칸 유효성 검사, UsernameNotFoundException: 사용자 인증 실패
      */
     @PostMapping(value = "")
     public BoardDto createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
@@ -93,21 +95,27 @@ public class BoardController {
 
     /**
      * 게시글 상세
-     * 게시글 부재시, BOARD_NOTFOUND 반환
+     *
+     * @param id: 게시글 id
+     * @return BoardDto: 게시글 정보
+     * @throws ResponseStatusException: 게시글 부재
      */
     @GetMapping("/{id}")
-    public BoardDto detailBoard(@PathVariable("id") Long id) throws CustomException {
+    public BoardDto detailBoard(@PathVariable("id") Long id) {
         // 1. 상세 게시글 추출
         return boardService.findBoardById(id);
     }
 
     /**
-     * 게시판 상세 이미지
-     * 게시글 부재시, BOARD_NOTFOUND 반환
-     * 게시글 조회 후, 첨부파일 존재시 이미지 Resource 반환. IOException 발생 시, FILE_IOFAILED 반환
+     * 게시글 상세 이미지
+     *
+     * @param id: 게시글 id
+     * @return Resource: 이미지 바이너리 파일
+     * @throws CustomException
+     * @throws IOException: 파일 입출력, ResponseStatusException: 게시글 부재, FileNotFoundException: 이미지 파일 부재, 파일 부재
      */
     @GetMapping("/{id}/image")
-    public Resource detailBoardImage(@PathVariable("id") Long id) throws CustomException, IOException {
+    public Resource detailBoardImage(@PathVariable("id") Long id) throws IOException {
         // 1. Board 추출 (실패시, 404 반환)
         BoardDto boardDto = boardService.findBoardById(id);
 

@@ -137,7 +137,7 @@ public class BoardService {
         }
     }
 
-    public Resource getImage(BoardDto boardDto) throws CustomException, IOException {
+    public Resource getImage(BoardDto boardDto) throws IOException {
         String strPath = fileStore.getFullPath(boardDto.getSavedFile());
 
         if (fileStore.isImage(strPath)) {
