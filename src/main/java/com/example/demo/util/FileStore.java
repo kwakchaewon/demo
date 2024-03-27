@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -83,6 +85,19 @@ public class FileStore {
     public static void deleteFile(String savedFileName) {
         File file = new File(getFullPath(savedFileName));
         boolean delete = file.delete();
+    }
+
+    public static String getEncodedFile(String originalFile) throws UnsupportedEncodingException {
+        try {
+            return URLEncoder.encode(originalFile, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new UnsupportedEncodingException("파일 인코딩에 실패했습니다.");
+        }
+    }
+
+    public static String getContentDisposition(String originalFile) throws UnsupportedEncodingException {
+        String encodedFile = getEncodedFile(originalFile);
+        return "attachment; filename=\"" + encodedFile + "\"";
     }
 
 }

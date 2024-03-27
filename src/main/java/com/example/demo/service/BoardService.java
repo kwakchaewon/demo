@@ -149,15 +149,17 @@ public class BoardService {
         }
     }
 
-    public Resource getDownloadResource(BoardDto boardDto) throws CustomException {
+    public Resource extractResource(BoardDto boardDto) throws IOException {
+        
+        // dto 로부터 uuid 기반 파일명, 파일 경로 추출
         String savedFileName = boardDto.getSavedFile();
         Path filePath = Paths.get(FileStore.getFullPath(savedFileName));
 
+        // 로컬로부터 파일 추출
         try {
-            Resource resource = new InputStreamResource(Files.newInputStream(filePath));
-            return resource;
+            return new InputStreamResource(Files.newInputStream(filePath));
         } catch (IOException e) {
-            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.ExceptionClass.FILE_IOFAILED);
+            throw new IOException("첨부파일 다운로드에 실패했습니다.");
         }
     }
 }

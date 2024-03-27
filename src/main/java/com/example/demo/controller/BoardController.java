@@ -6,38 +6,31 @@ import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.dto.response.PagingResponse;
-import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.MemberService;
-import com.example.demo.util.JWTUtil;
+import com.example.demo.util.FileStore;
+
 import com.example.demo.util.SecurityUtils;
-import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 게시글 관련 컨트롤러
@@ -200,7 +193,7 @@ public class BoardController {
      * @throws ResponseStatusException: 게시글 부재
      */
     @GetMapping("/{id}/comment")
-    public List<CommentDto> commentList(@PathVariable("id") Long id) throws CustomException {
+    public List<CommentDto> commentList(@PathVariable("id") Long id) {
         // 댓글 조회 로직
         return commentService.getCommentList(id);
     }
@@ -208,10 +201,10 @@ public class BoardController {
     /**
      * 댓글 작성
      *
-     * @param id
-     * @param commentCreateForm
-     * @param authentication
-     * @return
+     * @param id:                게시글 id
+     * @param commentCreateForm: 댓글폼
+     * @param authentication:    인증객체
+     * @return CommentDto: 댓글 객체
      * @throws UsernameNotFoundException: 회원 부재, ResponseStatusException: 게시글 부재
      */
     @PostMapping("/{id}/comment")
@@ -222,7 +215,7 @@ public class BoardController {
         if (commentCreateForm.isValid()) {
             // 댓글 작성 로직
             return commentService.createComment(id, commentCreateForm, authentication);
-        } 
+        }
         // 2. 유효성 검사 실패
         else {
             throw new IllegalArgumentException("빈 내용은 등록할 수 없습니다.");
@@ -235,22 +228,28 @@ public class BoardController {
      * 파일 추출 실패시 FILE_IOFAILED
      * 리소스 추출 후 파일명을 UTF8로 변환 후 CONTENT_DISPOSITION에 담아 반환
      */
+
+    /**
+     * 파일 다운로드
+     *
+     * @param id
+     * @return
+     * @throws ResponseStatusException:      파일 부재
+     * @throws IOException:                  파일 입출력
+     * @throws UnsupportedEncodingException: 파일 인코딩 실패
+     */
     @GetMapping("/{id}/file")
     @CrossOrigin(value = {"*"}, exposedHeaders = {"Content-Disposition"})
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long id) throws CustomException, IOException {
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long id) throws IOException {
 
         // 1. boardDto 추출 (실패시, 404 반환)
         BoardDto boardDto = boardService.findBoardById(id);
 
         // 2. Resouce 추출
-        Resource resource = boardService.getDownloadResource(boardDto);
+        Resource resource = boardService.extractResource(boardDto);
 
-        // 3. 파일명 UTF-8로 인코딩 설정 (한글 깨짐 방지)
-        // 브라우저별 encoding 방식을 다르게 해야함 (추후 수정)
-        String originalFileName = boardDto.getOriginalFile();
-        String encodedOriginalFileName = URLEncoder.encode(originalFileName, "UTF-8");
-
-        String contentDisposition = "attachment; filename=\"" + encodedOriginalFileName + "\"";
+        // 3. 파일명 UTF-8로 인코딩 설정 및 contentDisposition 추출
+        String contentDisposition = FileStore.getContentDisposition(boardDto.getOriginalFile());
 
         return ResponseEntity.ok()
 //                .contentType(MediaType.APPLICATION_OCTET_STREAM)
