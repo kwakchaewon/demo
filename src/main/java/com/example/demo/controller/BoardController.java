@@ -45,8 +45,6 @@ public class BoardController {
     @Autowired
     private BoardService boardService;
     @Autowired
-    private MemberService memberService;
-    @Autowired
     private CommentService commentService;
 
     /**
@@ -84,7 +82,6 @@ public class BoardController {
         else {
             throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
         }
-
     }
 
     /**
@@ -96,7 +93,7 @@ public class BoardController {
      */
     @GetMapping("/{id}")
     public BoardDto detailBoard(@PathVariable("id") Long id) {
-        // 1. 상세 게시글 추출
+        // 상세 게시글 추출
         return boardService.findBoardById(id);
     }
 

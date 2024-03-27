@@ -64,5 +64,5 @@ public class BoardCreateForm {
     public boolean isFileExisted(){
         return this.getFile().isPresent();
     }
-    
+
 }
