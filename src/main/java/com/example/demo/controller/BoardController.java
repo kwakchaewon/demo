@@ -8,14 +8,11 @@ import com.example.demo.dto.response.CommentDto;
 import com.example.demo.dto.response.PagingResponse;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
-import com.example.demo.service.MemberService;
 import com.example.demo.util.FileStore;
-
 import com.example.demo.util.SecurityUtils;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
