@@ -27,6 +27,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -223,17 +224,10 @@ public class BoardController {
     }
 
     /**
-     * 게시판 파일 다운로드
-     * 파일 부재시 BOARD_NOTFOUND
-     * 파일 추출 실패시 FILE_IOFAILED
-     * 리소스 추출 후 파일명을 UTF8로 변환 후 CONTENT_DISPOSITION에 담아 반환
-     */
-
-    /**
      * 파일 다운로드
      *
-     * @param id
-     * @return
+     * @param id: 게시글 id
+     * @return ResponseEntity<Resource> 파일리소스
      * @throws ResponseStatusException:      파일 부재
      * @throws IOException:                  파일 입출력
      * @throws UnsupportedEncodingException: 파일 인코딩 실패
