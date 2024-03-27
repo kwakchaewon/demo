@@ -6,7 +6,6 @@ import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.dto.response.PagingResponse;
-import com.example.demo.entity.Member;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.service.MemberService;
@@ -76,10 +75,9 @@ public class BoardController {
         // 1. 유효성 검사 통과시 게시글 저장 로직 실행
         if (boardCreateForm.isValid()) {
             String _userId = authentication.getName();
-            Member _member = this.memberService.getMemberByUserId(_userId);
 
-            // 3. 게시글 저장 및 BoardDto 추출
-            return this.boardService.createBoard(boardCreateForm, _member);
+            // 게시글 저장 및 BoardDto 추출
+            return this.boardService.createBoard(boardCreateForm, _userId);
         }
 
         // 2. 유효성 검사 예외처리

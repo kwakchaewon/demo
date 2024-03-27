@@ -12,6 +12,7 @@ import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.SecurityUtils;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -34,9 +35,11 @@ import java.util.*;
 @Service
 public class BoardService {
     private final BoardRepository boardRepository;
+    private final MemberService memberService;
 
-    public BoardService(BoardRepository boardRepository) {
+    public BoardService(BoardRepository boardRepository, MemberService memberService) {
         this.boardRepository = boardRepository;
+        this.memberService = memberService;
     }
 
     public BoardDto findBoardById(Long id) {
@@ -95,16 +98,20 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardDto createBoard(BoardCreateForm boardCreateForm, Member member) throws IOException {
+    public BoardDto createBoard(BoardCreateForm boardCreateForm, String _userId) throws IOException {
+
+        // 1. Member 추출
+        Member _member = this.memberService.getMemberByUserId(_userId);
+
+        // 2. 파일 존재시 파일 저장 로직 수행
         if (boardCreateForm.isFileExisted()) {
-            // 1. 파일 존재시 경로에 파일 저장
             String savedFilename = FileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명
-            Board board = boardCreateForm.toEntityWithFile(member, savedFilename);
+            Board board = boardCreateForm.toEntityWithFile(_member, savedFilename);
             return boardRepository.save(board).of();
 
+        // 3. 파일 부재시 게시글 저장 로직 수행
         } else {
-            // 2. 파일 부재 시 게시글 저장
-            Board board = boardCreateForm.toEntity(member);
+            Board board = boardCreateForm.toEntity(_member);
             return boardRepository.save(board).of();
         }
     }

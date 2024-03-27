@@ -2,6 +2,7 @@ package com.example.demo.dto.request;
 
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
+import com.example.demo.util.FileStore;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,5 +64,5 @@ public class BoardCreateForm {
     public boolean isFileExisted(){
         return this.getFile().isPresent();
     }
-
+    
 }
