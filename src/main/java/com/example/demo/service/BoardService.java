@@ -6,10 +6,12 @@ import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.PagingResponse;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
+import com.example.demo.repository.MemberRepository;
 import com.example.demo.util.FileStore;
 import com.example.demo.util.Pagination;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.util.SecurityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,13 +33,10 @@ import java.util.*;
 
 @Service
 public class BoardService {
-    private final BoardRepository boardRepository;
-    private final MemberService memberService;
-
-    public BoardService(BoardRepository boardRepository, MemberService memberService) {
-        this.boardRepository = boardRepository;
-        this.memberService = memberService;
-    }
+    @Autowired
+    private BoardRepository boardRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
     public BoardDto findBoardById(Long id) {
         return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
@@ -97,7 +97,7 @@ public class BoardService {
     public BoardDto createBoard(BoardCreateForm boardCreateForm, String _userId) throws IOException {
 
         // 1. Member 추출
-        Member _member = this.memberService.getMemberByUserId(_userId);
+        Member _member = this.getMemberByUserId(_userId);
 
         // 2. 파일 존재시 파일 저장 로직 수행
         if (boardCreateForm.isFileExisted()) {
@@ -164,5 +164,10 @@ public class BoardService {
         } catch (IOException e) {
             throw new IOException("첨부파일 다운로드에 실패했습니다.");
         }
+    }
+
+    public Member getMemberByUserId(String userId){
+        return this.memberRepository.findByUserId(userId)
+                .orElseThrow(()-> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
     }
 }

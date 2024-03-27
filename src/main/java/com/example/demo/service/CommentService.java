@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 public class CommentService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
-    private final MemberRepository memberRepository;
     private final MemberService memberService;
     private final BoardService boardService;
 
