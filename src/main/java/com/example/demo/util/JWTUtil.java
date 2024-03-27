@@ -18,6 +18,7 @@ import java.util.Optional;
 /**
  * jwt 토큰 관련 유틸리티 클래스
  * 디코딩, 생성, 검증, REFRESH 메서드 정의
+ * Refresh 토큰 검증시, 의존성이 주입된 repository 메서드를 호출하기때문에 @Component로 관리.
  */
 @Slf4j
 @Component
@@ -30,10 +31,10 @@ public class JWTUtil {
     @Value("${jwt.secret_refresh}")
     private String secret_refresh;
 
-    private static Date ACCESS_TIME = new Date(System.currentTimeMillis() + (3 * 60 * 60 * 1000L)); // 3시간
-    private static Date REFRESH_TIME = new Date(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000L)); // 7일
-    public static final String ACCESS_TOKEN = "ACCESS_TOKEN";
-    public static final String REFRESH_TOKEN = "REFRESH_TOKEN";
+    private Date ACCESS_TIME = new Date(System.currentTimeMillis() + (3 * 60 * 60 * 1000L)); // 3시간
+    private Date REFRESH_TIME = new Date(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000L)); // 7일
+    public final String ACCESS_TOKEN = "ACCESS_TOKEN";
+    public final String REFRESH_TOKEN = "REFRESH_TOKEN";
 
 
     /**
