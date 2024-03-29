@@ -131,7 +131,7 @@ public class BoardController {
         BoardDto boardDto = boardService.findBoardById(id);
 
         // 2. 삭제 권한 검증: 작성자 or ADMIN or SUPERVISOR
-        if (SecurityUtils.isWriter(authentication, boardDto) || SecurityUtils.isAdminOrSuper(authentication)) {
+        if (SecurityUtils.isWriter(authentication, boardDto.getMemberId()) || SecurityUtils.isAdminOrSuper(authentication)) {
             boardService.deleteBoardById(boardDto);
         }
 
@@ -173,7 +173,7 @@ public class BoardController {
         BoardDto boardDto = this.boardService.findBoardById(id);
 
         // 2. 수정 권한 검증 실패시 403 반환
-        if (!SecurityUtils.isWriter(authentication, boardDto)) {
+        if (!SecurityUtils.isWriter(authentication, boardDto.getMemberId())) {
             throw new AccessDeniedException("수정 권한이 없습니다.");
         }
     }

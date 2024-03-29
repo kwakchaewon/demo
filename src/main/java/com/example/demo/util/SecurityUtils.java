@@ -21,9 +21,9 @@ public class SecurityUtils {
         return isAdmin(authentication) || isSupervisor(authentication);
     }
 
-    public static boolean isWriter(Authentication authentication, BoardDto boardDto) {
+    public static boolean isWriter(Authentication authentication, String memberId) {
         String _userId = authentication.getName();
-        String memberId = boardDto.getMemberId();
+//        String memberId = boardDto.getMemberId();
 
         if (_userId.equals(memberId)) {
             return true;
@@ -36,6 +36,4 @@ public class SecurityUtils {
         String auth = authentication.getAuthorities().stream().findFirst().get().getAuthority();
         return auth;
     }
-
-
 }

@@ -5,6 +5,7 @@ import com.example.demo.dto.response.CommentDto;
 import com.example.demo.entity.Comment;
 import com.example.demo.service.CommentService;
 import com.example.demo.util.JWTUtil;
+import com.example.demo.util.SecurityUtils;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,20 +30,18 @@ public class CommentController {
 
     /**
      * 댓글 삭제
+     * 
+     * @param id: 댓글 id
+     * @param authentication: 인증 객체
+     * @throws CustomException
      */
     @DeleteMapping("/{id}")
-    public void deleteComment(@PathVariable("id") Long id) throws CustomException {
+    public void deleteComment(@PathVariable("id") Long id, Authentication authentication) throws CustomException {
 
-        // 1. Comment 추출 (실패시, 404 반환)
-        Comment comment = this.commentService.getComment(id);
+        CommentDto commentDto = this.commentService.findCommentById(id);
 
-        // 2. 권한 추출
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String _userId = authentication.getName();
-        String auth = authentication.getAuthorities().stream().findFirst().get().getAuthority();
-
-        // 3. 권한 검증: 작성자 or SUPERVISOR
-        if (_userId.equals(comment.getMember().getUserId()) || auth.equals("ROLE_SUPERVISOR")) {
+        // 권한 검증: 작성자
+        if (SecurityUtils.isWriter(authentication, commentDto.getMemberId())) {
             commentService.deleteCommentById(id);
         } else {
             throw new AccessDeniedException("삭제 권한이 없습니다.");

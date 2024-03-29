@@ -71,7 +71,6 @@ public class CommentService {
 
     public CommentDto findCommentById(Long id) throws CustomException {
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND));
-        CommentDto commentDto = new CommentDto(comment);
-        return commentDto;
+        return new CommentDto(comment);
     }
 }

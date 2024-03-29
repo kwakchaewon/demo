@@ -65,7 +65,7 @@ public class BoardService {
         Board board = this.getBoard(id);
 
         // 2. 수정 권한 검증
-        if (!SecurityUtils.isWriter(authentication, board.of())) {
+        if (!SecurityUtils.isWriter(authentication, board.of().getMemberId())) {
             throw new AccessDeniedException("수정 권한이 없습니다.");
         }
 
