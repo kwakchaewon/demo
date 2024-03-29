@@ -30,9 +30,6 @@ public class JWTUtil {
 
     @Value("${jwt.secret_refresh}")
     private String secret_refresh;
-
-    private Date ACCESS_TIME = new Date(System.currentTimeMillis() + (3 * 60 * 60 * 1000L)); // 3시간
-    private Date REFRESH_TIME = new Date(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000L)); // 7일
     public final String ACCESS_TOKEN = "ACCESS_TOKEN";
     public final String REFRESH_TOKEN = "REFRESH_TOKEN";
 
@@ -60,6 +57,8 @@ public class JWTUtil {
 
     // userId 기반 토큰 생성
     public String createToken(String userId, String authority, String type) {
+        Date ACCESS_TIME = new Date(System.currentTimeMillis() + (3 * 60 * 60 * 1000L)); // 3시간
+        Date REFRESH_TIME = new Date(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000L)); // 7일
 
         // 1. 토큰 타입에 따른 만료시간, 알고리즘 설정
         Date expTime = type.equals(ACCESS_TOKEN) ? ACCESS_TIME : REFRESH_TIME;
