@@ -30,8 +30,8 @@ public class CommentController {
 
     /**
      * 댓글 삭제
-     * 
-     * @param id: 댓글 id
+     *
+     * @param id:             댓글 id
      * @param authentication: 인증 객체
      * @throws CustomException
      */
@@ -50,45 +50,34 @@ public class CommentController {
 
     /**
      * 댓글 수정
-     * 댓글 부재시 COMMENT_NOTFOUND(404)
-     * 권한 검증 실패시 403
+     *
+     * @param id:                댓글 id
+     * @param commentCreateForm: 댓글 수정 폼
+     * @param authentication:    인증 객체
+     * @return 댓글 정보
+     * @throws CustomException
      */
     @PutMapping("/{id}")
-    public ResponseEntity<CommentDto> updateComment(@PathVariable("id") Long id,
-                                                    @RequestBody CommentCreateForm commentCreateForm) throws CustomException {
-        // 1. _userid 추출
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String _userId = authentication.getName();
-
-        // 2. Comment 추출 (실패시, 404 반환)
-        Comment comment = this.commentService.getComment(id);
-
-        // 3. 수정 권한 검증 (실패시, 403 반환)
-        if (_userId.equals(comment.getMember().getUserId())) {
-            CommentDto commentDto = commentService.updateComment(comment, commentCreateForm);
-            return new ResponseEntity<>(commentDto, HttpStatus.OK);
-        } else {
-            throw new AccessDeniedException("수정 권한이 없습니다."); // 403
-        }
+    public CommentDto updateComment(@PathVariable("id") Long id,
+                                    @RequestBody CommentCreateForm commentCreateForm,
+                                    Authentication authentication) throws CustomException {
+        return commentService.updateComment(id, commentCreateForm, authentication);
     }
 
     /**
      * 댓글 수정 권한 검증
-     * 권한 검증 실패시 403
+     *
+     * @param id: 댓글 id
+     * @param authentication: 인증 객체
+     * @throws CustomException
      */
     @GetMapping("/{id}/check")
-    public ResponseEntity checkCommentUpdateAuth(@PathVariable("id") Long id) throws CustomException {
-        // 1. _userid 추출
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String _userId = authentication.getName();
+    public void checkCommentUpdateAuth(@PathVariable("id") Long id, Authentication authentication) throws CustomException {
+        // 1. CommentDto 추출 (실패시, 404 반환)
+        CommentDto commentDto = this.commentService.findCommentById(id);
 
-        // 2. Comment 추출 (실패시, 404 반환)
-        Comment comment = this.commentService.getComment(id);
-
-        // 3. 수정 권한 검증 (실패시, 403 반환)
-        if (_userId.equals(comment.getMember().getUserId())) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
+        // 2. 수정 권한 검증 (실패시, 403 반환)
+        if (!SecurityUtils.isWriter(authentication, commentDto.getMemberId())) {
             throw new AccessDeniedException("수정 권한이 없습니다."); // 403
         }
     }

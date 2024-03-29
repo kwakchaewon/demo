@@ -8,11 +8,13 @@ import com.example.demo.entity.Member;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.MemberRepository;
+import com.example.demo.util.SecurityUtils;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -63,14 +65,24 @@ public class CommentService {
         }
     }
 
-    public CommentDto updateComment(Comment comment, CommentCreateForm commentCreateForm) {
-        comment.update(commentCreateForm);
-        commentRepository.save(comment);
-        return new CommentDto(comment);
+    public CommentDto updateComment(Long id, CommentCreateForm commentCreateForm, Authentication authentication) throws CustomException {
+
+        Comment comment = this.getComment(id);
+
+        if (SecurityUtils.isWriter(authentication, comment.getMember().getUserId())){
+            comment.update(commentCreateForm);
+            return commentRepository.save(comment).of();
+        }
+
+        else {
+            throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
     }
 
     public CommentDto findCommentById(Long id) throws CustomException {
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND));
         return new CommentDto(comment);
     }
+
+
 }
