@@ -4,7 +4,7 @@ import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.request.BoardUpdateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.PagingResponse;
-import com.example.demo.dto.response.ResponseDto;
+import com.example.demo.dto.response.DtoResponse;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.MemberRepository;
@@ -43,19 +43,20 @@ public class BoardService {
         return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
     }
 
-    public ResponseDto<BoardDto> getBoardDtoRes(Long id){
+    // 게시글 상세 조회
+    public DtoResponse<BoardDto> getBoardDtoRes(Long id){
         BoardDto boardDto = boardRepository.findBoardDtoById(id).orElse(null);
 
         // 성공
         if (boardDto != null){
-            ResponseDto.State state = new ResponseDto.State(200, "success");
-            return new ResponseDto<>(state, boardDto);
+            DtoResponse.State state = new DtoResponse.State(200, "success");
+            return new DtoResponse<>(state, boardDto);
         }
 
-        // 실패
+        // 실패: 게시글 부재
         else {
-            ResponseDto.State state = new ResponseDto.State(404, "게시글을 찾을 수 없습니다.");
-            return new ResponseDto<>(state, null);
+            DtoResponse.State state = new DtoResponse.State(404, "게시글을 찾을 수 없습니다.");
+            return new DtoResponse<>(state, null);
         }
     }
 
@@ -140,7 +141,8 @@ public class BoardService {
                 , 10
         );
 
-        return new PagingResponse<>(boards, pagination);
+        PagingResponse.State state = new PagingResponse.State(200, "success");
+        return new PagingResponse<>(state, pagination, boards);
     }
 
     public Board getBoard(Long id) {

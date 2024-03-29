@@ -6,7 +6,7 @@ import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.CommentDto;
 import com.example.demo.dto.response.PagingResponse;
-import com.example.demo.dto.response.ResponseDto;
+import com.example.demo.dto.response.DtoResponse;
 import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.util.FileStore;
@@ -45,8 +45,13 @@ public class BoardController {
     @Autowired
     private CommentService commentService;
 
+
     /**
-     * 페이징 기반 게시판 목록
+     * 페이징 기반 게시판 목록 (완료)
+     * 
+     * @param pageable 페이징 객체
+     * @param keyword 검색 키워드
+     * @return PagingResponse: 상태 + 게시글 정보
      */
     @GetMapping("")
     public PagingResponse<BoardDto> pagingBoardList(
@@ -83,13 +88,13 @@ public class BoardController {
     }
 
     /**
-     * 게시글 상세
+     * 게시글 상세 (완료)
      *
      * @param id: 게시글 id
      * @return ResponseDto: 상태 + 게시글 상세 정보
      */
     @GetMapping("/{id}")
-    public ResponseDto<BoardDto> detailBoard(@PathVariable("id") Long id) {
+    public DtoResponse<BoardDto> detailBoard(@PathVariable("id") Long id) {
         // 상세 게시글 추출
         return boardService.getBoardDtoRes(id);
     }

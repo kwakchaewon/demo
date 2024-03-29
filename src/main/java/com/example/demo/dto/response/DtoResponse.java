@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL) // 값이 Null 일 경우 필드에서 제외
-public class ResponseDto<T> {
+public class DtoResponse<T> {
     private State state;
     private T data;
 
@@ -17,19 +17,18 @@ public class ResponseDto<T> {
         private String message;
     }
 
-    public ResponseDto(State state, T data) {
+    public DtoResponse(State state, T data) {
         this.state = state;
         this.data = data;
     }
 
-    public ResponseDto(T data) {
+    public DtoResponse(T data) {
         this.state.setStatusCode(200);
         this.state.setMessage("success");
         this.data = data;
-
     }
 
-    public ResponseDto(State state) {
+    public DtoResponse(State state) {
         this.state = state;
         this.data = null;
     }
