@@ -43,15 +43,6 @@ public class BoardService {
         return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
     }
 
-//    public BoardDto findBoardDtoById(Long id) {
-//        BoardDto boardDto = boardRepository.findBoardDtoById(id).orElse(null);
-//
-//
-//
-//
-////        return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
-//    }
-
     public ResponseDto<BoardDto> getBoardDtoRes(Long id){
         BoardDto boardDto = boardRepository.findBoardDtoById(id).orElse(null);
 

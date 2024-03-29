@@ -88,24 +88,11 @@ public class BoardController {
      * @param id: 게시글 id
      * @return ResponseDto: 상태 + 게시글 상세 정보
      */
-    @GetMapping("/detail/{id}")
+    @GetMapping("/{id}")
     public ResponseDto<BoardDto> detailBoard(@PathVariable("id") Long id) {
         // 상세 게시글 추출
         return boardService.getBoardDtoRes(id);
     }
-
-    /**
-     * 게시글 상세 (추후 삭제 예정)
-     *
-     * @param id: 게시글 id
-     * @return BoardDto: 게시글 정보
-     * @throws ResponseStatusException: 게시글 부재
-     */
-    @GetMapping("/{id}")
-    public BoardDto detailBoard2(@PathVariable("id") Long id) {
-            // 상세 게시글 추출
-            return boardService.findBoardById(id);
-        }
 
 
     /**
