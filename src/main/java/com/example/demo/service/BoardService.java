@@ -4,6 +4,7 @@ import com.example.demo.dto.request.BoardCreateForm;
 import com.example.demo.dto.request.BoardUpdateForm;
 import com.example.demo.dto.response.BoardDto;
 import com.example.demo.dto.response.PagingResponse;
+import com.example.demo.dto.response.ResponseDto;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Member;
 import com.example.demo.repository.MemberRepository;
@@ -40,6 +41,31 @@ public class BoardService {
 
     public BoardDto findBoardById(Long id) {
         return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
+    }
+
+//    public BoardDto findBoardDtoById(Long id) {
+//        BoardDto boardDto = boardRepository.findBoardDtoById(id).orElse(null);
+//
+//
+//
+//
+////        return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
+//    }
+
+    public ResponseDto<BoardDto> getBoardDtoRes(Long id){
+        BoardDto boardDto = boardRepository.findBoardDtoById(id).orElse(null);
+
+        // 성공
+        if (boardDto != null){
+            ResponseDto.State state = new ResponseDto.State(200, "success");
+            return new ResponseDto<>(state, boardDto);
+        }
+
+        // 실패
+        else {
+            ResponseDto.State state = new ResponseDto.State(404, "게시글을 찾을 수 없습니다.");
+            return new ResponseDto<>(state, null);
+        }
     }
 
     @Transactional

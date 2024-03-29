@@ -1,6 +1,8 @@
 package com.example.demo.dto.response;
 
 import com.example.demo.entity.Board;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import java.time.format.DateTimeFormatter;
 
@@ -8,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BoardDto {
     private Long id;
     private String title;
