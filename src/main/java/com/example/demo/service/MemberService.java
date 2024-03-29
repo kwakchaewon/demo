@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.*;
 import com.example.demo.entity.Member;
@@ -10,6 +11,7 @@ import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -33,6 +37,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationManager authenticationManager;
+
+    @Value("${jwt.secret_access}")
+    private String secret_access;
+
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -148,6 +156,17 @@ public class MemberService {
         Member member = this.getMember(id);
         member.setGrantedAuth(auth);
         return this.memberRepository.save(member);
+    }
+
+    public TokenDto refreshAccessToken(HttpServletResponse response){
+        String accessToken = response.getHeader("ACCESS_TOKEN"); // 1. 액세스 토큰
+
+        DecodedJWT decodedJWT = jwtUtil.decodeToken(accessToken, secret_access); // 토큰 디코딩
+
+        String userId = jwtUtil.getClaimFromDecodedToken(decodedJWT, "userId"); // 유저아이디
+        String authority = jwtUtil.getClaimFromDecodedToken(decodedJWT, "authority");   // 권한
+        Date accessExpired = decodedJWT.getExpiresAt(); // 만료기간
+        return new TokenDto(accessToken, accessExpired, userId, authority);
     }
 }
 

@@ -115,13 +115,10 @@ public class JWTUtil {
         return this.decodeToken(token, secret).getClaim("userId").asString();
     }
 
-    public String getUserIdByToken(String authorizationHeader, String secret) {
-        String token = authorizationHeader.substring(7);
-        return this.decodeToken(token, secret).getClaim("userId").asString();
-    }
-
-    public String getRoleByAccessToken(String authorizationHeader) {
-        String token = authorizationHeader.substring(7);
-        return this.decodeToken(token, secret_access).getClaim("authority").asString();
+    /**
+     * 디코딩 토큰으로부터 claim 리턴
+     */
+    public String getClaimFromDecodedToken(DecodedJWT decodeToken, String claim){
+        return decodeToken.getClaim(claim).toString();
     }
 }

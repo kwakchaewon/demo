@@ -6,13 +6,11 @@ import com.example.demo.dto.request.SignupForm;
 import com.example.demo.dto.response.PagingResponse;
 import com.example.demo.dto.response.TokenDto;
 import com.example.demo.service.MemberService;
-import com.example.demo.util.JWTUtil;
 import com.example.demo.util.SecurityUtils;
 import com.example.demo.util.exception.Constants;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -24,7 +22,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 
 /**
  * 로그인 & 회원가입 컨트롤러
@@ -37,9 +34,7 @@ import java.util.Date;
 @RequestMapping("/member")
 public class MemberController {
     private final MemberService memberService;
-    private final JWTUtil jwtUtil;
-    @Value("${jwt.secret_access}")
-    private String secret_access;
+
 
     /**
      * 회원가입
@@ -74,15 +69,13 @@ public class MemberController {
 
     /**
      * 액세스 토큰 재발급
+     *
+     * @param response
+     * @return TokenDto: 토큰 발급 정보
      */
     @GetMapping("/refresh")
     public TokenDto refresh(HttpServletResponse response) {
-        String accessToken = response.getHeader("ACCESS_TOKEN");
-        Date accessExpired = jwtUtil.decodeToken(accessToken, secret_access).getExpiresAt();
-        String userId = jwtUtil.decodeToken(accessToken, secret_access).getClaim("userId").toString();
-        String authority = jwtUtil.decodeToken(accessToken, secret_access).getClaim("authority").toString();
-        TokenDto tokenDto = new TokenDto(accessToken, accessExpired, userId, authority);
-        return tokenDto;
+        return this.memberService.refreshAccessToken(response);
     }
 
     /**
@@ -90,11 +83,10 @@ public class MemberController {
      */
     @PutMapping("/{id}/auth")
     @PreAuthorize("hasRole('ROLE_SUPERVISOR')")
-    public ResponseEntity updateMemberAuth(@PathVariable("id") Long id,
+    public void updateMemberAuth(@PathVariable("id") Long id,
                                            @RequestBody MemberAuthUpdateForm memberAuthUpdateForm) {
         String auth = memberAuthUpdateForm.getAuth();
         this.memberService.updateAuth(id, auth);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
@@ -121,15 +113,20 @@ public class MemberController {
     }
 
     /**
-     * USER 삭제
+     *
      * Admin: USER 삭제
      * Super: USER, ADMIN 삭제
      */
+
+    /**
+     * USER 삭제 (Admin: USER 삭제, Super: USER, ADMIN 삭제)
+     *
+     * @param id
+     * @throws CustomException
+     */
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("hasAnyRole('ROLE_SUPERVISOR', 'ROLE_ADMIN')")
-    public ResponseEntity deleteMember(@PathVariable("id") Long id) throws CustomException {
+    public void deleteMember(@PathVariable("id") Long id) throws CustomException {
         memberService.deleteMemberById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }
