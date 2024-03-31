@@ -40,7 +40,7 @@ public class BoardService {
     private MemberRepository memberRepository;
 
     public BoardDto findBoardById(Long id) {
-        return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NO_CONTENT, "게시글이 존재하지 않습니다."));
+        return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "게시글이 존재하지 않습니다."));
     }
 
     // 게시글 상세 조회
