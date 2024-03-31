@@ -40,15 +40,15 @@ public class BoardService {
     private MemberRepository memberRepository;
 
     public BoardDto findBoardById(Long id) {
-        return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
+        return boardRepository.findBoardDtoById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NO_CONTENT, "게시글이 존재하지 않습니다."));
     }
 
     // 게시글 상세 조회
-    public DtoResponse<BoardDto> getBoardDtoRes(Long id){
+    public DtoResponse<BoardDto> getBoardDtoRes(Long id) {
         BoardDto boardDto = boardRepository.findBoardDtoById(id).orElse(null);
 
         // 성공
-        if (boardDto != null){
+        if (boardDto != null) {
             DtoResponse.State state = new DtoResponse.State(200, "success");
             return new DtoResponse<>(state, boardDto);
         }
@@ -167,25 +167,29 @@ public class BoardService {
     public Resource getImage(BoardDto boardDto) throws IOException {
         String strPath = FileStore.getFullPath(boardDto.getSavedFile());
 
+        // 이미지 파일일 경우
         if (FileStore.isImage(strPath)) {
             Path filePath = Paths.get(strPath);
 
-            // 2.1 이미지 파일일 경우, 이미지 파일 추출시도 (실패시, 500 반환)
+            // 이미지 파일 추출 시도
             try {
                 return new InputStreamResource(Files.newInputStream(filePath));
-            } catch (IOException e) {
-                System.out.println("error = " + e);
-                throw new IOException("이미지 파일 추출에 실패했습니다.");
             }
 
-            // 2.1 이미지 파일이 아닐 경우 404 반환
-        } else {
-            throw new FileNotFoundException("이미지 파일이 존재하지 않습니다.");
+            // 실패시 500 반환
+            catch (IOException e) {
+                throw new IOException("이미지 파일 추출에 실패했습니다.");
+            }
+        }
+
+        // 이미지 파일이 아닐 경우 null 반환
+        else {
+            return null;
         }
     }
 
     public Resource extractResource(BoardDto boardDto) throws IOException {
-        
+
         // dto 로부터 uuid 기반 파일명, 파일 경로 추출
         String savedFileName = boardDto.getSavedFile();
         Path filePath = Paths.get(FileStore.getFullPath(savedFileName));
@@ -198,8 +202,8 @@ public class BoardService {
         }
     }
 
-    public Member getMemberByUserId(String userId){
+    public Member getMemberByUserId(String userId) {
         return this.memberRepository.findByUserId(userId)
-                .orElseThrow(()-> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
     }
 }

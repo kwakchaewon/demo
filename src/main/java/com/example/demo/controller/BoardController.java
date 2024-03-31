@@ -103,26 +103,26 @@ public class BoardController {
     }
 
     /**
-     * 게시글 상세 이미지
+     * 게시글 상세 이미지 (완료)
      *
-     * @param id: 게시글 id
-     * @return Resource: 이미지 바이너리 파일
-     * @throws CustomException
-     * @throws IOException:    파일 입출력, ResponseStatusException: 게시글 부재, FileNotFoundException: 이미지 파일 부재, 파일 부재
+     * @param id 게시글 id
+     * @return 이미지 리소스
+     * @throws IOException
      */
     @GetMapping("/{id}/image")
-    public Resource detailBoardImage(@PathVariable("id") Long id) throws IOException {
-        // 1. Board 추출 (실패시, 404 반환)
+    public Resource getBoardImage(@PathVariable("id") Long id) throws IOException {
+
+        // 1. Board 추출 (실패시, 204 반환)
         BoardDto boardDto = boardService.findBoardById(id);
 
-        // 2. 파일이 존재한다면 이미지 추출 (실패시 404, 500 반환)
+        // 2. 파일이 존재한다면 이미지 추출 (실패시 204, 500 반환)
         if (boardDto.getSavedFile() != null) {
             return boardService.getImage(boardDto);
         }
 
-        // 3. 그외 반환
+        // 3. 파일이 존재하지 않을 경우 null 반환
         else {
-            throw new FileNotFoundException("파일이 존재하지 않습니다.");
+            return null;
         }
     }
 
