@@ -47,18 +47,24 @@ public class BoardService {
     public DtoResponse<BoardDto> getBoardDtoRes(Long id) {
         BoardDto boardDto = boardRepository.findBoardDtoById(id).orElse(null);
 
-        // 성공
         if (boardDto != null) {
-            DtoResponse.State state = new DtoResponse.State(200, "success");
-            return new DtoResponse<>(state, boardDto);
+            // 성공
+            return createSuccessResponse(boardDto);
+        } else {
+            // 게시글 부재
+            return createNotFoundResponse();
         }
+    }
 
-        // 실패: 게시글 부재
-        else {
-            DtoResponse<BoardDto> dtoResponse = new DtoResponse<>();
-            dtoResponse.setBoardNotFount();
-            return dtoResponse;
-        }
+    private DtoResponse<BoardDto> createSuccessResponse(BoardDto boardDto) {
+        DtoResponse.State state = new DtoResponse.State(200, "success");
+        return new DtoResponse<>(state, boardDto);
+    }
+
+    private DtoResponse<BoardDto> createNotFoundResponse() {
+        DtoResponse<BoardDto> dtoResponse = new DtoResponse<>();
+        dtoResponse.setBoardNotFount();
+        return dtoResponse;
     }
 
     @Transactional
