@@ -55,8 +55,9 @@ public class BoardService {
 
         // 실패: 게시글 부재
         else {
-            DtoResponse.State state = new DtoResponse.State(404, "게시글을 찾을 수 없습니다.");
-            return new DtoResponse<>(state, null);
+            DtoResponse<BoardDto> dtoResponse = new DtoResponse<>();
+            dtoResponse.setBoardNotFount();
+            return dtoResponse;
         }
     }
 
