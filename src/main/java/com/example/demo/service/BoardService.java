@@ -141,21 +141,26 @@ public class BoardService {
         Page<BoardDto> boards = boardRepository.findBoardDtoByTitleContainingOrderByIdDesc(keyword, pageable);
 
         // 2. pagination
-        Pagination pagination = new Pagination(
+        Pagination pagination = createPagination(boards, pageable);
+
+        // 3. PagingResponse 리턴
+        return createPagingResponse(boards,pagination);
+
+    }
+
+    private Pagination createPagination(Page<BoardDto> boards, Pageable pageable){
+        return new Pagination(
                 (int) boards.getTotalElements()
                 , pageable.getPageNumber() + 1
                 , pageable.getPageSize()
                 , 10
         );
+    }
 
-        // 3. PagingResponse 선언
+    private PagingResponse<BoardDto> createPagingResponse(Page<BoardDto> boards, Pagination pagination) {
         PagingResponse<BoardDto> pagingResponse = new PagingResponse<>(boards, pagination);
         pagingResponse.setSuccess();
-
         return pagingResponse;
-
-//        PagingResponse.State state = new PagingResponse.State(200, "success");
-//        return new PagingResponse<>(state, pagination, boards);
     }
 
     public Board getBoard(Long id) {
