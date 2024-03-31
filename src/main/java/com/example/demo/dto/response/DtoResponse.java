@@ -3,7 +3,9 @@ package com.example.demo.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL) // 값이 Null 일 경우 필드에서 제외
 public class DtoResponse<T> {
@@ -22,16 +24,17 @@ public class DtoResponse<T> {
         this.data = data;
     }
 
+    public void setSuccess() {
+        State state = new State(200, "success");
+        this.setState(state);
+    }
+
+    public void setNotBlank() {
+        State state = new State(400, "제목 또는 내용을 빈칸으로 사용할 수 없습니다.");
+        this.setState(state);
+    }
+
     public DtoResponse(T data) {
-        this.state.setStatusCode(200);
-        this.state.setMessage("success");
         this.data = data;
     }
-
-    public DtoResponse(State state) {
-        this.state = state;
-        this.data = null;
-    }
-
-
 }

@@ -112,28 +112,34 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardDto createBoard(BoardCreateForm boardCreateForm, String _userId) throws IOException {
+    public DtoResponse<BoardDto> createBoard(BoardCreateForm boardCreateForm, String _userId) throws IOException {
 
         // 1. Member 추출
         Member _member = this.getMemberByUserId(_userId);
 
-        // 2. 파일 존재시 파일 저장 로직 수행
-        if (boardCreateForm.isFileExisted()) {
-            String savedFilename = FileStore.savedFile(Optional.of(boardCreateForm.getFile().get())); // UUID 파일명
-            Board board = boardCreateForm.toEntityWithFile(_member, savedFilename);
-            return boardRepository.save(board).of();
+        // 2. 파일 존재 여부 확인
+        boolean fileExists = boardCreateForm.isFileExisted();
 
-        // 3. 파일 부재시 게시글 저장 로직 수행
-        } else {
-            Board board = boardCreateForm.toEntity(_member);
-            return boardRepository.save(board).of();
-        }
+        // 3. 파일 저장 로직 수행
+        String savedFilename = fileExists ? FileStore.savedFile(Optional.of(boardCreateForm.getFile().get())) : null;
+
+        // 4. 게시글 저장
+        Board board = fileExists ? boardCreateForm.toEntityWithFile(_member, savedFilename) : boardCreateForm.toEntity(_member);
+        BoardDto boardDto = boardRepository.save(board).of();
+
+        // 5. DtoResponse 설정
+        DtoResponse<BoardDto> dtoResponse = new DtoResponse<>(boardDto);
+        dtoResponse.setSuccess();
+
+        return dtoResponse;
     }
 
     public PagingResponse<BoardDto> getBoardList(Pageable pageable, String keyword) {
 
+        // 1. Page<BoardDto>
         Page<BoardDto> boards = boardRepository.findBoardDtoByTitleContainingOrderByIdDesc(keyword, pageable);
 
+        // 2. pagination
         Pagination pagination = new Pagination(
                 (int) boards.getTotalElements()
                 , pageable.getPageNumber() + 1
@@ -141,8 +147,14 @@ public class BoardService {
                 , 10
         );
 
-        PagingResponse.State state = new PagingResponse.State(200, "success");
-        return new PagingResponse<>(state, pagination, boards);
+        // 3. PagingResponse 선언
+        PagingResponse<BoardDto> pagingResponse = new PagingResponse<>(boards, pagination);
+        pagingResponse.setSuccess();
+
+        return pagingResponse;
+
+//        PagingResponse.State state = new PagingResponse.State(200, "success");
+//        return new PagingResponse<>(state, pagination, boards);
     }
 
     public Board getBoard(Long id) {

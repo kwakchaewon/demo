@@ -3,6 +3,7 @@ import com.example.demo.util.Pagination;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 /**
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL) // 값이 Null 일 경우 필드에서 제외
 public class PagingResponse<T> {
     private State state;
@@ -29,6 +31,11 @@ public class PagingResponse<T> {
     public PagingResponse(Page<T> list, Pagination pagination) {
         this.list = list;
         this.pagination = pagination;
+    }
+
+    public void setSuccess(){
+        State state = new State(200, "success");
+        this.setState(state);
     }
 
 }

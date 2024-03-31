@@ -51,7 +51,7 @@ public class FileStore {
                 Files.createDirectories(Paths.get(fileDir));
             } catch (IOException e) {
                 System.out.println("e = " + e);
-                throw new IOException("");
+                throw new IOException("파일 입출력 관련 오류가 발생했습니다.");
             }
             System.out.println("경로 파일 생성에 실패했습니다.");
         }

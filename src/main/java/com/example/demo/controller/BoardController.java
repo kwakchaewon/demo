@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -45,6 +46,34 @@ public class BoardController {
     @Autowired
     private CommentService commentService;
 
+    /**
+     * 게시글 등록(완료)
+     * 
+     * @param boardCreateForm 게시글 저장 폼
+     * @param authentication 인증 객체
+     * @return DtoResponse 상태 + 게시글 정보
+     * @throws IOException
+     */
+    @PostMapping(value = "")
+    public DtoResponse<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
+                                    Authentication authentication) throws IOException {
+
+        // 1. 유효성 검사 통과시 게시글 저장 로직 실행
+        if (boardCreateForm.isValid()) {
+            String _userId = authentication.getName();
+
+            // 게시글 저장 및 BoardDto 추출
+            return this.boardService.createBoard(boardCreateForm, _userId);
+        }
+
+        // 2. 유효성 검사 예외처리
+        else {
+            DtoResponse dtoResponse = new DtoResponse<>();
+            dtoResponse.setNotBlank();
+            return dtoResponse;
+//            throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
+        }
+    }
 
     /**
      * 페이징 기반 게시판 목록 (완료)
@@ -59,32 +88,6 @@ public class BoardController {
             String keyword
     ) {
         return boardService.getBoardList(pageable, keyword);
-    }
-
-    /**
-     * 게시글 등록
-     *
-     * @param boardCreateForm: 게시글 등록 폼
-     * @param authentication:  인증 정보
-     * @return BoardDto: 등록 게시글 정보
-     * @throws IOException:파일입출력 예외, IllegalArgumentException: 빈칸 유효성 검사, UsernameNotFoundException: 사용자 인증 실패
-     */
-    @PostMapping(value = "")
-    public BoardDto createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
-                                    Authentication authentication) throws IOException {
-
-        // 1. 유효성 검사 통과시 게시글 저장 로직 실행
-        if (boardCreateForm.isValid()) {
-            String _userId = authentication.getName();
-
-            // 게시글 저장 및 BoardDto 추출
-            return this.boardService.createBoard(boardCreateForm, _userId);
-        }
-
-        // 2. 유효성 검사 예외처리
-        else {
-            throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
-        }
     }
 
     /**

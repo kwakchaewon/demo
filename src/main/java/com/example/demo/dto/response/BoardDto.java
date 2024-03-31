@@ -20,6 +20,7 @@ public class BoardDto {
     private String originalFile; // 작성자가 업로드한 파일명
     private String savedFile; // 서버 내부에서 관리하는 파일 명
     private String imgPath;
+
     /**
      * Entity -> Dto
      */
