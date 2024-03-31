@@ -93,15 +93,14 @@ public class BoardController {
     /**
      * 게시글 상세 (완료)
      *
-     * @param id: 게시글 id
-     * @return ResponseDto: 상태 + 게시글 상세 정보
+     * @param id 게시글 id
+     * @return ResponseDto 상태 + 게시글 상세 정보
      */
     @GetMapping("/{id}")
     public DtoResponse<BoardDto> detailBoard(@PathVariable("id") Long id) {
         // 상세 게시글 추출
         return boardService.getBoardDtoRes(id);
     }
-
 
     /**
      * 게시글 상세 이미지
