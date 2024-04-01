@@ -48,15 +48,15 @@ public class BoardController {
 
     /**
      * 게시글 등록(완료)
-     * 
+     *
      * @param boardCreateForm 게시글 저장 폼
-     * @param authentication 인증 객체
+     * @param authentication  인증 객체
      * @return DtoResponse 상태 + 게시글 정보
      * @throws IOException
      */
     @PostMapping(value = "")
     public DtoResponse<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
-                                    Authentication authentication) throws IOException {
+                                                 Authentication authentication) throws IOException {
 
         // 1. 유효성 검사 통과시 게시글 저장 로직 실행
         if (boardCreateForm.isValid()) {
@@ -77,9 +77,9 @@ public class BoardController {
 
     /**
      * 페이징 기반 게시판 목록 (완료)
-     * 
+     *
      * @param pageable 페이징 객체
-     * @param keyword 검색 키워드
+     * @param keyword  검색 키워드
      * @return PagingResponse: 상태 + 게시글 정보
      */
     @GetMapping("")
@@ -127,41 +127,18 @@ public class BoardController {
     }
 
     /**
-     * 게시글 삭제
+     * 게시글 수정 (완료)
      *
-     * @param id:             게시글 id
-     * @param authentication: 인증 정보
-     * @throws ResponseStatusException: 게시글 부재, AccessDeniedException: 삭제 권한 없음
-     */
-    @DeleteMapping("/{id}")
-    public void deleteBoard(@PathVariable("id") Long id, Authentication authentication) {
-        // 1. 게시글 추출 (실패시, 404 반환)
-        BoardDto boardDto = boardService.findBoardById(id);
-
-        // 2. 삭제 권한 검증: 작성자 or ADMIN or SUPERVISOR
-        if (SecurityUtils.isWriter(authentication, boardDto.getMemberId()) || SecurityUtils.isAdminOrSuper(authentication)) {
-            boardService.deleteBoardById(boardDto);
-        }
-
-        // 3. 권한 없을 경우 403
-        else {
-            throw new AccessDeniedException("삭제 권한이 없습니다."); // 403
-        }
-    }
-
-    /**
-     * 게시글 수정
-     *
-     * @param id:              게시글 id
-     * @param boardUpdateForm: 수정 폼
-     * @param authentication:  인증 객체
-     * @return BoardDto: 게시글 정보
-     * @throws IOException: 파일입출력, AccessDeniedException: 수정 권한 없음,
+     * @param id              게시글 id
+     * @param boardUpdateForm 게시글 수정폼
+     * @param authentication  인증객체
+     * @return 상태 + 게시글 상세 정보
+     * @throws IOException
      */
     @PutMapping("/{id}")
-    public BoardDto updateBoard(@PathVariable("id") Long id,
-                                @ModelAttribute BoardUpdateForm boardUpdateForm,
-                                Authentication authentication) throws IOException {
+    public DtoResponse updateBoard(@PathVariable("id") Long id,
+                                   @ModelAttribute BoardUpdateForm boardUpdateForm,
+                                   Authentication authentication) throws IOException {
 
         return boardService.updateBoard(id, boardUpdateForm, authentication);
     }
@@ -185,6 +162,30 @@ public class BoardController {
             throw new AccessDeniedException("수정 권한이 없습니다.");
         }
     }
+
+    /**
+     * 게시글 삭제
+     *
+     * @param id:             게시글 id
+     * @param authentication: 인증 정보
+     * @throws ResponseStatusException: 게시글 부재, AccessDeniedException: 삭제 권한 없음
+     */
+    @DeleteMapping("/{id}")
+    public void deleteBoard(@PathVariable("id") Long id, Authentication authentication) {
+        // 1. 게시글 추출 (실패시, 404 반환)
+        BoardDto boardDto = boardService.findBoardById(id);
+
+        // 2. 삭제 권한 검증: 작성자 or ADMIN or SUPERVISOR
+        if (SecurityUtils.isWriter(authentication, boardDto.getMemberId()) || SecurityUtils.isAdminOrSuper(authentication)) {
+            boardService.deleteBoardById(boardDto);
+        }
+
+        // 3. 권한 없을 경우 403
+        else {
+            throw new AccessDeniedException("삭제 권한이 없습니다."); // 403
+        }
+    }
+
 
     /**
      * 게시글 댓글 조회

@@ -17,9 +17,8 @@ public class BoardUpdateForm {
     private boolean isupdate;
 
     public boolean existFile() {
-        if (this.getFile().isPresent()) {
-            return true;
-        } else return false;
+        if (this.getFile().isPresent()) return true;
+        else return false;
     }
 
     public String getOriginalFile() {

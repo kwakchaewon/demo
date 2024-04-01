@@ -51,7 +51,7 @@ public class BoardService {
             // 성공
             return createSuccessResponse(boardDto);
         } else {
-            // 게시글 부재
+            // 게시글 부재 400
             return createNotFoundResponse();
         }
     }
@@ -83,40 +83,64 @@ public class BoardService {
         }
     }
 
+    // void 로 하려다 공통된 response 로 반환하고 싶어서
     @Transactional
-    public BoardDto updateBoard(Long id, BoardUpdateForm boardUpdateForm, Authentication authentication) throws IOException {
+    public DtoResponse updateBoard(Long id, BoardUpdateForm boardUpdateForm, Authentication authentication) throws IOException {
 
-        // 1. 게시글 추출
+        DtoResponse dtoResponse = new DtoResponse<>();
+
+        // 게시글 추출
         Board board = this.getBoard(id);
 
-        // 2. 수정 권한 검증
+        // 게시글 부재할 경우 400 반환
+        if (board == null){
+            dtoResponse.setBoardNotFount();
+            return dtoResponse;
+        }
+
+        // 수정 권한 검증
         if (!SecurityUtils.isWriter(authentication, board.of().getMemberId())) {
             throw new AccessDeniedException("수정 권한이 없습니다.");
         }
 
-        // 3. 검증 성공시 파일단 수정
-        else {
-            // 원본 파일이 변경됐다면 파일 변경 로직 실행
-            if (boardUpdateForm.isIsupdate()) {
-                FileStore.deleteFile(board.getSavedFile()); // 1. 디렉토리 내 게시글 파일 제거
+        // 파일 업데이트 로직
+        updateBoardFile(board, boardUpdateForm);
 
-                // 파일 존재시 원본 파일 삭제 후 파일 새로 저장
-                if (boardUpdateForm.existFile()) {
-                    String savedFilename = FileStore.savedFile(boardUpdateForm.getFile()); // UUID 파일명 디렉토리 저장
-                    board.updateFile(boardUpdateForm.getOriginalFile(), savedFilename); // 첨부파일명 DB 업데이트
-                }
+        // 제목 + 내용 업데이트
+        board.updateTitleAndContents(boardUpdateForm);
 
-                // 파일이 삭제시 원본 파일 삭제 및 DB 필드 null로 변경
-                else {
-                    board.resetFile();
-                }
+        // board 반영
+        boardRepository.save(board);
+
+        // 결과값 리턴
+        dtoResponse.setSuccess();
+        return dtoResponse;
+    }
+
+    // 원본 파일 변경시 파일 변경 로직 실행
+    private void updateBoardFile(Board board, BoardUpdateForm boardUpdateForm) throws IOException {
+        // 원본 파일이 변경됐다면 파일 변경 로직 실행
+        if (boardUpdateForm.isIsupdate()) {
+            deleteAndReplaceFile(board, boardUpdateForm);
+
+            // 삭제 됐을 경우 null 세팅
+            if (!boardUpdateForm.existFile()) {
+                board.resetFile();
             }
-
-            // 4. 제목 + 내용 update
-            board.updateTitleAndContents(boardUpdateForm);
-            return boardRepository.save(board).of();
         }
     }
+
+    // 디렉토리 파일 제거 및 업데이트 + DB 파일 업데이트
+    private void deleteAndReplaceFile(Board board, BoardUpdateForm boardUpdateForm) throws IOException {
+        FileStore.deleteFile(board.getSavedFile()); // 디렉토리 내 게시글 파일 제거
+
+        // 파일이 업데이트되면 새로운 파일로 교체 (DB, 디렉토리 반영)
+        if (boardUpdateForm.existFile()) {
+            String savedFilename = FileStore.savedFile(boardUpdateForm.getFile()); // UUID 파일명 디렉토리 저장
+            board.updateFile(boardUpdateForm.getOriginalFile(), savedFilename); // 첨부파일명 DB 업데이트
+        }
+    }
+
 
     @Transactional
     public DtoResponse<BoardDto> createBoard(BoardCreateForm boardCreateForm, String _userId) throws IOException {
@@ -150,11 +174,11 @@ public class BoardService {
         Pagination pagination = createPagination(boards, pageable);
 
         // 3. PagingResponse 리턴
-        return createPagingResponse(boards,pagination);
+        return createPagingResponse(boards, pagination);
 
     }
 
-    private Pagination createPagination(Page<BoardDto> boards, Pageable pageable){
+    private Pagination createPagination(Page<BoardDto> boards, Pageable pageable) {
         return new Pagination(
                 (int) boards.getTotalElements()
                 , pageable.getPageNumber() + 1
@@ -171,8 +195,8 @@ public class BoardService {
 
     public Board getBoard(Long id) {
 
-        Board _board = this.boardRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
-        return _board;
+//        Board _board = this.boardRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
+        return this.boardRepository.findById(id).orElse(null);
     }
 
     public Resource getImage(BoardDto boardDto) throws IOException {
