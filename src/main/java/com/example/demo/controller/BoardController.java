@@ -150,17 +150,29 @@ public class BoardController {
      * @param authentication: 인증객체
      *                        ResponseStatusException: 게시글 부재, AccessDeniedException: 수정 권한 없음
      */
+
+    /**
+     * 게시글 수정 권한 검증 및 상세 반환
+     * 
+     * @param id 게시글 id
+     * @param authentication 인증 객체
+     * @return 상태 + 게시글 상세 정보
+     */
     @GetMapping("/{id}/check")
-    public void checkUpdateAuth(@PathVariable("id") Long id,
+    public DtoResponse<BoardDto> checkUpdateAuth(@PathVariable("id") Long id,
                                 Authentication authentication) {
 
-        // 1. Board 추출 (실패시 404 반환)
-        BoardDto boardDto = this.boardService.findBoardById(id);
+        // 1. Board 추출 (게시글 부재시 404 반환)
+        DtoResponse<BoardDto> dtoResponse = this.boardService.getBoardDtoRes(id);
 
-        // 2. 수정 권한 검증 실패시 403 반환
-        if (!SecurityUtils.isWriter(authentication, boardDto.getMemberId())) {
-            throw new AccessDeniedException("수정 권한이 없습니다.");
+        if (dtoResponse.getData()!= null){
+            // 2. 수정 권한 검증 실패시 403 반환
+            if (!SecurityUtils.isWriter(authentication, dtoResponse.getData().getMemberId())) {
+                throw new AccessDeniedException("수정 권한이 없습니다.");
+            }
         }
+
+        return dtoResponse;
     }
 
     /**
