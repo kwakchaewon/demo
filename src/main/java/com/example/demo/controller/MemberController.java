@@ -41,6 +41,7 @@ public class MemberController {
      * 아이디, 이메일 중복 검사 (실패시, 400 반환)
      */
     @PostMapping("/signup")
+
     public ResponseEntity signUp(@RequestBody SignupForm signupForm) throws CustomException {
         // 아이디 중복 검사
         if (memberService.checkUseridDuplication(signupForm)) {

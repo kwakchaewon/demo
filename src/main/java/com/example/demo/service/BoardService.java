@@ -51,7 +51,7 @@ public class BoardService {
             // 성공
             return createSuccessResponse(boardDto);
         } else {
-            // 게시글 부재 400
+            // 게시글 부재 404
             return createNotFoundResponse();
         }
     }

@@ -35,7 +35,7 @@ public class DtoResponse<T> {
     }
 
     public void setBoardNotFount(){
-        State state = new State(400, "게시글을 찾을 수 없습니다.");
+        State state = new State(404, "게시글을 찾을 수 없습니다.");
         this.setState(state);
     }
 
