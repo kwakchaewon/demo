@@ -144,15 +144,7 @@ public class BoardController {
     }
 
     /**
-     * 게시글 수정 권한 검증
-     *
-     * @param id:             게시글 id
-     * @param authentication: 인증객체
-     *                        ResponseStatusException: 게시글 부재, AccessDeniedException: 수정 권한 없음
-     */
-
-    /**
-     * 게시글 수정 권한 검증 및 상세 반환
+     * 게시글 수정 권한 검증 및 상세 반환 (완료)
      * 
      * @param id 게시글 id
      * @param authentication 인증 객체
