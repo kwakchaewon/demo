@@ -11,7 +11,6 @@ import com.example.demo.service.BoardService;
 import com.example.demo.service.CommentService;
 import com.example.demo.util.FileStore;
 import com.example.demo.util.SecurityUtils;
-import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -22,11 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -145,21 +142,25 @@ public class BoardController {
 
     /**
      * 게시글 수정 권한 검증 및 상세 반환 (완료)
-     * 
-     * @param id 게시글 id
+     *
+     * @param id             게시글 id
      * @param authentication 인증 객체
      * @return 상태 + 게시글 상세 정보
      */
     @GetMapping("/{id}/check")
     public DtoResponse<BoardDto> checkUpdateAuth(@PathVariable("id") Long id,
-                                Authentication authentication) {
+                                                 Authentication authentication) {
 
         // 1. Board 추출 (게시글 부재시 404 반환)
         DtoResponse<BoardDto> dtoResponse = this.boardService.getBoardDtoRes(id);
+        BoardDto boardDto = dtoResponse.getData();
 
-        if (dtoResponse.getData()!= null){
+        if (boardDto != null) {
+
+            boolean hasUpdatePermission = SecurityUtils.isWriter(authentication, dtoResponse.getData().getMemberId());
+
             // 2. 수정 권한 검증 실패시 403 반환
-            if (!SecurityUtils.isWriter(authentication, dtoResponse.getData().getMemberId())) {
+            if (!hasUpdatePermission) {
                 throw new AccessDeniedException("수정 권한이 없습니다.");
             }
         }
@@ -168,26 +169,15 @@ public class BoardController {
     }
 
     /**
-     * 게시글 삭제
-     *
-     * @param id:             게시글 id
-     * @param authentication: 인증 정보
-     * @throws ResponseStatusException: 게시글 부재, AccessDeniedException: 삭제 권한 없음
+     * 게시글 삭제 (완료)
+     * 
+     * @param id 게시글 id
+     * @param authentication 인증 객체
+     * @return 상태
      */
     @DeleteMapping("/{id}")
-    public void deleteBoard(@PathVariable("id") Long id, Authentication authentication) {
-        // 1. 게시글 추출 (실패시, 404 반환)
-        BoardDto boardDto = boardService.findBoardById(id);
-
-        // 2. 삭제 권한 검증: 작성자 or ADMIN or SUPERVISOR
-        if (SecurityUtils.isWriter(authentication, boardDto.getMemberId()) || SecurityUtils.isAdminOrSuper(authentication)) {
-            boardService.deleteBoardById(boardDto);
-        }
-
-        // 3. 권한 없을 경우 403
-        else {
-            throw new AccessDeniedException("삭제 권한이 없습니다."); // 403
-        }
+    public DtoResponse deleteBoard(@PathVariable("id") Long id, Authentication authentication) {
+        return boardService.deleteBoard(id,authentication);
     }
 
 

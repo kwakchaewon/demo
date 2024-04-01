@@ -63,7 +63,32 @@ public class BoardService {
 
     private DtoResponse<BoardDto> createNotFoundResponse() {
         DtoResponse<BoardDto> dtoResponse = new DtoResponse<>();
-        dtoResponse.setBoardNotFount();
+        dtoResponse.setBoardNotFound();
+        return dtoResponse;
+    }
+
+    @Transactional
+    public DtoResponse deleteBoard(Long id, Authentication authentication){
+        BoardDto boardDto = this.findBoardById(id);
+        DtoResponse dtoResponse = new DtoResponse();
+
+        // 게시글 부재시 status 404
+        if (boardDto == null){
+            dtoResponse.setBoardNotFound();
+            return dtoResponse;
+        }
+
+        // 권한 인증 실패시, 403
+        boolean hasDeletePermission = SecurityUtils.isWriter(authentication, boardDto.getMemberId())
+                || SecurityUtils.isAdminOrSuper(authentication);
+
+        if (!hasDeletePermission) {
+            throw new AccessDeniedException("삭제 권한이 없습니다.");
+        }
+
+        // 정상 200
+        this.deleteBoardById(boardDto);
+        dtoResponse.setSuccess();
         return dtoResponse;
     }
 
@@ -94,7 +119,7 @@ public class BoardService {
 
         // 게시글 부재할 경우 400 반환
         if (board == null){
-            dtoResponse.setBoardNotFount();
+            dtoResponse.setBoardNotFound();
             return dtoResponse;
         }
 
