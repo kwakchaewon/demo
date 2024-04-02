@@ -44,8 +44,8 @@ public class BoardDto {
         return this.memberId.equals(id);
     }
 
-    @JsonIgnore
-    public boolean isFileExists(){
-        return !this.savedFile.isEmpty();
-    }
+//    @JsonIgnore
+//    public boolean isFileExists(){
+//        return !this.savedFile.isEmpty();
+//    }
 }
