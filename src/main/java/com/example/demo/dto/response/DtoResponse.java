@@ -36,6 +36,10 @@ public class DtoResponse<T> {
         this.state = new State(404, "게시글을 찾을 수 없습니다.");
     }
 
+    public void setCommentNotFound(){
+        this.state = new State(404, "댓글을 찾을 수 없습니다.");
+    }
+
     public DtoResponse(T data) {
         this.data = data;
     }

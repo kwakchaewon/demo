@@ -2,6 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.CommentDto;
+import com.example.demo.dto.response.DtoResponse;
+import com.example.demo.entity.Comment;
+import com.example.demo.repository.CommentRepository;
 import com.example.demo.service.CommentService;
 import com.example.demo.util.SecurityUtils;
 import com.example.demo.util.exception.CustomException;
@@ -23,25 +26,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
+    private final CommentRepository commentRepository;
 
     /**
-     * 댓글 삭제
-     *
-     * @param id:             댓글 id
-     * @param authentication: 인증 객체
-     * @throws CustomException
+     * 댓글 삭제 (완료)
+     * 
+     * @param id 아이디
+     * @param authentication 인증 객체
+     * @return 상태
      */
     @DeleteMapping("/{id}")
-    public void deleteComment(@PathVariable("id") Long id, Authentication authentication) throws CustomException {
-
-        CommentDto commentDto = this.commentService.findCommentById(id);
-
-        // 권한 검증: 작성자
-        if (SecurityUtils.isWriter(authentication, commentDto.getMemberId())) {
-            commentService.deleteCommentById(id);
-        } else {
-            throw new AccessDeniedException("삭제 권한이 없습니다.");
-        }
+    public DtoResponse<Void> deleteComment(@PathVariable("id") Long id, Authentication authentication)  {
+        return commentService.deleteComment(id, authentication);
     }
 
     /**

@@ -37,7 +37,7 @@ public class CommentService {
         boolean isBoardExist = boardRepository.existsById(id);
 
         // 게시글 부재할 경우 data 없이 404 반환
-        if (!isBoardExist){
+        if (!isBoardExist) {
             DtoResponse dtoResponse = new DtoResponse<>();
             dtoResponse.setBoardNotFound();
             return dtoResponse;
@@ -55,17 +55,17 @@ public class CommentService {
 
         // 1. 유저 조회
         Member member = memberRepository.findByUserId(authentication.getName()).
-                orElseThrow(()-> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-        
+                orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
         // 2. 게시글 조회
         Board board = boardRepository.findById(id).orElse(null);
-        
+
         // 3. 응답객체 생성
         DtoResponse<Void> dtoResponse = new DtoResponse<>();
 
-        
+
         // 4. 해당 게시글이 없을 경우 statusCode 404 리턴
-        if (board == null){
+        if (board == null) {
             dtoResponse.setBoardNotFound();
             return dtoResponse;
         }
@@ -98,16 +98,40 @@ public class CommentService {
         }
     }
 
+    public DtoResponse<Void> deleteComment(Long id, Authentication authentication) {
+        Comment comment = this.commentRepository.findById(id).orElse(null);
+        DtoResponse<Void> dtoResponse = new DtoResponse<>();
+
+        // 존재하지 않는 댓글일 경우 statusCode 404 반환
+        if (comment == null) {
+            dtoResponse.setCommentNotFound();
+            return dtoResponse;
+        }
+
+        // 권한 없을 경우
+        if (!SecurityUtils.isWriter(authentication, comment.getMember().getUserId())) {
+            throw new AccessDeniedException("삭제 권한이 없습니다.");
+        }
+
+        // 그 외 댓글 삭제 로직 실행
+        try {
+            this.commentRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new RuntimeException("댓글 삭제에 실패했습니다.");
+        }
+
+        dtoResponse.setSuccess();
+        return dtoResponse;
+    }
+
     public CommentDto updateComment(Long id, CommentCreateForm commentCreateForm, Authentication authentication) throws CustomException {
 
         Comment comment = this.getComment(id);
 
-        if (SecurityUtils.isWriter(authentication, comment.getMember().getUserId())){
+        if (SecurityUtils.isWriter(authentication, comment.getMember().getUserId())) {
             comment.update(commentCreateForm);
             return commentRepository.save(comment).of();
-        }
-
-        else {
+        } else {
             throw new AccessDeniedException("수정 권한이 없습니다.");
         }
     }
