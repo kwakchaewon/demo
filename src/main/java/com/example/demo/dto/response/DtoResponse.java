@@ -25,24 +25,16 @@ public class DtoResponse<T> {
     }
 
     public void setSuccess() {
-        State state = new State(200, "success");
-        this.setState(state);
+        this.state = new State(200, "success");
     }
 
     public void setNotBlank() {
-        State state = new State(400, "제목 또는 내용을 빈칸으로 사용할 수 없습니다.");
-        this.setState(state);
+        this.state = new State(400, "제목 또는 내용을 빈칸으로 사용할 수 없습니다.");
     }
 
     public void setBoardNotFound(){
-        State state = new State(404, "게시글을 찾을 수 없습니다.");
-        this.setState(state);
+        this.state = new State(404, "게시글을 찾을 수 없습니다.");
     }
-
-//    public void setNoContent(){
-//        State state = new State(204, "success");
-//        this.setState(state);
-//    }
 
     public DtoResponse(T data) {
         this.data = data;
