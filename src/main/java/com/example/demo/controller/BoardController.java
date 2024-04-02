@@ -217,16 +217,6 @@ public class BoardController {
     }
 
     /**
-     * 파일 다운로드
-     *
-     * @param id: 게시글 id
-     * @return ResponseEntity<Resource> 파일리소스
-     * @throws ResponseStatusException:      파일 부재
-     * @throws IOException:                  파일 입출력
-     * @throws UnsupportedEncodingException: 파일 인코딩 실패
-     */
-
-    /**
      * 파일 다운로드 (완료)
      * 
      * @param id 게시글 id
