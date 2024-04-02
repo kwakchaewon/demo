@@ -65,7 +65,7 @@ public class BoardController {
 
         // 2. 유효성 검사 예외처리
         else {
-            DtoResponse dtoResponse = new DtoResponse<>();
+            DtoResponse<BoardDto> dtoResponse = new DtoResponse<>();
             dtoResponse.setNotBlank();
             return dtoResponse;
 //            throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
@@ -133,7 +133,7 @@ public class BoardController {
      * @throws IOException
      */
     @PutMapping("/{id}")
-    public DtoResponse updateBoard(@PathVariable("id") Long id,
+    public DtoResponse<Void> updateBoard(@PathVariable("id") Long id,
                                    @ModelAttribute BoardUpdateForm boardUpdateForm,
                                    Authentication authentication) throws IOException {
 
@@ -179,7 +179,6 @@ public class BoardController {
     public DtoResponse deleteBoard(@PathVariable("id") Long id, Authentication authentication) {
         return boardService.deleteBoard(id,authentication);
     }
-
 
     /**
      * 게시글 댓글 조회
