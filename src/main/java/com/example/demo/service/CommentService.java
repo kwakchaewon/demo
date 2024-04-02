@@ -33,10 +33,6 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
 
-    // 이 부분 사용 지양할것. 순환참조 발생할 수 있음.
-    private final MemberService memberService;
-    private final BoardService boardService;
-
     public DtoResponse<List<CommentDto>> getCommentList(Long id) {
         boolean isBoardExist = boardRepository.existsById(id);
 
@@ -56,8 +52,7 @@ public class CommentService {
 
     @Transactional
     public DtoResponse<Void> createComment(Long id, CommentCreateForm commentCreateForm, Authentication authentication) {
-//        Member member = memberService.getMemberByUserId(authentication.getName());
-        
+
         // 1. 유저 조회
         Member member = memberRepository.findByUserId(authentication.getName()).
                 orElseThrow(()-> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
