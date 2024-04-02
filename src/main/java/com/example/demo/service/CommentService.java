@@ -135,17 +135,15 @@ public class CommentService {
 //        CommentDto commentDto = this.commentRepository.findCommentDtoById(id).orElse(null);
         DtoResponse<CommentDto> dtoResponse = new DtoResponse<>();
 
-
-
-        // 수정 권한 검증 실패시 403
-        if (!SecurityUtils.isWriter(authentication, comment.getMember().getUserId())){
-            throw new AccessDeniedException("수정 권한이 없습니다.");
-        }
-
         // 댓글 부재시 statusCode 404 후 리턴
         if (comment == null){
             dtoResponse.setCommentNotFound();
             return dtoResponse;
+        }
+
+        // 수정 권한 검증 실패시 403
+        if (!SecurityUtils.isWriter(authentication, comment.getMember().getUserId())){
+            throw new AccessDeniedException("수정 권한이 없습니다.");
         }
 
         // 댓글 업데이트 로직 수행
