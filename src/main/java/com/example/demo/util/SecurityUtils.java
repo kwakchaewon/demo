@@ -17,6 +17,12 @@ public class SecurityUtils {
                 .anyMatch(authority -> "ROLE_SUPERVISOR".equals(authority.getAuthority()));
     }
 
+    public static boolean isUser(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_USER".equals(authority.getAuthority()));
+    }
+
+
     public static boolean isAdminOrSuper(Authentication authentication) {
         return isAdmin(authentication) || isSupervisor(authentication);
     }
