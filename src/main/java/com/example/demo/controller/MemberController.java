@@ -42,7 +42,7 @@ public class MemberController {
      */
     @PostMapping("/signup")
 
-    public ResponseEntity signUp(@RequestBody SignupForm signupForm) throws CustomException {
+    public ResponseEntity<Void> signUp(@RequestBody SignupForm signupForm) throws CustomException {
         // 아이디 중복 검사
         if (memberService.checkUseridDuplication(signupForm)) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.USERID_DUPLICATED);
