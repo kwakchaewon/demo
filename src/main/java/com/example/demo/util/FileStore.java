@@ -81,9 +81,9 @@ public class FileStore {
                 ext.equals("bmp") || ext.equals("tiff");
     }
 
-    public static void deleteFile(String savedFileName) {
+    public static boolean deleteFile(String savedFileName) {
         File file = new File(getFullPath(savedFileName));
-        boolean delete = file.delete();
+        return file.delete();
     }
 
     public static String getEncodedFile(String originalFile) throws UnsupportedEncodingException {
