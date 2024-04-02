@@ -180,15 +180,15 @@ public class BoardController {
         return boardService.deleteBoard(id,authentication);
     }
 
+    // DtoResponse<List<CommentDto>> 새로 DTO 만들어야 할 것 같다.
     /**
-     * 게시글 댓글 조회
-     *
+     * 게시글 댓글 리스트 조회
+     * 
      * @param id 게시글 id
-     * @return List<CommentDto> 댓글 리스트
-     * @throws ResponseStatusException: 게시글 부재
+     * @return 상태 + 게시글 정보
      */
     @GetMapping("/{id}/comment")
-    public List<CommentDto> commentList(@PathVariable("id") Long id) {
+    public DtoResponse<List<CommentDto>> commentList(@PathVariable("id") Long id) {
         // 댓글 조회 로직
         return commentService.getCommentList(id);
     }

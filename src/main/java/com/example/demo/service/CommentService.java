@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.CommentDto;
+import com.example.demo.dto.response.DtoResponse;
 import com.example.demo.entity.Board;
 import com.example.demo.entity.Comment;
 import com.example.demo.entity.Member;
@@ -28,13 +29,26 @@ import java.util.stream.Collectors;
 public class CommentService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
+
+    // 이 부분 사용 지양할것. 순환참조 발생할 수 있음.
     private final MemberService memberService;
     private final BoardService boardService;
 
-    public List<CommentDto> getCommentList(Long id) {
-        Board board = boardRepository.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
-        return commentRepository.findCommentDtoByBoard(board);
+    public DtoResponse<List<CommentDto>> getCommentList(Long id) {
+        boolean isBoardExist = boardRepository.existsById(id);
+
+        // 게시글 부재할 경우 data 없이 404 반환
+        if (!isBoardExist){
+            DtoResponse dtoResponse = new DtoResponse<>();
+            dtoResponse.setBoardNotFound();
+            return dtoResponse;
+        }
+
+        List<CommentDto> comments = commentRepository.findCommentDtoByBoardIdOrderByCreatedAtDesc(id);
+        DtoResponse<List<CommentDto>> dtoResponse = new DtoResponse<>(comments);
+        dtoResponse.setSuccess();
+
+        return dtoResponse;
     }
 
     public CommentDto createComment(Long id, CommentCreateForm commentCreateForm, Authentication authentication) {
