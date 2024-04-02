@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
-    private final CommentRepository commentRepository;
 
     /**
      * 댓글 삭제 (완료)
@@ -41,58 +40,57 @@ public class CommentController {
     }
 
     /**
-     * 댓글 수정
+     * 댓글 수정 (완료)
      *
-     * @param id:                댓글 id
-     * @param commentCreateForm: 댓글 수정 폼
-     * @param authentication:    인증 객체
-     * @return 댓글 정보
-     * @throws CustomException
+     * @param id 댓글 id
+     * @param commentCreateForm 댓글 수정 폼
+     * @param authentication 인증 객체
+     * @return
      */
     @PutMapping("/{id}")
-    public CommentDto updateComment(@PathVariable("id") Long id,
+    public DtoResponse<CommentDto> updateComment(@PathVariable("id") Long id,
                                     @RequestBody CommentCreateForm commentCreateForm,
                                     Authentication authentication) throws CustomException {
         return commentService.updateComment(id, commentCreateForm, authentication);
     }
 
-    /**
-     * 댓글 수정 권한 검증
-     *
-     * @param id: 댓글 id
-     * @param authentication: 인증 객체
-     * @throws CustomException
-     */
-    @GetMapping("/{id}/check")
-    public void checkCommentUpdateAuth(@PathVariable("id") Long id, Authentication authentication) throws CustomException {
-        // 1. CommentDto 추출 (실패시, 404 반환)
-        CommentDto commentDto = this.commentService.findCommentById(id);
+//    /**
+//     * 댓글 수정 권한 검증
+//     *
+//     * @param id: 댓글 id
+//     * @param authentication: 인증 객체
+//     * @throws CustomException
+//     */
+//    @GetMapping("/{id}/check")
+//    public void checkCommentUpdateAuth(@PathVariable("id") Long id, Authentication authentication) throws CustomException {
+//        // 1. CommentDto 추출 (실패시, 404 반환)
+//        CommentDto commentDto = this.commentService.findCommentById(id);
+//
+//        // 2. 수정 권한 검증 (실패시, 403 반환)
+//        if (!SecurityUtils.isWriter(authentication, commentDto.getMemberId())) {
+//            throw new AccessDeniedException("수정 권한이 없습니다."); // 403
+//        }
+//    }
 
-        // 2. 수정 권한 검증 (실패시, 403 반환)
-        if (!SecurityUtils.isWriter(authentication, commentDto.getMemberId())) {
-            throw new AccessDeniedException("수정 권한이 없습니다."); // 403
-        }
-    }
-
-    /**
-     * 상세 댓글 조회
-     * 권한 검증 실패시 403
-     * 댓글 부재시 COMMENT_NOTFOUND (404)
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<CommentDto> detailBoard(@PathVariable("id") Long id) throws CustomException {
-
-        // 1. _userid 추출
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String _userId = authentication.getName();
-
-        // 2. id기반 댓글 찾기 (실패시, 404 반환)
-        CommentDto commentDto = commentService.findCommentById(id);
-
-        if (_userId.equals(commentDto.getMemberId())) {
-            return new ResponseEntity<>(commentDto, HttpStatus.OK);
-        } else {
-            throw new AccessDeniedException("수정 권한이 없습니다."); // 403
-        }
-    }
+//    /**
+//     * 댓글 수정
+//     * 권한 검증 실패시 403
+//     * 댓글 부재시 COMMENT_NOTFOUND (404)
+//     */
+//    @GetMapping("/{id}")
+//    public ResponseEntity<Void> detailBoard(@PathVariable("id") Long id) throws CustomException {
+//
+//        // 1. _userid 추출
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        String _userId = authentication.getName();
+//
+//        // 2. id기반 댓글 찾기 (실패시, 404 반환)
+//        CommentDto commentDto = commentService.findCommentById(id);
+//
+//        if (_userId.equals(commentDto.getMemberId())) {
+//            return new ResponseEntity<>(commentDto, HttpStatus.OK);
+//        } else {
+//            throw new AccessDeniedException("수정 권한이 없습니다."); // 403
+//        }
+//    }
 }

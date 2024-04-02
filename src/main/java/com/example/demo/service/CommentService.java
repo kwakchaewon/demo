@@ -77,26 +77,30 @@ public class CommentService {
         return dtoResponse;
     }
 
-    public Comment getComment(Long id) throws CustomException {
+//    public Comment getComment(Long id) throws CustomException {
+//
+//        Comment _comment = this.commentRepository.findById(id).orElse(null);
+//
+//        if (_comment == null){
+//            return
+//        }
+//
+//        if (_comment.isPresent()) {
+//            return _comment.get();
+//        } else {
+//            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND);
+//        }
+//    }
 
-        Optional<Comment> _comment = this.commentRepository.findById(id);
-
-        if (_comment.isPresent()) {
-            return _comment.get();
-        } else {
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND);
-        }
-    }
-
-    public void deleteCommentById(Long id) throws CustomException {
-        try {
-            this.commentRepository.deleteById(id);
-        } catch (NullPointerException e) {
-            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND);
-        } catch (Exception e) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
-        }
-    }
+//    public void deleteCommentById(Long id) throws CustomException {
+//        try {
+//            this.commentRepository.deleteById(id);
+//        } catch (NullPointerException e) {
+//            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND);
+//        } catch (Exception e) {
+//            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
+//        }
+//    }
 
     public DtoResponse<Void> deleteComment(Long id, Authentication authentication) {
         Comment comment = this.commentRepository.findById(id).orElse(null);
@@ -124,16 +128,32 @@ public class CommentService {
         return dtoResponse;
     }
 
-    public CommentDto updateComment(Long id, CommentCreateForm commentCreateForm, Authentication authentication) throws CustomException {
+    public DtoResponse<CommentDto> updateComment(Long id, CommentCreateForm commentCreateForm, Authentication authentication) {
 
-        Comment comment = this.getComment(id);
 
-        if (SecurityUtils.isWriter(authentication, comment.getMember().getUserId())) {
-            comment.update(commentCreateForm);
-            return commentRepository.save(comment).of();
-        } else {
+        Comment comment = this.commentRepository.findById(id).orElse(null);
+//        CommentDto commentDto = this.commentRepository.findCommentDtoById(id).orElse(null);
+        DtoResponse<CommentDto> dtoResponse = new DtoResponse<>();
+
+
+
+        // 수정 권한 검증 실패시 403
+        if (!SecurityUtils.isWriter(authentication, comment.getMember().getUserId())){
             throw new AccessDeniedException("수정 권한이 없습니다.");
         }
+
+        // 댓글 부재시 statusCode 404 후 리턴
+        if (comment == null){
+            dtoResponse.setCommentNotFound();
+            return dtoResponse;
+        }
+
+        // 댓글 업데이트 로직 수행
+        comment.update(commentCreateForm);
+        commentRepository.save(comment);
+        dtoResponse.setData(comment.of());
+        dtoResponse.setSuccess();
+        return dtoResponse;
     }
 
     public CommentDto findCommentById(Long id) throws CustomException {
