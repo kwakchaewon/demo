@@ -17,7 +17,9 @@ import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class CommentService {
     private final BoardRepository boardRepository;
     private final CommentRepository commentRepository;
+    private final MemberRepository memberRepository;
 
     // 이 부분 사용 지양할것. 순환참조 발생할 수 있음.
     private final MemberService memberService;
@@ -44,18 +47,39 @@ public class CommentService {
             return dtoResponse;
         }
 
-        List<CommentDto> comments = commentRepository.findCommentDtoByBoardIdOrderByCreatedAtDesc(id);
+        List<CommentDto> comments = commentRepository.findCommentDtoByBoardIdOrderByCreatedAtAsc(id);
         DtoResponse<List<CommentDto>> dtoResponse = new DtoResponse<>(comments);
         dtoResponse.setSuccess();
 
         return dtoResponse;
     }
 
-    public CommentDto createComment(Long id, CommentCreateForm commentCreateForm, Authentication authentication) {
-        Member member = memberService.getMemberByUserId(authentication.getName());
-        Board board = boardService.getBoard(id);
+    @Transactional
+    public DtoResponse<Void> createComment(Long id, CommentCreateForm commentCreateForm, Authentication authentication) {
+//        Member member = memberService.getMemberByUserId(authentication.getName());
+        
+        // 1. 유저 조회
+        Member member = memberRepository.findByUserId(authentication.getName()).
+                orElseThrow(()-> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+        
+        // 2. 게시글 조회
+        Board board = boardRepository.findById(id).orElse(null);
+        
+        // 3. 응답객체 생성
+        DtoResponse<Void> dtoResponse = new DtoResponse<>();
+
+        
+        // 4. 해당 게시글이 없을 경우 statusCode 404 리턴
+        if (board == null){
+            dtoResponse.setBoardNotFound();
+            return dtoResponse;
+        }
+
+        // 5. 그 외에 댓글 저장 로직 수행 및 결과값 반환
         Comment comment = new Comment(commentCreateForm.getContents(), member, board);
-        return commentRepository.save(comment).of();
+        commentRepository.save(comment);
+        dtoResponse.setSuccess();
+        return dtoResponse;
     }
 
     public Comment getComment(Long id) throws CustomException {

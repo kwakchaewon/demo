@@ -195,27 +195,26 @@ public class BoardController {
     }
 
     /**
-     * 댓글 작성
+     * 댓글 작성 (완료)
      *
-     * @param id:                게시글 id
-     * @param commentCreateForm: 댓글폼
-     * @param authentication:    인증객체
-     * @return CommentDto: 댓글 객체
-     * @throws UsernameNotFoundException: 회원 부재, ResponseStatusException: 게시글 부재
+     * @param id 게시글 id
+     * @param commentCreateForm 댓글 작성 폼
+     * @param authentication 인증 객체
+     * @return 상태
      */
     @PostMapping("/{id}/comment")
-    public CommentDto createComment(@PathVariable("id") Long id,
+    public DtoResponse<Void> createComment(@PathVariable("id") Long id,
                                     @RequestBody CommentCreateForm commentCreateForm,
                                     Authentication authentication) {
-        // 1. 빈칸 유효성 검사
-        if (commentCreateForm.isValid()) {
-            // 댓글 작성 로직
-            return commentService.createComment(id, commentCreateForm, authentication);
+        // 1. 내용 빈칸 유효성 검사 실패시
+        if (!commentCreateForm.isValid()){
+            DtoResponse<Void> dtoResponse = new DtoResponse<>();
+            dtoResponse.setNotBlank();
+            return dtoResponse;
         }
-        // 2. 유효성 검사 실패
-        else {
-            throw new IllegalArgumentException("빈 내용은 등록할 수 없습니다.");
-        }
+
+        // 2. 성공시 댓글 작성 로직 수행
+        return commentService.createComment(id, commentCreateForm, authentication);
     }
 
     /**
