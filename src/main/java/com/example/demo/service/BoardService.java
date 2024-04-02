@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,16 +43,16 @@ public class BoardService {
     }
 
     // 게시글 상세 조회
-    public DtoResponse<BoardDto> getBoardDtoRes(Long id) {
+    public DtoResponse getBoardDtoRes(Long id) {
         BoardDto boardDto = boardRepository.findBoardDtoById(id).orElse(null);
-
-        if (boardDto != null) {
-            // 성공
-            return createSuccessResponse(boardDto);
-        } else {
-            // 게시글 부재 404
+        
+        // boardDto 가 null 일 경우 data 없이 statusCode 404 반환
+        if (boardDto == null) {
             return createNotFoundResponse();
         }
+        
+        // 상세 조회 성공시 data 와 함께 statusCode 200 반환
+        return createSuccessResponse(boardDto);
     }
 
     private DtoResponse<BoardDto> createSuccessResponse(BoardDto boardDto) {
@@ -61,26 +60,25 @@ public class BoardService {
         return new DtoResponse<>(state, boardDto);
     }
 
-    private DtoResponse<BoardDto> createNotFoundResponse() {
-        DtoResponse<BoardDto> dtoResponse = new DtoResponse<>();
+    private DtoResponse<Void> createNotFoundResponse() {
+        DtoResponse<Void> dtoResponse = new DtoResponse<>();
         dtoResponse.setBoardNotFound();
         return dtoResponse;
     }
 
+    // 게시글 삭제
     @Transactional
-    public DtoResponse deleteBoard(Long id, Authentication authentication){
+    public DtoResponse<Void> deleteBoard(Long id, Authentication authentication){
         BoardDto boardDto = this.findBoardById(id);
-        DtoResponse dtoResponse = new DtoResponse();
 
         // 게시글 부재시 status 404
         if (boardDto == null){
-            dtoResponse.setBoardNotFound();
-            return dtoResponse;
+            return createNotFoundResponse();
         }
 
         // 권한 인증 실패시, 403
-        boolean hasDeletePermission = SecurityUtils.isWriter(authentication, boardDto.getMemberId())
-                || SecurityUtils.isAdminOrSuper(authentication);
+        boolean hasDeletePermission = boardDto.isWriter(authentication.getName())
+                || !SecurityUtils.isUser(authentication);
 
         if (!hasDeletePermission) {
             throw new AccessDeniedException("삭제 권한이 없습니다.");
@@ -88,6 +86,8 @@ public class BoardService {
 
         // 정상 200
         this.deleteBoardById(boardDto);
+
+        DtoResponse<Void> dtoResponse = new DtoResponse<>();
         dtoResponse.setSuccess();
         return dtoResponse;
     }
@@ -95,6 +95,7 @@ public class BoardService {
     @Transactional
     public void deleteBoardById(BoardDto boardDto) {
         // 2. 파일 삭제 로직 실패시 NOT_FOUND 반환
+//        if (boardDto.isFileExists()) {
         if (boardDto.getSavedFile() != null) {
             FileStore.deleteFile(boardDto.getSavedFile());
         }
@@ -103,16 +104,15 @@ public class BoardService {
         try {
             this.boardRepository.deleteById(boardDto.getId());
         } catch (Exception e) {
-            System.out.println("e = " + e);
+            System.err.println("e = " + e);
             throw new RuntimeException("에러가 발생 했습니다: " + e);
         }
     }
 
-    // void 로 하려다 공통된 response 로 반환하고 싶어서
     @Transactional
-    public DtoResponse updateBoard(Long id, BoardUpdateForm boardUpdateForm, Authentication authentication) throws IOException {
+    public DtoResponse<Void> updateBoard(Long id, BoardUpdateForm boardUpdateForm, Authentication authentication) throws IOException {
 
-        DtoResponse dtoResponse = new DtoResponse<>();
+        DtoResponse<Void> dtoResponse = new DtoResponse<>();
 
         // 게시글 추출
         Board board = this.getBoard(id);
@@ -197,8 +197,8 @@ public class BoardService {
 
         // 2. pagination
         Pagination pagination = createPagination(boards, pageable);
-
-        // 3. PagingResponse 리턴
+//        PagingResponse<BoardDto> result =
+        // 3. 응답객체 PagingResponse 리턴
         return createPagingResponse(boards, pagination);
 
     }
