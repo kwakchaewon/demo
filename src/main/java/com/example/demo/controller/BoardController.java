@@ -134,8 +134,8 @@ public class BoardController {
      */
     @PutMapping("/{id}")
     public DtoResponse<Void> updateBoard(@PathVariable("id") Long id,
-                                   @ModelAttribute BoardUpdateForm boardUpdateForm,
-                                   Authentication authentication) throws IOException {
+                                         @ModelAttribute BoardUpdateForm boardUpdateForm,
+                                         Authentication authentication) throws IOException {
 
         return boardService.updateBoard(id, boardUpdateForm, authentication);
     }
@@ -170,20 +170,21 @@ public class BoardController {
 
     /**
      * 게시글 삭제 (완료)
-     * 
-     * @param id 게시글 id
+     *
+     * @param id             게시글 id
      * @param authentication 인증 객체
      * @return 상태
      */
     @DeleteMapping("/{id}")
     public DtoResponse deleteBoard(@PathVariable("id") Long id, Authentication authentication) {
-        return boardService.deleteBoard(id,authentication);
+        return boardService.deleteBoard(id, authentication);
     }
 
     // DtoResponse<List<CommentDto>> 새로 DTO 만들어야 할 것 같다.
+
     /**
-     * 게시글 댓글 리스트 조회
-     * 
+     * 게시글 댓글 리스트 조회 (완료)
+     *
      * @param id 게시글 id
      * @return 상태 + 게시글 정보
      */
