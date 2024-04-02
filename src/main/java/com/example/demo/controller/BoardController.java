@@ -20,7 +20,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -109,7 +108,7 @@ public class BoardController {
     @GetMapping("/{id}/image")
     public Resource getBoardImage(@PathVariable("id") Long id) throws IOException {
 
-        // 1. Board 추출 (실패시, 204 반환)
+        // 1. Board 추출 (실패시, 400 반환)
         BoardDto boardDto = boardService.findBoardById(id);
 
         // 2. 파일이 존재한다면 이미지 추출 (실패시 204, 500 반환)
@@ -226,11 +225,19 @@ public class BoardController {
      * @throws IOException:                  파일 입출력
      * @throws UnsupportedEncodingException: 파일 인코딩 실패
      */
+
+    /**
+     * 파일 다운로드 (완료)
+     * 
+     * @param id 게시글 id
+     * @return
+     * @throws IOException
+     */
     @GetMapping("/{id}/file")
     @CrossOrigin(value = {"*"}, exposedHeaders = {"Content-Disposition"})
     public ResponseEntity<Resource> downloadFile(@PathVariable Long id) throws IOException {
 
-        // 1. boardDto 추출 (실패시, 404 반환)
+        // 1. boardDto 추출 (실패시, 400 반환)
         BoardDto boardDto = boardService.findBoardById(id);
 
         // 2. Resouce 추출

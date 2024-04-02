@@ -116,6 +116,4 @@ public class CommentService {
         Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND));
         return new CommentDto(comment);
     }
-
-
 }

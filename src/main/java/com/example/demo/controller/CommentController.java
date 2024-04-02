@@ -2,14 +2,10 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.CommentCreateForm;
 import com.example.demo.dto.response.CommentDto;
-import com.example.demo.entity.Comment;
 import com.example.demo.service.CommentService;
-import com.example.demo.util.JWTUtil;
 import com.example.demo.util.SecurityUtils;
 import com.example.demo.util.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
