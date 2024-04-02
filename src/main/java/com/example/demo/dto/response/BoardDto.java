@@ -1,6 +1,7 @@
 package com.example.demo.dto.response;
 
 import com.example.demo.entity.Board;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
@@ -36,5 +37,15 @@ public class BoardDto {
         if (board.getUpdatedAt()!=null){
             this.updatedAt = board.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
         }
+    }
+
+    @JsonIgnore
+    public boolean isWriter(String id){
+        return this.memberId.equals(id);
+    }
+
+    @JsonIgnore
+    public boolean isFileExists(){
+        return !this.savedFile.isEmpty();
     }
 }
