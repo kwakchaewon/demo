@@ -21,10 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -54,21 +52,16 @@ public class BoardController {
     public DtoResponse<BoardDto> createBoardDone(@ModelAttribute BoardCreateForm boardCreateForm,
                                                  Authentication authentication) throws IOException {
 
-        // 1. 유효성 검사 통과시 게시글 저장 로직 실행
-        if (boardCreateForm.isValid()) {
-            String _userId = authentication.getName();
-
-            // 게시글 저장 및 BoardDto 추출
-            return this.boardService.createBoard(boardCreateForm, _userId);
-        }
-
-        // 2. 유효성 검사 예외처리
-        else {
+        // 유효성 검사 실패시 status 400
+        if (!boardCreateForm.isValid()) {
             DtoResponse<BoardDto> dtoResponse = new DtoResponse<>();
             dtoResponse.setNotBlank();
             return dtoResponse;
-//            throw new IllegalArgumentException("제목 또는 내용을 비워둘 수 없습니다.");
         }
+
+        // 유효성 검사 통과시 게시글 저장 로직 실행
+        String _userId = authentication.getName();
+        return this.boardService.createBoard(boardCreateForm, _userId);
     }
 
     /**
@@ -111,15 +104,11 @@ public class BoardController {
         // 1. Board 추출 (실패시, 400 반환)
         BoardDto boardDto = boardService.findBoardById(id);
 
-        // 2. 파일이 존재한다면 이미지 추출 (실패시 204, 500 반환)
-        if (boardDto.getSavedFile() != null) {
-            return boardService.getImage(boardDto);
-        }
+        // 파일 부재시 null 반환
+        if (boardDto.getSavedFile() == null) return null;
 
-        // 3. 파일이 존재하지 않을 경우 null 반환
-        else {
-            return null;
-        }
+        // 2. 이미지 추출 로직
+        return boardService.getImage(boardDto);
     }
 
     /**
@@ -155,7 +144,6 @@ public class BoardController {
         BoardDto boardDto = dtoResponse.getData();
 
         if (boardDto != null) {
-
             boolean hasUpdatePermission = SecurityUtils.isWriter(authentication, dtoResponse.getData().getMemberId());
 
             // 2. 수정 권한 검증 실패시 403 반환
@@ -179,8 +167,6 @@ public class BoardController {
         return boardService.deleteBoard(id, authentication);
     }
 
-    // DtoResponse<List<CommentDto>> 새로 DTO 만들어야 할 것 같다.
-
     /**
      * 게시글 댓글 리스트 조회 (완료)
      *
@@ -196,17 +182,17 @@ public class BoardController {
     /**
      * 댓글 작성 (완료)
      *
-     * @param id 게시글 id
+     * @param id                게시글 id
      * @param commentCreateForm 댓글 작성 폼
-     * @param authentication 인증 객체
+     * @param authentication    인증 객체
      * @return 상태
      */
     @PostMapping("/{id}/comment")
     public DtoResponse<Void> createComment(@PathVariable("id") Long id,
-                                    @RequestBody CommentCreateForm commentCreateForm,
-                                    Authentication authentication) {
+                                           @RequestBody CommentCreateForm commentCreateForm,
+                                           Authentication authentication) {
         // 1. 내용 빈칸 유효성 검사 실패시
-        if (!commentCreateForm.isValid()){
+        if (!commentCreateForm.isValid()) {
             DtoResponse<Void> dtoResponse = new DtoResponse<>();
             dtoResponse.setNotBlank();
             return dtoResponse;
@@ -218,7 +204,7 @@ public class BoardController {
 
     /**
      * 파일 다운로드 (완료)
-     * 
+     *
      * @param id 게시글 id
      * @return
      * @throws IOException
