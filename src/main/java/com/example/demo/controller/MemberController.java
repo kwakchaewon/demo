@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletResponse;
 public class MemberController {
     private final MemberService memberService;
 
-
     /**
      * 회원가입
      * 아이디, 이메일 중복 검사 (실패시, 400 반환)
@@ -59,7 +58,7 @@ public class MemberController {
     }
 
     /**
-     * 로그인 및 액세스, 리프레쉬 토큰 부여
+     * 로그인 및 액세스, 리프레쉬 토큰 부여 (완료)
      */
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody LoginReqDto loginReqDto) throws CustomException {
@@ -69,7 +68,7 @@ public class MemberController {
     }
 
     /**
-     * 액세스 토큰 재발급
+     * 액세스 토큰 재발급 (완료)
      *
      * @param response
      * @return TokenDto: 토큰 발급 정보
@@ -91,7 +90,7 @@ public class MemberController {
     }
 
     /**
-     * 관리자 페이지 사용자 (+관리자) 조회
+     * 관리자 페이지 사용자 (+관리자) 조회 (완료)
      */
     @GetMapping(value = "/list")
     @PreAuthorize("hasAnyRole('ROLE_SUPERVISOR', 'ROLE_ADMIN')")

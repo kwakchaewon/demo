@@ -45,12 +45,12 @@ public class BoardService {
     // 게시글 상세 조회
     public DtoResponse getBoardDtoRes(Long id) {
         BoardDto boardDto = boardRepository.findBoardDtoById(id).orElse(null);
-        
+
         // boardDto 가 null 일 경우 data 없이 statusCode 404 반환
         if (boardDto == null) {
             return createNotFoundResponse();
         }
-        
+
         // 상세 조회 성공시 data 와 함께 statusCode 200 반환
         return createSuccessResponse(boardDto);
     }
@@ -68,11 +68,11 @@ public class BoardService {
 
     // 게시글 삭제
     @Transactional
-    public DtoResponse<Void> deleteBoard(Long id, Authentication authentication){
+    public DtoResponse<Void> deleteBoard(Long id, Authentication authentication) {
         BoardDto boardDto = this.findBoardById(id);
 
         // 게시글 부재시 status 404
-        if (boardDto == null){
+        if (boardDto == null) {
             return createNotFoundResponse();
         }
 
@@ -104,7 +104,6 @@ public class BoardService {
         try {
             this.boardRepository.deleteById(boardDto.getId());
         } catch (Exception e) {
-            System.err.println("e = " + e);
             throw new RuntimeException("에러가 발생 했습니다: " + e);
         }
     }
@@ -118,9 +117,10 @@ public class BoardService {
         Board board = this.getBoard(id);
 
         // 게시글 부재할 경우 400 반환
-        if (board == null){
+        if (board == null) {
             dtoResponse.setBoardNotFound();
             return dtoResponse;
+//            return createNotFoundResponse;
         }
 
         // 수정 권한 검증
@@ -197,7 +197,7 @@ public class BoardService {
 
         // 2. pagination
         Pagination pagination = createPagination(boards, pageable);
-//        PagingResponse<BoardDto> result =
+
         // 3. 응답객체 PagingResponse 리턴
         return createPagingResponse(boards, pagination);
 
@@ -219,32 +219,25 @@ public class BoardService {
     }
 
     public Board getBoard(Long id) {
-
-//        Board _board = this.boardRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."));
         return this.boardRepository.findById(id).orElse(null);
     }
 
     public Resource getImage(BoardDto boardDto) throws IOException {
         String strPath = FileStore.getFullPath(boardDto.getSavedFile());
 
-        // 이미지 파일일 경우
-        if (FileStore.isImage(strPath)) {
-            Path filePath = Paths.get(strPath);
+        // 이미지 파일이 아닌 경우
+        if (!FileStore.isImage(strPath)) return null;
 
-            // 이미지 파일 추출 시도
-            try {
-                return new InputStreamResource(Files.newInputStream(filePath));
-            }
+        // 이미지 파일일 경우 이미지 파일 추출 시도
+        Path filePath = Paths.get(strPath);
 
-            // 실패시 500 반환
-            catch (IOException e) {
-                throw new IOException("이미지 파일 추출에 실패했습니다.");
-            }
+        try {
+            return new InputStreamResource(Files.newInputStream(filePath));
         }
 
-        // 이미지 파일이 아닐 경우 null 반환
-        else {
-            return null;
+        // 실패시 500 반환
+        catch (IOException e) {
+            throw new IOException("이미지 파일 추출에 실패했습니다.");
         }
     }
 

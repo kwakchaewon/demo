@@ -77,31 +77,7 @@ public class CommentService {
         return dtoResponse;
     }
 
-//    public Comment getComment(Long id) throws CustomException {
-//
-//        Comment _comment = this.commentRepository.findById(id).orElse(null);
-//
-//        if (_comment == null){
-//            return
-//        }
-//
-//        if (_comment.isPresent()) {
-//            return _comment.get();
-//        } else {
-//            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND);
-//        }
-//    }
-
-//    public void deleteCommentById(Long id) throws CustomException {
-//        try {
-//            this.commentRepository.deleteById(id);
-//        } catch (NullPointerException e) {
-//            throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND);
-//        } catch (Exception e) {
-//            throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
-//        }
-//    }
-
+    @Transactional
     public DtoResponse<Void> deleteComment(Long id, Authentication authentication) {
         Comment comment = this.commentRepository.findById(id).orElse(null);
         DtoResponse<Void> dtoResponse = new DtoResponse<>();
@@ -132,7 +108,6 @@ public class CommentService {
 
 
         Comment comment = this.commentRepository.findById(id).orElse(null);
-//        CommentDto commentDto = this.commentRepository.findCommentDtoById(id).orElse(null);
         DtoResponse<CommentDto> dtoResponse = new DtoResponse<>();
 
         // 댓글 부재시 statusCode 404 후 리턴
@@ -152,10 +127,5 @@ public class CommentService {
         dtoResponse.setData(comment.of());
         dtoResponse.setSuccess();
         return dtoResponse;
-    }
-
-    public CommentDto findCommentById(Long id) throws CustomException {
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.COMMENT_NOTFOUND));
-        return new CommentDto(comment);
     }
 }

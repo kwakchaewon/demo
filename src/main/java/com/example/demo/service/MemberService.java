@@ -45,9 +45,9 @@ public class MemberService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public PagingResponse<MemberAdminDto> getMembers(Pageable pageable){
+    public PagingResponse<MemberAdminDto> getMembers(Pageable pageable) {
 
-        Page<MemberAdminDto> members = memberRepository.findAllByGrantedAuthOrderByIdDesc("ROLE_USER" ,pageable);
+        Page<MemberAdminDto> members = memberRepository.findAllByGrantedAuthOrderByIdDesc("ROLE_USER", pageable);
 
         Pagination pagination = new Pagination(
                 (int) members.getTotalElements()
@@ -59,7 +59,7 @@ public class MemberService {
         return new PagingResponse<>(members, pagination);
     }
 
-    public PagingResponse<MemberSuperDto> getMembersIncludingAdmin(Pageable pageable){
+    public PagingResponse<MemberSuperDto> getMembersIncludingAdmin(Pageable pageable) {
 //        List<String> roles = Arrays.asList("ROLE_USER", "ROLE_ADMIN");
         Page<MemberSuperDto> members = memberRepository.findUserIncludingAdmin(pageable);
 
@@ -76,16 +76,14 @@ public class MemberService {
     public Member getMember(Long id) {
         Optional<Member> _member = this.memberRepository.findById(id);
 
-        if (_member.isPresent()) {
-            return _member.get();
-        } else {
-            throw new NoSuchElementException("Member is not found");
-        }
+        if (!_member.isPresent()) throw new NoSuchElementException("Member is not found");
+
+        return _member.get();
     }
 
     public Member getMemberByUserId(String userId) {
         return this.memberRepository.findByUserId(userId)
-                .orElseThrow(()-> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
     }
 
     @Transactional
@@ -93,8 +91,8 @@ public class MemberService {
         // Native Query 기반 회원가입
         LocalDateTime createdAt = LocalDateTime.now();
         try {
-            memberRepository.insertMember(signupForm.getUserId(), passwordEncoder.encode(signupForm.getUserPw()), signupForm.getEmail(),createdAt, "ROLE_USER");
-        }catch (Exception e){
+            memberRepository.insertMember(signupForm.getUserId(), passwordEncoder.encode(signupForm.getUserPw()), signupForm.getEmail(), createdAt, "ROLE_USER");
+        } catch (Exception e) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
         }
     }
@@ -118,7 +116,7 @@ public class MemberService {
         return tokenDto;
     }
 
-    public UserDetails setAuth(String userId, String userPw){
+    public UserDetails setAuth(String userId, String userPw) {
         UserDetails loginUser = userDetailsService.loadUserByUsername(userId); //1. userId로 패스워드 가져오기
         Authentication authentication = authenticationManager.authenticate(     //2. 가져온 패스워드와 입력한 비밀번호로 검증
                 new UsernamePasswordAuthenticationToken(loginUser, userPw)
@@ -129,12 +127,12 @@ public class MemberService {
     }
 
     /* 아이디 중복 확인 */
-    public boolean checkUseridDuplication(SignupForm signupForm){
+    public boolean checkUseridDuplication(SignupForm signupForm) {
         return memberRepository.existsByUserId(signupForm.getUserId());
     }
 
     /* 이메일 중복 확인 */
-    public boolean checkEmailDuplication(SignupForm signupForm){
+    public boolean checkEmailDuplication(SignupForm signupForm) {
         return memberRepository.existsByEmail(signupForm.getEmail());
     }
 
@@ -142,23 +140,21 @@ public class MemberService {
     public void deleteMemberById(Long id) throws CustomException {
         try {
             this.memberRepository.deleteById(id);
-        }
-        catch (NullPointerException e){
+        } catch (NullPointerException e) {
             throw new CustomException(HttpStatus.NOT_FOUND, Constants.ExceptionClass.MEMBER_NOTFOUND);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             throw new CustomException(HttpStatus.BAD_REQUEST, Constants.ExceptionClass.UNKNOWN_ERROR);
         }
     }
 
     // 사용자 권한 수정
-    public Member updateAuth(Long id, String auth){
+    public Member updateAuth(Long id, String auth) {
         Member member = this.getMember(id);
         member.setGrantedAuth(auth);
         return this.memberRepository.save(member);
     }
 
-    public TokenDto refreshAccessToken(HttpServletResponse response){
+    public TokenDto refreshAccessToken(HttpServletResponse response) {
         String accessToken = response.getHeader("ACCESS_TOKEN"); // 1. 액세스 토큰
 
         DecodedJWT decodedJWT = jwtUtil.decodeToken(accessToken, secret_access); // 토큰 디코딩

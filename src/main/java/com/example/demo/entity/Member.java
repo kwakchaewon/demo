@@ -39,7 +39,6 @@ public class Member {
 //    @OrderBy("createdAt desc")
     private List<Board> boards;
 
-//    @Column(nullable = false, columnDefinition = "DEFAULT 'ROLE_USER'")
     @Column(nullable = false)
     private String grantedAuth;
 

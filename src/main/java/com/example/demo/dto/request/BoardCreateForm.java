@@ -31,16 +31,16 @@ public class BoardCreateForm {
 
     public Board toEntityWithFile(Member _member, String savedFileName) {
 
-            Board board = Board.builder()
-                    .title(this.getTitle())
-                    .contents(this.getContents())
-                    .createdAt(LocalDateTime.now())
-                    .member(_member)
-                    .originalFile(this.getFile().get().getOriginalFilename())
-                    .savedFile(savedFileName)
-                    .build();
+        Board board = Board.builder()
+                .title(this.getTitle())
+                .contents(this.getContents())
+                .createdAt(LocalDateTime.now())
+                .member(_member)
+                .originalFile(this.getFile().get().getOriginalFilename())
+                .savedFile(savedFileName)
+                .build();
 
-            return board;
+        return board;
     }
 
     public Board toEntity(Member _member) {
@@ -54,14 +54,13 @@ public class BoardCreateForm {
         return board;
     }
 
-    public boolean isValid(){
-        if(this.getTitle().trim().isEmpty() || this.getContents().trim().isEmpty()){
-            return false;
-        }
-        else return true;
+    public boolean isValid() {
+        if (this.getTitle().trim().isEmpty() || this.getContents().trim().isEmpty()) return false;
+
+        return true;
     }
 
-    public boolean isFileExisted(){
+    public boolean isFileExisted() {
         return this.getFile().isPresent();
     }
 
